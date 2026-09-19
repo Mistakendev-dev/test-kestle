@@ -8,8 +8,13 @@ interface Stat {
   label: string;
 }
 
+/**
+ * Placeholder figures for layout only. Replace with real reporting before
+ * launch — they are labelled as sample data in the UI so nothing here reads
+ * as a verified claim.
+ */
 const stats: Stat[] = [
-  { value: 10000, format: (n) => `${Math.round(n).toLocaleString()}+`, label: 'Accounts Sold' },
+  { value: 10000, format: (n) => `${Math.round(n).toLocaleString()}+`, label: 'Products Sold' },
   { value: 99, format: (n) => `${Math.round(n)}%`, label: 'Customer Satisfaction' },
   { value: 24, format: (n) => `${Math.round(n)}/7`, label: 'Support' },
   { value: 60, format: (n) => (n >= 60 ? 'Instant' : `${Math.round(n)}s`), label: 'Delivery' },
@@ -55,6 +60,9 @@ export function Stats() {
             </Reveal>
           ))}
         </div>
+        <p className="mt-10 text-center text-[11px] uppercase tracking-[0.2em] text-zinc-600">
+          Sample figures for this demo storefront
+        </p>
       </div>
     </section>
   );

@@ -34,7 +34,7 @@ const columns = [
     links: [
       { label: 'About Us', to: '/how-it-works' },
       { label: 'How It Works', to: '/how-it-works' },
-      { label: 'Reviews', to: '/#testimonials' },
+      { label: 'Contact', to: '/faq' },
       { label: 'Status', to: '/faq' },
     ],
   },

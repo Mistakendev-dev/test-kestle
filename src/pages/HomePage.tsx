@@ -13,7 +13,6 @@ import { Stats } from '../sections/Stats';
 import { WhyShopHere } from '../sections/WhyShopHere';
 import { MarketplaceActivity } from '../sections/MarketplaceActivity';
 import { RecentlyViewed } from '../sections/RecentlyViewed';
-import { Testimonials } from '../sections/Testimonials';
 import { FaqSection } from '../sections/FaqSection';
 import { Reveal } from '../components/anim/Reveal';
 import { MagneticButton } from '../components/anim/MagneticButton';
@@ -40,7 +39,6 @@ export function HomePage() {
       <WhyShopHere />
       <MarketplaceActivity />
       <RecentlyViewed />
-      <Testimonials />
       <FaqSection limit={4} />
 
       <section className="relative overflow-hidden py-24">

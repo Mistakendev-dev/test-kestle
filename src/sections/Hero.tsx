@@ -157,8 +157,8 @@ export function Hero() {
           >
             {[
               { icon: Zap, text: 'Instant delivery' },
-              { icon: ShieldCheck, text: 'Verified accounts' },
-              { icon: Gamepad2, text: '15+ games supported' },
+              { icon: ShieldCheck, text: 'Secure checkout' },
+              { icon: Gamepad2, text: `${games.length} games supported` },
             ].map(({ icon: Icon, text }) => (
               <span key={text} className="flex items-center gap-2 text-sm text-zinc-500">
                 <Icon className="h-4 w-4 text-accent-bright" />
