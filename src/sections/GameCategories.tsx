@@ -11,9 +11,9 @@ export function GameCategories() {
         <Reveal>
           <div className="mb-12 flex flex-wrap items-end justify-between gap-6">
             <div>
-              <p className="section-label">Supported Games</p>
+              <p className="section-label">Game Discovery</p>
               <h2 className="mt-3 font-display text-3xl font-bold tracking-tight text-white md:text-4xl">
-                Accounts for every major title
+                What are you playing?
               </h2>
               <p className="mt-3 max-w-lg text-zinc-400">
                 Fresh stock across 15+ games. Pick your title and get playing in minutes.

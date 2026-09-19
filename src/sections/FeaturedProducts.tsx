@@ -1,20 +1,20 @@
 import { Link } from 'react-router-dom';
 import { ArrowRight } from 'lucide-react';
 import { featuredProducts } from '../data/products';
-import { ProductCard } from '../components/ProductCard';
-import { Reveal, Stagger } from '../components/anim/Reveal';
+import { ProductCarousel } from '../components/ProductCarousel';
+import { Reveal } from '../components/anim/Reveal';
 
 export function FeaturedProducts() {
   return (
-    <section className="relative py-24">
+    <section className="relative overflow-hidden py-20 md:py-24">
       <div
         aria-hidden
-        className="absolute left-1/2 top-0 h-[400px] w-[700px] -translate-x-1/2 rounded-full opacity-30 blur-[120px]"
+        className="pointer-events-none absolute left-1/2 top-0 h-[400px] w-[700px] max-w-[95vw] -translate-x-1/2 rounded-full opacity-30 blur-[120px]"
         style={{ background: 'radial-gradient(ellipse, rgba(46,48,106,0.4) 0%, transparent 70%)' }}
       />
       <div className="container-wide relative">
         <Reveal>
-          <div className="mb-12 flex flex-wrap items-end justify-between gap-6">
+          <div className="mb-10 flex flex-wrap items-end justify-between gap-6">
             <div>
               <p className="section-label">Featured</p>
               <h2 className="mt-3 font-display text-3xl font-bold tracking-tight text-white md:text-4xl">
@@ -34,11 +34,9 @@ export function FeaturedProducts() {
           </div>
         </Reveal>
 
-        <Stagger className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4" step={0.07}>
-          {featuredProducts.map((p) => (
-            <ProductCard key={p.id} product={p} />
-          ))}
-        </Stagger>
+        <Reveal delay={0.1}>
+          <ProductCarousel products={featuredProducts} />
+        </Reveal>
       </div>
     </section>
   );

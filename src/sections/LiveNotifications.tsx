@@ -1,17 +1,20 @@
 import { useEffect, useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
-import { ShoppingBag } from 'lucide-react';
+import { Activity } from 'lucide-react';
 import { notificationPool } from '../data/content';
 
 interface Notice {
   id: number;
-  text: string;
+  title: string;
+  detail: string;
 }
 
 export function LiveNotifications() {
   const [notice, setNotice] = useState<Notice | null>(null);
 
   useEffect(() => {
+    if (window.matchMedia?.('(prefers-reduced-motion: reduce)').matches) return;
+
     let hideTimer: ReturnType<typeof setTimeout>;
     let showTimer: ReturnType<typeof setTimeout>;
     let count = 0;
@@ -20,17 +23,18 @@ export function LiveNotifications() {
     const schedule = (delay: number) => {
       showTimer = setTimeout(() => {
         if (cancelled) return;
-        setNotice({ id: count, text: notificationPool[count % notificationPool.length] });
+        const item = notificationPool[count % notificationPool.length];
+        setNotice({ id: count, ...item });
         count += 1;
         hideTimer = setTimeout(() => {
           if (cancelled) return;
           setNotice(null);
-          schedule(9000 + Math.random() * 8000);
+          schedule(11000 + Math.random() * 9000);
         }, 4200);
       }, delay);
     };
 
-    schedule(5000);
+    schedule(6000);
     return () => {
       cancelled = true;
       clearTimeout(showTimer);
@@ -39,7 +43,7 @@ export function LiveNotifications() {
   }, []);
 
   return (
-    <div className="pointer-events-none fixed bottom-5 left-5 z-[60]">
+    <div className="pointer-events-none fixed bottom-5 left-5 z-[60] hidden sm:block">
       <AnimatePresence>
         {notice && (
           <motion.div
@@ -51,11 +55,11 @@ export function LiveNotifications() {
             className="glass-strong flex items-center gap-3 rounded-2xl py-3 pl-3 pr-5 shadow-2xl"
           >
             <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-accent/20">
-              <ShoppingBag className="h-4 w-4 text-accent-bright" />
+              <Activity className="h-4 w-4 text-accent-bright" />
             </span>
             <div>
-              <p className="text-sm font-medium text-white">{notice.text}</p>
-              <p className="text-[11px] text-zinc-500">Just now</p>
+              <p className="text-sm font-medium text-white">{notice.title}</p>
+              <p className="text-[11px] text-zinc-500">{notice.detail} · demo activity</p>
             </div>
           </motion.div>
         )}

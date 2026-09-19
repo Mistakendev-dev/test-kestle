@@ -2,14 +2,17 @@ import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { ArrowUpRight } from 'lucide-react';
 import type { Game } from '../data/games';
+import { productsByGame } from '../data/products';
 
 export function GameCard({ game }: { game: Game }) {
+  const count = productsByGame(game.id).length;
+
   return (
     <Link to={`/games/${game.id}`} className="group block h-full">
       <motion.div
         whileHover={{ y: -5 }}
         transition={{ type: 'spring', stiffness: 300, damping: 24 }}
-        className="relative h-full overflow-hidden rounded-2xl border border-edge bg-panel/60 transition-colors duration-300 group-hover:border-accent-light/40"
+        className="relative h-full overflow-hidden rounded-2xl border border-edge bg-panel/60 transition-all duration-300 group-hover:border-accent-light/40 group-hover:shadow-[0_0_40px_-12px_rgba(74,79,158,0.85)]"
       >
         <div
           className="relative flex h-32 items-center justify-center overflow-hidden transition-transform duration-500 group-hover:scale-105 md:h-36"
@@ -41,7 +44,7 @@ export function GameCard({ game }: { game: Game }) {
               {game.name}
             </div>
             <div className="mt-0.5 text-xs text-zinc-500">
-              {game.genre} · {game.productCount} products
+              {game.genre} · {count} products
             </div>
           </div>
           <ArrowUpRight className="h-4 w-4 -translate-x-1 text-accent-bright opacity-0 transition-all duration-300 group-hover:translate-x-0 group-hover:opacity-100" />

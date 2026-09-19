@@ -76,15 +76,18 @@ export const faqItems: FaqItem[] = [
   },
 ];
 
-export const notificationPool = [
-  'New order received',
-  'Rust NFA purchased',
-  'CS2 NFA purchased',
-  'Valorant NFA purchased',
-  'GTA V account purchased',
-  'Fortnite account purchased',
-  'Tarkov EOD account purchased',
-  'Minecraft FA purchased',
-  'Apex Legends account purchased',
-  'R6 Siege account purchased',
+/**
+ * Demo marketplace activity shown in the corner ticker. These are illustrative
+ * placeholders for the UI — not real orders or customer transactions.
+ */
+export const notificationPool: { title: string; detail: string }[] = [
+  { title: 'Rust NFA', detail: 'Stock restocked' },
+  { title: 'CS2 Prime', detail: 'Recently viewed' },
+  { title: 'Valorant NFA', detail: 'Price updated' },
+  { title: 'GTA V Modded', detail: 'Low stock' },
+  { title: 'Fortnite OG Skins', detail: 'Recently added' },
+  { title: 'Tarkov EOD', detail: 'Low stock' },
+  { title: 'Minecraft Java FA', detail: 'Stock restocked' },
+  { title: 'Apex Heirloom', detail: 'Recently viewed' },
+  { title: 'R6 Diamond', detail: 'Recently added' },
 ];

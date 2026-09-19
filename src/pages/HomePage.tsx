@@ -1,12 +1,16 @@
 import { Link } from 'react-router-dom';
 import { ArrowRight } from 'lucide-react';
 import { Hero } from '../sections/Hero';
+import { ProductMarquee } from '../sections/ProductMarquee';
+import { MarketplaceStatus } from '../sections/MarketplaceStatus';
 import { GameCategories } from '../sections/GameCategories';
 import { FeaturedProducts } from '../sections/FeaturedProducts';
 import { Stats } from '../sections/Stats';
 import { HowItWorks } from '../sections/HowItWorks';
 import { TrustFeatures } from '../sections/TrustFeatures';
 import { PopularProducts } from '../sections/PopularProducts';
+import { MarketplaceActivity } from '../sections/MarketplaceActivity';
+import { RecentlyViewed } from '../sections/RecentlyViewed';
 import { Testimonials } from '../sections/Testimonials';
 import { FaqSection } from '../sections/FaqSection';
 import { Reveal } from '../components/anim/Reveal';
@@ -16,12 +20,16 @@ export function HomePage() {
   return (
     <>
       <Hero />
-      <GameCategories />
+      <ProductMarquee />
+      <MarketplaceStatus />
       <FeaturedProducts />
+      <GameCategories />
       <Stats />
+      <PopularProducts />
       <HowItWorks />
       <TrustFeatures />
-      <PopularProducts />
+      <MarketplaceActivity />
+      <RecentlyViewed />
       <Testimonials />
       <FaqSection limit={4} />
 
