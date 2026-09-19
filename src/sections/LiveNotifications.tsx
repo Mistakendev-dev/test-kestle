@@ -52,7 +52,7 @@ export function LiveNotifications() {
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 12, scale: 0.97 }}
             transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
-            className="glass-strong flex items-center gap-3 rounded-2xl py-3 pl-3 pr-5 shadow-2xl"
+            className="pane-raised flex items-center gap-3 rounded-2xl py-3 pl-3 pr-5 shadow-2xl"
           >
             <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-accent/20">
               <Activity className="h-4 w-4 text-accent-bright" />

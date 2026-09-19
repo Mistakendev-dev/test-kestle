@@ -58,7 +58,7 @@ export function ToastProvider({ children }: { children: ReactNode }) {
                 animate={{ opacity: 1, y: 0, scale: 1 }}
                 exit={{ opacity: 0, x: 24, scale: 0.96 }}
                 transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
-                className="glass-strong pointer-events-auto flex w-full max-w-sm items-center gap-3 rounded-2xl py-3 pl-3 pr-5 shadow-2xl sm:w-auto sm:min-w-[260px]"
+                className="pane-raised pointer-events-auto flex w-full max-w-sm items-center gap-3 rounded-2xl py-3 pl-3 pr-5 shadow-2xl sm:w-auto sm:min-w-[260px]"
               >
                 <span className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-xl ${iconStyles[t.kind]}`}>
                   <Icon className="h-4 w-4" />

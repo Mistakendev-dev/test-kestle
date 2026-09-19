@@ -43,14 +43,9 @@ body {
 }
 
 @layer components {
-  .glass {
-    @apply bg-white/[0.03] backdrop-blur-xl border border-edge;
-  }
-  .glass-strong {
-    @apply bg-panel/80 backdrop-blur-2xl border border-edge;
-  }
-  /* The one glass material the redesign standardises on: dark translucent
-     surface, hairline top highlight, moderate blur, large soft shadow. */
+  /* Glass, in three levels. L1 for small controls, L2 for panels and cards,
+     L3 for the product hero and major CTAs. Dark translucent surface, hairline
+     top highlight, moderate blur, large soft shadow. */
   .pane {
     @apply relative rounded-2xl border border-white/[0.07] bg-[#0a0a12]/70 shadow-rest backdrop-blur-xl;
   }

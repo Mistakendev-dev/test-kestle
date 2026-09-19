@@ -33,7 +33,7 @@ export function WishlistDrawer() {
             animate={{ x: 0 }}
             exit={{ x: '100%' }}
             transition={{ type: 'spring', stiffness: 300, damping: 32 }}
-            className="fixed inset-y-0 right-0 z-[90] flex w-full max-w-md flex-col border-l border-edge bg-panel"
+            className="fixed inset-y-0 right-0 z-[90] flex w-full max-w-md flex-col border-l border-white/[0.08] bg-[#08080e]/95 shadow-deep backdrop-blur-2xl"
           >
             <div className="flex items-center justify-between border-b border-edge px-6 py-5">
               <div className="flex items-center gap-3">

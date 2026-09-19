@@ -286,9 +286,9 @@ export function ProductsPage() {
               </p>
             </div>
 
-            <dl className="flex w-full shrink-0 divide-x divide-edge overflow-hidden rounded-2xl border border-edge bg-panel/40 md:w-auto">
+            <dl className="pane lit-edge bevel flex w-full shrink-0 divide-x divide-white/[0.06] overflow-hidden md:w-auto">
               {catalogStats.map((s) => (
-                <div key={s.label} className="flex-1 px-4 py-4 sm:px-7 md:flex-none">
+                <div key={s.label} className="relative z-10 flex-1 px-4 py-4 sm:px-7 md:flex-none">
                   <dd className="font-display text-2xl font-bold text-white sm:text-3xl">{s.value}</dd>
                   <dt className="mt-1 text-[11px] uppercase tracking-[0.18em] text-zinc-500">
                     {s.label}
@@ -308,7 +308,7 @@ export function ProductsPage() {
               onChange={(e) => setQuery(e.target.value)}
               placeholder="Search products or games..."
               aria-label="Search products or games"
-              className="h-12 w-full rounded-xl border border-edge bg-white/[0.03] pl-11 pr-24 text-sm text-white placeholder-zinc-600 outline-none transition-all duration-300 focus:border-accent-light/70 focus:bg-white/[0.05] focus:shadow-[0_0_30px_-8px_rgba(74,79,158,0.9)]"
+              className="h-12 w-full rounded-xl border border-white/[0.07] bg-[#0a0a12]/70 pl-11 pr-24 text-sm text-white placeholder-zinc-600 shadow-rest outline-none backdrop-blur-xl transition-all duration-300 focus:border-accent-light/70 focus:bg-[#0d0d17]/85 focus:shadow-[0_0_30px_-8px_rgba(74,79,158,0.9)]"
             />
             <div className="absolute right-3 top-1/2 flex -translate-y-1/2 items-center gap-2">
               {query && (
@@ -339,7 +339,9 @@ export function ProductsPage() {
 
         <div className="mt-10 grid gap-10 lg:grid-cols-[250px_1fr]">
           <aside className="hidden lg:block">
-            <div className="sticky top-24 rounded-2xl border border-edge bg-panel/40 p-6">{filterPanel}</div>
+            <div className="pane lit-edge bevel sticky top-24 p-6">
+              <div className="relative z-10">{filterPanel}</div>
+            </div>
           </aside>
 
           <div className="min-w-0">
@@ -368,7 +370,7 @@ export function ProductsPage() {
                   value={sort}
                   onChange={(e) => setSort(e.target.value as SortKey)}
                   aria-label="Sort products"
-                  className="appearance-none rounded-xl border border-edge bg-white/[0.03] py-2.5 pl-4 pr-10 text-sm text-zinc-200 outline-none transition-colors focus:border-accent-light/60"
+                  className="appearance-none rounded-xl border border-white/[0.07] bg-[#0a0a12]/70 py-2.5 pl-4 pr-10 text-sm text-zinc-200 shadow-rest outline-none backdrop-blur-xl transition-colors focus:border-accent-light/60"
                 >
                   {sortOptions.map((o) => (
                     <option key={o.key} value={o.key} className="bg-panel">
@@ -414,9 +416,9 @@ export function ProductsPage() {
               <motion.div
                 initial={{ opacity: 0, y: 12 }}
                 animate={{ opacity: 1, y: 0 }}
-                className="flex flex-col items-center gap-4 rounded-2xl border border-dashed border-edge bg-white/[0.02] px-6 py-20 text-center"
+                className="flex flex-col items-center gap-4 rounded-2xl border border-dashed border-white/[0.09] bg-[#0a0a12]/60 px-6 py-20 text-center backdrop-blur-xl"
               >
-                <div className="flex h-16 w-16 items-center justify-center rounded-2xl border border-edge bg-white/[0.03]">
+                <div className="flex h-16 w-16 items-center justify-center rounded-2xl border border-white/[0.07] bg-white/[0.03] shadow-rest">
                   <PackageSearch className="h-7 w-7 text-zinc-600" />
                 </div>
                 <div>
@@ -453,7 +455,7 @@ export function ProductsPage() {
               animate={{ x: 0 }}
               exit={{ x: '-100%' }}
               transition={{ type: 'spring', stiffness: 300, damping: 32 }}
-              className="fixed inset-y-0 left-0 z-[90] w-full max-w-xs overflow-y-auto border-r border-edge bg-panel p-6 lg:hidden"
+              className="fixed inset-y-0 left-0 z-[90] w-full max-w-xs overflow-y-auto border-r border-white/[0.08] bg-[#08080e]/95 p-6 shadow-deep backdrop-blur-2xl lg:hidden"
             >
               <div className="mb-6 flex items-center justify-between">
                 <h3 className="font-display text-lg font-semibold text-white">Filters</h3>

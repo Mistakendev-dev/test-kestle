@@ -49,7 +49,7 @@ export function QuickViewModal({ product, onClose }: { product: Product | null; 
             exit={{ opacity: 0, y: 20, scale: 0.97 }}
             transition={{ duration: 0.32, ease: [0.22, 1, 0.36, 1] }}
             onClick={(e) => e.stopPropagation()}
-            className="glass-strong relative max-h-[92vh] w-full max-w-3xl overflow-y-auto rounded-t-3xl sm:rounded-3xl"
+            className="pane-raised max-h-[92vh] w-full max-w-3xl overflow-y-auto rounded-b-none rounded-t-3xl sm:rounded-b-3xl"
           >
             <button
               onClick={onClose}

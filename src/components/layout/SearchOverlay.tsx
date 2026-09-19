@@ -58,7 +58,7 @@ export function SearchOverlay({ open, onClose }: { open: boolean; onClose: () =>
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: -16, scale: 0.98 }}
             transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
-            className="glass-strong w-full max-w-2xl overflow-hidden rounded-2xl"
+            className="pane-raised w-full max-w-2xl overflow-hidden rounded-2xl"
             onClick={(e) => e.stopPropagation()}
           >
             <div className="flex items-center gap-3 border-b border-edge px-5">
