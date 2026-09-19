@@ -45,7 +45,7 @@ export function HomePage() {
               Ready to get back in the game?
             </h2>
             <p className="mx-auto mt-4 max-w-md text-zinc-400">
-              Join 10,000+ gamers who got their account in minutes. Instant delivery, every time.
+              Browse the full catalogue, pick your account, and get instant access. No waiting around.
             </p>
             <div className="mt-8 flex justify-center">
               <MagneticButton>

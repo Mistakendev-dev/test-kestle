@@ -1,14 +1,26 @@
+import { useCallback, useRef } from 'react';
 import { Link } from 'react-router-dom';
-import { motion } from 'framer-motion';
+import { motion, useMotionValue, useSpring, useTransform, type MotionValue } from 'framer-motion';
 import { ArrowRight, Gamepad2, ShieldCheck, Zap } from 'lucide-react';
 import { products } from '../data/products';
-import { getGame } from '../data/games';
+import { games, getGame } from '../data/games';
 import { formatPrice } from '../lib/utils';
 import { Particles } from '../components/effects/Particles';
 import { MagneticButton } from '../components/anim/MagneticButton';
 import { ProductArt } from '../components/ProductArt';
+import { usePointerEffects } from '../hooks/usePointerEffects';
 
 const floatCards = [products[0], products[6], products[29], products[38]];
+
+/** Per-card parallax depth — front cards travel further than the ones behind. */
+const depths = [1, 0.62, 0.4, 0.22];
+
+const cardPositions = [
+  'left-[8%] top-[6%] z-30',
+  'right-[4%] top-[18%] z-20',
+  'left-[18%] bottom-[8%] z-10',
+  'right-[14%] bottom-[2%] z-0',
+];
 
 const fadeUp = {
   hidden: { opacity: 0, y: 30 },
@@ -20,8 +32,35 @@ const fadeUp = {
 };
 
 export function Hero() {
+  const pointerFx = usePointerEffects();
+  const sectionRef = useRef<HTMLElement>(null);
+  const mx = useMotionValue(0);
+  const my = useMotionValue(0);
+  const sx = useSpring(mx, { stiffness: 60, damping: 20, mass: 0.6 });
+  const sy = useSpring(my, { stiffness: 60, damping: 20, mass: 0.6 });
+
+  const onPointerMove = useCallback(
+    (e: React.PointerEvent) => {
+      if (!pointerFx || !sectionRef.current) return;
+      const r = sectionRef.current.getBoundingClientRect();
+      mx.set((e.clientX - r.left) / r.width - 0.5);
+      my.set((e.clientY - r.top) / r.height - 0.5);
+    },
+    [pointerFx, mx, my],
+  );
+
+  const resetPointer = useCallback(() => {
+    mx.set(0);
+    my.set(0);
+  }, [mx, my]);
+
   return (
-    <section className="noise relative flex min-h-[100svh] items-center overflow-hidden">
+    <section
+      ref={sectionRef}
+      onPointerMove={onPointerMove}
+      onPointerLeave={resetPointer}
+      className="noise relative flex min-h-[100svh] items-center overflow-hidden"
+    >
       <div aria-hidden className="bg-grid absolute inset-0 [mask-image:radial-gradient(ellipse_70%_60%_at_50%_40%,black,transparent)]" />
       <div
         aria-hidden
@@ -33,6 +72,11 @@ export function Hero() {
         className="absolute -right-40 top-1/3 h-[400px] w-[400px] rounded-full opacity-40 blur-[100px]"
         style={{ background: 'radial-gradient(circle, rgba(74,79,158,0.3) 0%, transparent 70%)' }}
       />
+      <div
+        aria-hidden
+        className="beam-drift pointer-events-none absolute -top-1/4 left-1/4 h-[150%] w-[40%] blur-[90px]"
+        style={{ background: 'linear-gradient(100deg, transparent, rgba(46,48,106,0.28), transparent)' }}
+      />
       <Particles density={45} />
 
       <div className="container-wide relative grid items-center gap-16 pb-24 pt-32 lg:grid-cols-2 lg:pb-16 lg:pt-24">
@@ -41,7 +85,8 @@ export function Hero() {
             <div className="inline-flex items-center gap-2.5 rounded-full border border-edge bg-white/[0.03] px-4 py-1.5 backdrop-blur-sm">
               <span className="live-dot h-1.5 w-1.5 rounded-full bg-emerald-400" />
               <span className="text-xs font-medium text-zinc-300">
-                <span className="font-semibold text-emerald-400">LIVE</span> — 10,000+ accounts delivered
+                <span className="font-semibold text-emerald-400">LIVE</span> — {products.length} products across{' '}
+                {games.length} games
               </span>
             </div>
           </motion.div>
@@ -112,46 +157,9 @@ export function Hero() {
         </div>
 
         <div className="relative hidden h-[520px] lg:block" style={{ perspective: 1200 }}>
-          {floatCards.map((p, i) => {
-            const game = getGame(p.game);
-            const positions = [
-              'left-[8%] top-[6%] z-30',
-              'right-[4%] top-[18%] z-20',
-              'left-[18%] bottom-[8%] z-10',
-              'right-[14%] bottom-[2%] z-0',
-            ];
-            return (
-              <motion.div
-                key={p.id}
-                initial={{ opacity: 0, y: 60, rotateY: -18 }}
-                animate={{ opacity: 1, y: 0, rotateY: 0 }}
-                transition={{ duration: 1, delay: 0.5 + i * 0.15, ease: [0.22, 1, 0.36, 1] }}
-                className={`absolute w-60 ${positions[i]}`}
-              >
-                <motion.div
-                  animate={{ y: [0, -14, 0], rotateZ: [0, i % 2 === 0 ? 1.5 : -1.5, 0] }}
-                  transition={{ duration: 6 + i, repeat: Infinity, ease: 'easeInOut', delay: i * 0.6 }}
-                >
-                  <Link
-                    to={`/product/${p.id}`}
-                    className="glass-strong block overflow-hidden rounded-2xl p-3 transition-all duration-500 hover:border-accent-light/50 hover:shadow-[0_0_50px_-10px_rgba(74,79,158,0.5)]"
-                    style={{ transform: `rotateY(${i % 2 === 0 ? -6 : 6}deg) rotateX(3deg)` }}
-                  >
-                    <ProductArt gameId={p.game} label={p.category} className="aspect-[16/10] w-full rounded-xl" />
-                    <div className="flex items-center justify-between px-1 pb-1 pt-3">
-                      <div className="min-w-0">
-                        <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-zinc-500">
-                          {game?.name}
-                        </p>
-                        <p className="truncate text-sm font-semibold text-white">{p.name}</p>
-                      </div>
-                      <span className="font-display text-sm font-bold text-accent-bright">{formatPrice(p.price)}</span>
-                    </div>
-                  </Link>
-                </motion.div>
-              </motion.div>
-            );
-          })}
+          {floatCards.map((p, i) => (
+            <HeroCard key={p.id} product={p} index={i} sx={sx} sy={sy} />
+          ))}
         </div>
       </div>
 
@@ -171,5 +179,60 @@ export function Hero() {
         </div>
       </motion.div>
     </section>
+  );
+}
+
+function HeroCard({
+  product,
+  index,
+  sx,
+  sy,
+}: {
+  product: (typeof products)[number];
+  index: number;
+  sx: MotionValue<number>;
+  sy: MotionValue<number>;
+}) {
+  const game = getGame(product.game);
+  const depth = depths[index];
+  const x = useTransform(sx, (v) => v * 46 * depth);
+  const y = useTransform(sy, (v) => v * 34 * depth);
+
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 60, rotateY: -18 }}
+      animate={{ opacity: 1, y: 0, rotateY: 0 }}
+      transition={{ duration: 1, delay: 0.5 + index * 0.15, ease: [0.22, 1, 0.36, 1] }}
+      className={`absolute w-60 ${cardPositions[index]}`}
+    >
+      {/* Cursor parallax — springs rest at 0 when pointer effects are disabled. */}
+      <motion.div style={{ x, y }}>
+        <motion.div
+          animate={{ y: [0, -14, 0], rotateZ: [0, index % 2 === 0 ? 1.5 : -1.5, 0] }}
+          transition={{ duration: 6 + index, repeat: Infinity, ease: 'easeInOut', delay: index * 0.6 }}
+        >
+          <Link
+            to={`/product/${product.id}`}
+            className="glass-strong block overflow-hidden rounded-2xl p-3 transition-all duration-500 hover:border-accent-light/50 hover:shadow-[0_0_50px_-10px_rgba(74,79,158,0.5)]"
+            style={{ transform: `rotateY(${index % 2 === 0 ? -6 : 6}deg) rotateX(3deg)` }}
+          >
+            <ProductArt
+              gameId={product.game}
+              image={product.image}
+              alt={product.name}
+              label={product.category}
+              className="aspect-[16/10] w-full rounded-xl"
+            />
+            <div className="flex items-center justify-between px-1 pb-1 pt-3">
+              <div className="min-w-0">
+                <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-zinc-500">{game?.name}</p>
+                <p className="truncate text-sm font-semibold text-white">{product.name}</p>
+              </div>
+              <span className="font-display text-sm font-bold text-accent-bright">{formatPrice(product.price)}</span>
+            </div>
+          </Link>
+        </motion.div>
+      </motion.div>
+    </motion.div>
   );
 }

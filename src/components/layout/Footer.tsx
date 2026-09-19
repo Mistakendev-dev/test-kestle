@@ -6,16 +6,7 @@ const columns = [
   {
     title: 'Marketplace',
     links: [
-      { label: 'Home', to: '/' },
       { label: 'All Products', to: '/products' },
-      { label: 'All Games', to: '/games' },
-      { label: 'How It Works', to: '/how-it-works' },
-      { label: 'FAQ', to: '/faq' },
-    ],
-  },
-  {
-    title: 'Products',
-    links: [
       { label: 'NFA Accounts', to: '/products?type=NFA' },
       { label: 'Full Access', to: '/products?type=FA' },
       { label: 'Ranked Ready', to: '/products?type=Ranked' },
@@ -24,7 +15,10 @@ const columns = [
   },
   {
     title: 'Games',
-    links: games.slice(0, 5).map((g) => ({ label: g.name, to: `/games/${g.id}` })),
+    links: [
+      ...games.slice(0, 4).map((g) => ({ label: g.name, to: `/games/${g.id}` })),
+      { label: 'All Games', to: '/games' },
+    ],
   },
   {
     title: 'Support',
@@ -32,7 +26,16 @@ const columns = [
       { label: 'Discord Server', to: '/faq' },
       { label: 'Email Support', to: '/faq' },
       { label: 'Order Issues', to: '/faq' },
-      { label: 'Contact Us', to: '/faq' },
+      { label: 'FAQ', to: '/faq' },
+    ],
+  },
+  {
+    title: 'Company',
+    links: [
+      { label: 'About Us', to: '/how-it-works' },
+      { label: 'How It Works', to: '/how-it-works' },
+      { label: 'Reviews', to: '/#testimonials' },
+      { label: 'Status', to: '/faq' },
     ],
   },
   {
@@ -60,7 +63,7 @@ export function Footer() {
       />
 
       <div className="container-wide relative py-16">
-        <div className="grid gap-12 lg:grid-cols-[1.4fr_repeat(5,1fr)]">
+        <div className="grid gap-12 lg:grid-cols-[minmax(0,1.1fr)_minmax(0,2.6fr)] lg:gap-16">
           <div>
             <Link to="/" className="flex items-center gap-2.5">
               <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-accent font-display text-sm font-bold text-white">
@@ -95,24 +98,26 @@ export function Footer() {
             </div>
           </div>
 
-          {columns.map((col) => (
-            <div key={col.title}>
-              <h4 className="text-xs font-semibold uppercase tracking-[0.2em] text-zinc-500">{col.title}</h4>
-              <ul className="mt-4 space-y-2.5">
-                {col.links.map((l) => (
-                  <li key={l.label}>
-                    <Link
-                      to={l.to}
-                      className="group inline-flex items-center gap-1 text-sm text-zinc-400 transition-colors duration-300 hover:text-white"
-                    >
-                      {l.label}
-                      <ArrowUpRight className="h-3 w-3 opacity-0 transition-all duration-300 group-hover:translate-x-0.5 group-hover:opacity-100" />
-                    </Link>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          ))}
+          <div className="grid grid-cols-2 gap-x-6 gap-y-10 sm:grid-cols-3 lg:grid-cols-5 lg:gap-x-4">
+            {columns.map((col) => (
+              <div key={col.title} className="min-w-0">
+                <h4 className="text-xs font-semibold uppercase tracking-[0.2em] text-zinc-500">{col.title}</h4>
+                <ul className="mt-4 space-y-2.5">
+                  {col.links.map((l) => (
+                    <li key={l.label}>
+                      <Link
+                        to={l.to}
+                        className="group inline-flex items-center gap-1 text-sm text-zinc-400 transition-colors duration-300 hover:text-white"
+                      >
+                        <span className="truncate">{l.label}</span>
+                        <ArrowUpRight className="h-3 w-3 shrink-0 opacity-0 transition-all duration-300 group-hover:translate-x-0.5 group-hover:opacity-100" />
+                      </Link>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            ))}
+          </div>
         </div>
 
         <div className="mt-14 flex flex-col items-center justify-between gap-4 border-t border-edge pt-8 md:flex-row">

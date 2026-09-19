@@ -113,6 +113,17 @@ body {
   animation: shine 0.8s ease;
 }
 
+/* Slow ambient light sweep behind the hero — transform/opacity only. */
+@keyframes beam-drift {
+  0%, 100% { transform: translate3d(-12%, 0, 0) rotate(8deg); opacity: 0.35; }
+  50% { transform: translate3d(12%, 0, 0) rotate(8deg); opacity: 0.6; }
+}
+
+.beam-drift {
+  animation: beam-drift 18s ease-in-out infinite;
+  will-change: transform, opacity;
+}
+
 /* --- Marquee: GPU-only transform, duplicated track for a seamless loop --- */
 @keyframes marquee-left {
   from { transform: translate3d(0, 0, 0); }
@@ -169,6 +180,9 @@ body {
     animation: none !important;
   }
   .live-dot {
+    animation: none !important;
+  }
+  .beam-drift {
     animation: none !important;
   }
   .btn-shine:hover::before {
