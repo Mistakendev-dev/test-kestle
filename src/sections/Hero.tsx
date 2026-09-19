@@ -173,6 +173,53 @@ export function Hero() {
             <HeroCard key={p.id} product={p} index={i} sx={sx} sy={sy} />
           ))}
         </div>
+
+        {/* Touch devices get one floating card instead of the cursor-driven
+            stack — same product, no pointer maths. */}
+        <motion.div
+          variants={fadeUp}
+          initial="hidden"
+          animate="visible"
+          custom={0.65}
+          className="mx-auto w-full max-w-sm lg:hidden"
+        >
+          <div className="relative">
+            <div
+              aria-hidden
+              className="pointer-events-none absolute -inset-6 -z-10 blur-[60px]"
+              style={{
+                background: `radial-gradient(ellipse 55% 55% at 50% 50%, ${getGame(floatCards[0].game)?.color}33, transparent 70%), radial-gradient(ellipse 70% 65% at 50% 60%, rgba(46,48,106,0.5), transparent 72%)`,
+              }}
+            />
+            <div className="float-slow">
+              <Link
+                to={`/product/${floatCards[0].id}`}
+                className="glass-strong block overflow-hidden rounded-2xl p-3 shadow-[0_30px_70px_-35px_rgba(0,0,0,1)]"
+              >
+                <ProductArt
+                  gameId={floatCards[0].game}
+                  image={floatCards[0].image}
+                  alt={floatCards[0].name}
+                  label={floatCards[0].category}
+                  size="lg"
+                  priority
+                  className="aspect-[16/10] w-full rounded-xl"
+                />
+                <div className="flex items-center justify-between gap-3 px-1 pb-1 pt-3">
+                  <div className="min-w-0">
+                    <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-zinc-500">
+                      {getGame(floatCards[0].game)?.name}
+                    </p>
+                    <p className="truncate text-sm font-semibold text-white">{floatCards[0].name}</p>
+                  </div>
+                  <span className="font-display text-sm font-bold text-accent-bright">
+                    {formatPrice(floatCards[0].price)}
+                  </span>
+                </div>
+              </Link>
+            </div>
+          </div>
+        </motion.div>
       </div>
 
       <motion.div
@@ -209,6 +256,9 @@ function HeroCard({
   const depth = depths[index];
   const x = useTransform(sx, (v) => v * 46 * depth);
   const y = useTransform(sy, (v) => v * 34 * depth);
+  // Hero springs run -0.5..0.5; ProductArt's layers expect -1..1.
+  const ax = useTransform(sx, (v) => v * 2);
+  const ay = useTransform(sy, (v) => v * 2);
 
   return (
     <motion.div
@@ -218,7 +268,7 @@ function HeroCard({
       className={`absolute w-60 ${cardPositions[index]}`}
     >
       {/* Cursor parallax — springs rest at 0 when pointer effects are disabled. */}
-      <motion.div style={{ x, y }}>
+      <motion.div style={{ x, y, '--ax': ax, '--ay': ay } as never}>
         <motion.div
           animate={{ y: [0, -14, 0], rotateZ: [0, index % 2 === 0 ? 1.5 : -1.5, 0] }}
           transition={{ duration: 6 + index, repeat: Infinity, ease: 'easeInOut', delay: index * 0.6 }}
@@ -233,6 +283,7 @@ function HeroCard({
               image={product.image}
               alt={product.name}
               label={product.category}
+              depth
               className="aspect-[16/10] w-full rounded-xl"
             />
             <div className="flex items-center justify-between px-1 pb-1 pt-3">

@@ -30,6 +30,8 @@ export function ProductShowcase({
   const sy = useSpring(my, { stiffness: 180, damping: 26 });
   const rotateX = useTransform(sy, [0, 1], [4, -4]);
   const rotateY = useTransform(sx, [0, 1], [-5, 5]);
+  const ax = useTransform(sx, [0, 1], [-1, 1]);
+  const ay = useTransform(sy, [0, 1], [-1, 1]);
 
   function handleMove(e: MouseEvent) {
     if (!rich || !ref.current) return;
@@ -57,7 +59,9 @@ export function ProductShowcase({
           ref={ref}
           onMouseMove={handleMove}
           onMouseLeave={reset}
-          style={rich ? { rotateX, rotateY, transformStyle: 'preserve-3d' } : undefined}
+          style={
+            rich ? ({ rotateX, rotateY, transformStyle: 'preserve-3d', '--ax': ax, '--ay': ay } as never) : undefined
+          }
           animate={rich ? { y: [0, -10, 0] } : undefined}
           transition={{ duration: 9, repeat: Infinity, ease: 'easeInOut' }}
           className="group relative overflow-hidden rounded-3xl border border-edge bg-panel/50 p-2.5 shadow-[0_40px_90px_-40px_rgba(0,0,0,1)] backdrop-blur-sm"
@@ -77,6 +81,7 @@ export function ProductShowcase({
                 label={frames[index]?.label}
                 size="xl"
                 variant={frames[index]?.variant ?? 0}
+                depth={rich}
                 priority
                 className="aspect-[4/3] w-full rounded-2xl"
               />
