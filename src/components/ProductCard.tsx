@@ -79,7 +79,7 @@ export function ProductCard({
         }}
       />
 
-      <div className="relative flex h-full flex-col overflow-hidden rounded-2xl border border-edge bg-panel/60 backdrop-blur-sm transition-[background-color,border-color,box-shadow] duration-300 group-hover:border-accent-light/40 group-hover:bg-[#07070c]/90 group-hover:shadow-[0_18px_50px_-24px_rgba(0,0,0,0.9)]">
+      <div className="relative flex h-full flex-col overflow-hidden rounded-2xl border border-white/[0.07] bg-surface-2/70 shadow-rest backdrop-blur-sm transition-[background-color,border-color,box-shadow] duration-300 group-hover:border-accent-light/40 group-hover:bg-surface-1/90 group-hover:shadow-lift">
         {rich && (
           <>
             <motion.div
@@ -104,8 +104,10 @@ export function ProductCard({
 
         <div className="relative overflow-hidden">
           <Link to={`/product/${product.id}`} className="block" aria-label={product.name}>
+            {/* Art is pushed forward on Z and casts a contact shadow, so it
+                reads as sitting above the card rather than printed onto it. */}
             <motion.div
-              style={rich ? { x: imgX, y: imgY } : undefined}
+              style={rich ? { x: imgX, y: imgY, translateZ: 28 } : undefined}
               className="transition-transform duration-500 group-hover:scale-[1.04]"
             >
               <ProductArt
@@ -115,7 +117,7 @@ export function ProductCard({
                 label={product.category}
                 size="lg"
                 depth={rich}
-                className="aspect-[4/3] w-full"
+                className="aspect-[4/3] w-full transition-[filter] duration-500 group-hover:[filter:drop-shadow(0_18px_28px_rgba(0,0,0,0.65))]"
               />
             </motion.div>
           </Link>

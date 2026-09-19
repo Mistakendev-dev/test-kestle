@@ -90,8 +90,18 @@ export function Lightbox({
             exit={{ opacity: 0, scale: 0.98 }}
             transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
             onClick={(e) => e.stopPropagation()}
-            className="w-full max-w-5xl"
+            className="relative w-full max-w-5xl"
           >
+            {/* Ambient bloom behind the frame, so the image reads as lit
+                rather than pasted onto the black backdrop. */}
+            <div
+              aria-hidden
+              className="pointer-events-none absolute -inset-16 -z-10 blur-[100px]"
+              style={{
+                background:
+                  'radial-gradient(ellipse 55% 55% at 50% 50%, rgba(74,79,158,0.45), transparent 70%)',
+              }}
+            />
             <ProductArt
               gameId={gameId}
               image={frame.image}
@@ -100,7 +110,7 @@ export function Lightbox({
               size="xl"
               variant={frame.variant}
               priority
-              className="aspect-[16/10] w-full rounded-2xl border border-edge shadow-[0_0_120px_-30px_rgba(74,79,158,0.8)]"
+              className="aspect-[16/10] w-full rounded-2xl border border-white/10 shadow-deep"
             />
             <p className="mt-4 text-center text-sm text-zinc-500">
               {frame.label} — {index! + 1} of {frames.length}

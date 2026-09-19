@@ -12,7 +12,7 @@ function MarqueeCard({ product }: { product: Product }) {
   return (
     <Link
       to={`/product/${product.id}`}
-      className="group mr-4 block w-[196px] shrink-0 overflow-hidden rounded-2xl border border-edge bg-panel/70 shadow-[0_18px_40px_-24px_rgba(0,0,0,0.9)] backdrop-blur-sm transition-all duration-300 hover:-translate-y-1 hover:border-accent-light/45 hover:shadow-[0_0_44px_-14px_rgba(74,79,158,0.75)] sm:w-[240px] lg:w-[268px]"
+      className="group mr-4 block w-[196px] shrink-0 overflow-hidden rounded-2xl border border-white/[0.07] bg-surface-2/75 shadow-rest backdrop-blur-sm transition-all duration-300 hover:-translate-y-1 hover:border-accent-light/45 hover:shadow-glow sm:w-[240px] lg:w-[268px]"
     >
       <div className="relative overflow-hidden">
         <ProductArt
@@ -97,9 +97,22 @@ export function ProductMarquee() {
         className="pointer-events-none absolute inset-x-0 top-1/2 h-64 -translate-y-1/2 opacity-60 blur-[90px]"
         style={{ background: 'radial-gradient(ellipse 50% 100% at 50% 50%, rgba(46,48,106,0.4), transparent 70%)' }}
       />
-      <div className="relative flex flex-col gap-4">
-        <Row items={rowOne} direction="left" duration={64} />
-        <Row items={rowTwo} direction="right" duration={76} />
+      {/* Slight recession so the rows read as a wall receding from the viewer
+          rather than two flat strips. The perspective wrapper clips nothing —
+          overflow stays owned by each row's viewport. */}
+      <div className="relative [perspective:1600px]">
+        <div className="flex flex-col gap-4 [transform:rotateX(6deg)] [transform-style:preserve-3d]">
+          <Row items={rowOne} direction="left" duration={64} />
+          <Row items={rowTwo} direction="right" duration={76} />
+        </div>
+        <div
+          aria-hidden
+          className="pointer-events-none absolute inset-0"
+          style={{
+            background:
+              'linear-gradient(90deg, rgba(5,5,7,0.85), transparent 14%, transparent 86%, rgba(5,5,7,0.85))',
+          }}
+        />
       </div>
     </section>
   );

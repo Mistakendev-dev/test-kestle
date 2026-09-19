@@ -64,7 +64,7 @@ export function ProductShowcase({
           }
           animate={rich ? { y: [0, -10, 0] } : undefined}
           transition={{ duration: 9, repeat: Infinity, ease: 'easeInOut' }}
-          className="group relative overflow-hidden rounded-3xl border border-edge bg-panel/50 p-2.5 shadow-[0_40px_90px_-40px_rgba(0,0,0,1)] backdrop-blur-sm"
+          className="pane-raised bevel lit-edge group overflow-hidden p-2.5 shadow-deep"
         >
           <AnimatePresence mode="wait">
             <motion.div

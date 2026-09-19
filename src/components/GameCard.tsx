@@ -11,7 +11,7 @@ export function GameCard({ game }: { game: Game }) {
   return (
     <Link
       to={`/games/${game.id}`}
-      className="group relative block overflow-hidden rounded-2xl border border-edge transition-all duration-500 hover:-translate-y-1.5 hover:border-accent-light/45 hover:shadow-[0_0_55px_-18px_rgba(74,79,158,0.9)]"
+      className="lit-edge group relative block overflow-hidden rounded-2xl border border-white/[0.07] shadow-rest transition-all duration-500 ease-out hover:-translate-y-1.5 hover:border-accent-light/45 hover:shadow-glow-lg"
     >
       <ProductArt
         gameId={game.id}
@@ -30,7 +30,7 @@ export function GameCard({ game }: { game: Game }) {
         style={{ background: `linear-gradient(to top, ${game.color}26, transparent 60%)` }}
       />
 
-      <div className="absolute inset-x-0 bottom-0 flex items-end justify-between gap-3 p-4">
+      <div className="absolute inset-x-0 bottom-0 flex items-end justify-between gap-3 p-4 transition-transform duration-500 ease-out group-hover:-translate-y-1">
         <div className="min-w-0">
           <h3 className="truncate font-display text-base font-bold tracking-tight text-white transition-colors duration-300 group-hover:text-accent-bright md:text-lg">
             {game.name}
