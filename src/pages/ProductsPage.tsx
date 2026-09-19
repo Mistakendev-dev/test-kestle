@@ -23,6 +23,13 @@ const sortOptions: { key: SortKey; label: string }[] = [
 const types: (ProductCategory | 'All')[] = ['All', 'NFA', 'FA', 'Ranked', 'Stacked'];
 const MAX_PRICE = 120;
 
+// Derived from the catalogue so the header never drifts from the real data.
+const catalogStats = [
+  { label: 'Products', value: String(products.length) },
+  { label: 'Games', value: String(games.length) },
+  { label: 'From', value: formatPrice(Math.min(...products.map((p) => p.price))) },
+];
+
 const railOptions: RailOption[] = [
   { id: 'all', label: 'All', count: products.length },
   ...games.map((g) => ({
@@ -112,6 +119,26 @@ export function ProductsPage() {
     setInStockOnly(false);
     setQuery('');
   };
+
+  const chips: { key: string; label: string; clear: () => void }[] = [];
+  if (query.trim())
+    chips.push({ key: 'q', label: `“${query.trim()}”`, clear: () => setQuery('') });
+  if (selectedGame !== 'all')
+    chips.push({
+      key: 'game',
+      label: games.find((g) => g.id === selectedGame)?.name ?? selectedGame,
+      clear: () => setParam('game', 'all', 'all'),
+    });
+  if (selectedType !== 'All')
+    chips.push({ key: 'type', label: selectedType, clear: () => setParam('type', 'All', 'All') });
+  if (maxPrice < MAX_PRICE)
+    chips.push({
+      key: 'price',
+      label: `Under ${formatPrice(maxPrice)}`,
+      clear: () => setMaxPrice(MAX_PRICE),
+    });
+  if (inStockOnly)
+    chips.push({ key: 'stock', label: 'In stock', clear: () => setInStockOnly(false) });
 
   const filterPanel = (
     <div className="space-y-7">
@@ -248,12 +275,27 @@ export function ProductsPage() {
 
       <div className="container-wide relative pb-24 pt-28 md:pt-36">
         <Reveal>
-          <div className="max-w-2xl">
-            <p className="section-label">Marketplace</p>
-            <h1 className="mt-3 font-display text-3xl font-bold tracking-tight text-white sm:text-4xl">
-              EXPLORE PRODUCTS
-            </h1>
-            <p className="mt-3 text-zinc-400">Browse our collection of gaming products.</p>
+          <div className="flex flex-col gap-8 md:flex-row md:items-end md:justify-between">
+            <div className="max-w-2xl">
+              <p className="section-label">Marketplace</p>
+              <h1 className="mt-3 font-display text-4xl font-bold tracking-tight text-white sm:text-5xl">
+                EXPLORE PRODUCTS
+              </h1>
+              <p className="mt-4 max-w-md text-[15px] leading-relaxed text-zinc-400">
+                Browse our collection of gaming products.
+              </p>
+            </div>
+
+            <dl className="flex w-full shrink-0 divide-x divide-edge overflow-hidden rounded-2xl border border-edge bg-panel/40 md:w-auto">
+              {catalogStats.map((s) => (
+                <div key={s.label} className="flex-1 px-4 py-4 sm:px-7 md:flex-none">
+                  <dd className="font-display text-2xl font-bold text-white sm:text-3xl">{s.value}</dd>
+                  <dt className="mt-1 text-[11px] uppercase tracking-[0.18em] text-zinc-500">
+                    {s.label}
+                  </dt>
+                </div>
+              ))}
+            </dl>
           </div>
         </Reveal>
 
@@ -337,6 +379,36 @@ export function ProductsPage() {
                 <ChevronDown className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-zinc-500" />
               </div>
             </div>
+
+            {chips.length > 0 && (
+              <div className="mb-6 flex flex-wrap items-center gap-2">
+                <AnimatePresence initial={false}>
+                  {chips.map((c) => (
+                    <motion.button
+                      key={c.key}
+                      layout
+                      initial={{ opacity: 0, scale: 0.9 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      exit={{ opacity: 0, scale: 0.9 }}
+                      transition={{ duration: 0.16 }}
+                      onClick={c.clear}
+                      className="group flex items-center gap-1.5 rounded-full border border-accent-light/40 bg-accent/20 py-1.5 pl-3 pr-2 text-xs font-medium text-white transition-colors hover:border-accent-light/70"
+                    >
+                      {c.label}
+                      <X className="h-3.5 w-3.5 text-zinc-400 transition-colors group-hover:text-white" />
+                    </motion.button>
+                  ))}
+                </AnimatePresence>
+                {chips.length > 1 && (
+                  <button
+                    onClick={clearFilters}
+                    className="px-2 text-xs font-medium text-zinc-500 underline-offset-4 transition-colors hover:text-white hover:underline"
+                  >
+                    Clear all
+                  </button>
+                )}
+              </div>
+            )}
 
             {filtered.length === 0 ? (
               <motion.div

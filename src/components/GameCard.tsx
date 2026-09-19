@@ -1,55 +1,48 @@
 import { Link } from 'react-router-dom';
-import { motion } from 'framer-motion';
 import { ArrowUpRight } from 'lucide-react';
 import type { Game } from '../data/games';
 import { productsByGame } from '../data/products';
+import { ProductArt } from './ProductArt';
 
+/** Shares the visual language of the homepage discovery grid. */
 export function GameCard({ game }: { game: Game }) {
   const count = productsByGame(game.id).length;
 
   return (
-    <Link to={`/games/${game.id}`} className="group block h-full">
-      <motion.div
-        whileHover={{ y: -5 }}
-        transition={{ type: 'spring', stiffness: 300, damping: 24 }}
-        className="relative h-full overflow-hidden rounded-2xl border border-edge bg-panel/60 transition-all duration-300 group-hover:border-accent-light/40 group-hover:shadow-[0_0_40px_-12px_rgba(74,79,158,0.85)]"
-      >
-        <div
-          className="relative flex h-32 items-center justify-center overflow-hidden transition-transform duration-500 group-hover:scale-105 md:h-36"
-          style={{
-            background: `radial-gradient(110% 110% at 50% 0%, ${game.colorSoft} 0%, rgba(5,5,7,0.95) 70%)`,
-          }}
-        >
-          <div
-            className="absolute inset-0 opacity-30"
-            style={{
-              backgroundImage: `linear-gradient(${game.color}20 1px, transparent 1px), linear-gradient(90deg, ${game.color}20 1px, transparent 1px)`,
-              backgroundSize: '28px 28px',
-            }}
-          />
-          <span
-            className="font-display text-3xl font-bold tracking-tight transition-all duration-300 group-hover:brightness-125 md:text-4xl"
-            style={{ color: game.color, textShadow: `0 0 30px ${game.color}60` }}
-          >
-            {game.short}
-          </span>
-          <div
-            className="absolute inset-x-0 bottom-0 h-12 opacity-0 transition-opacity duration-300 group-hover:opacity-100"
-            style={{ background: `linear-gradient(to top, ${game.color}25, transparent)` }}
-          />
+    <Link
+      to={`/games/${game.id}`}
+      className="group relative block overflow-hidden rounded-2xl border border-edge transition-all duration-500 hover:-translate-y-1.5 hover:border-accent-light/45 hover:shadow-[0_0_55px_-18px_rgba(74,79,158,0.9)]"
+    >
+      <ProductArt
+        gameId={game.id}
+        size="md"
+        className="aspect-[4/3] w-full transition-transform duration-[900ms] ease-out group-hover:scale-[1.07]"
+      />
+
+      <div
+        aria-hidden
+        className="absolute inset-0 transition-opacity duration-500 group-hover:opacity-0"
+        style={{ background: 'linear-gradient(to top, rgba(5,5,7,0.55), transparent 55%)' }}
+      />
+      <div
+        aria-hidden
+        className="absolute inset-0 opacity-0 transition-opacity duration-500 group-hover:opacity-100"
+        style={{ background: `linear-gradient(to top, ${game.color}26, transparent 60%)` }}
+      />
+
+      <div className="absolute inset-x-0 bottom-0 flex items-end justify-between gap-3 p-4">
+        <div className="min-w-0">
+          <h3 className="truncate font-display text-base font-bold tracking-tight text-white transition-colors duration-300 group-hover:text-accent-bright md:text-lg">
+            {game.name}
+          </h3>
+          <p className="mt-1 truncate text-[11px] font-medium uppercase tracking-[0.16em] text-zinc-400">
+            {game.genre} · {count} products
+          </p>
         </div>
-        <div className="flex items-center justify-between p-4">
-          <div>
-            <div className="text-sm font-semibold text-white transition-colors group-hover:text-accent-bright">
-              {game.name}
-            </div>
-            <div className="mt-0.5 text-xs text-zinc-500">
-              {game.genre} · {count} products
-            </div>
-          </div>
-          <ArrowUpRight className="h-4 w-4 -translate-x-1 text-accent-bright opacity-0 transition-all duration-300 group-hover:translate-x-0 group-hover:opacity-100" />
-        </div>
-      </motion.div>
+        <span className="flex h-9 w-9 shrink-0 translate-x-2 items-center justify-center rounded-full border border-edge bg-void/70 text-accent-bright opacity-0 backdrop-blur-sm transition-all duration-300 group-hover:translate-x-0 group-hover:opacity-100">
+          <ArrowUpRight className="h-4 w-4" />
+        </span>
+      </div>
     </Link>
   );
 }
