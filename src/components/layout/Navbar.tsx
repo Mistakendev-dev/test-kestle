@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Link, NavLink, useLocation } from 'react-router-dom';
-import { AnimatePresence, motion } from 'framer-motion';
+import { AnimatePresence, motion, useMotionTemplate, useScroll, useTransform } from 'framer-motion';
 import { Heart, Menu, Search, ShoppingCart, X } from 'lucide-react';
 import { useCart } from '../../context/CartContext';
 import { useWishlist } from '../../context/WishlistContext';
@@ -15,8 +15,10 @@ const links = [
   { to: '/faq', label: 'FAQ' },
 ];
 
+/** Scroll distance over which the bar collapses into its compact state. */
+const COLLAPSE = 140;
+
 export function Navbar() {
-  const [scrolled, setScrolled] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const { count, openCart } = useCart();
@@ -24,12 +26,23 @@ export function Navbar() {
   const location = useLocation();
   const onProductsPage = location.pathname === '/products';
 
-  useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 24);
-    onScroll();
-    window.addEventListener('scroll', onScroll, { passive: true });
-    return () => window.removeEventListener('scroll', onScroll);
-  }, []);
+  // Interpolated from scroll position rather than toggled, so the bar morphs
+  // continuously instead of snapping between two CSS states.
+  const { scrollY } = useScroll();
+  const range = [0, COLLAPSE];
+  const shellPad = useTransform(scrollY, range, [0, 10]);
+  const shellWidth = useTransform(scrollY, range, ['100%', '96%']);
+  const barHeight = useTransform(scrollY, range, [86, 58]);
+  const barRadius = useTransform(scrollY, range, [0, 999]);
+  const barBg = useTransform(scrollY, range, ['rgba(8,8,14,0)', 'rgba(8,8,14,0.82)']);
+  const barBorder = useTransform(scrollY, range, ['rgba(255,255,255,0)', 'rgba(255,255,255,0.09)']);
+  const barShadow = useTransform(scrollY, range, [
+    '0 0 0 rgba(0,0,0,0)',
+    '0 2px 4px rgba(0,0,0,0.4), 0 22px 50px -24px rgba(0,0,0,0.95)',
+  ]);
+  const blur = useTransform(scrollY, range, [0, 22]);
+  const barBlur = useMotionTemplate`saturate(150%) blur(${blur}px)`;
+  const markScale = useTransform(scrollY, range, [1, 0.88]);
 
   // ⌘K / Ctrl+K opens global search, except on /products where the page owns it.
   useEffect(() => {
@@ -50,19 +63,30 @@ export function Navbar() {
 
   return (
     <>
-      <header
-        className={cn(
-          'fixed inset-x-0 top-0 z-50 transition-all duration-500',
-          scrolled
-            ? 'border-b border-edge bg-void/80 backdrop-blur-xl'
-            : 'border-b border-transparent bg-transparent',
-        )}
+      <motion.header
+        style={{ paddingTop: shellPad }}
+        className="fixed inset-x-0 top-0 z-50 px-3 sm:px-4"
       >
-        <nav className="container-wide flex h-16 items-center justify-between gap-4 md:h-[72px]">
-          <Link to="/" className="group flex items-center gap-2.5">
-            <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-accent font-display text-sm font-bold text-white transition-shadow duration-300 group-hover:shadow-[0_0_20px_-2px_rgba(74,79,158,0.8)]">
+        <motion.nav
+          style={{
+            width: shellWidth,
+            height: barHeight,
+            borderRadius: barRadius,
+            background: barBg,
+            borderColor: barBorder,
+            boxShadow: barShadow,
+            backdropFilter: barBlur,
+            WebkitBackdropFilter: barBlur,
+          }}
+          className="lit-edge relative mx-auto flex max-w-7xl items-center justify-between gap-4 border px-4 sm:px-6"
+        >
+          <Link to="/" className="group relative flex items-center gap-2.5">
+            <motion.span
+              style={{ scale: markScale }}
+              className="flex h-9 w-9 items-center justify-center rounded-xl border border-white/10 bg-gradient-to-br from-accent-light to-accent-deep font-display text-sm font-bold text-white shadow-rest transition-shadow duration-300 group-hover:shadow-glow"
+            >
               N
-            </span>
+            </motion.span>
             <span className="font-display text-lg font-bold tracking-tight text-white">
               NFA<span className="text-accent-bright"> MARKET</span>
             </span>
@@ -153,7 +177,7 @@ export function Navbar() {
               {menuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
             </button>
           </div>
-        </nav>
+        </motion.nav>
 
         <AnimatePresence>
           {menuOpen && (
@@ -162,9 +186,9 @@ export function Navbar() {
               animate={{ height: 'auto', opacity: 1 }}
               exit={{ height: 0, opacity: 0 }}
               transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
-              className="overflow-hidden border-b border-edge bg-void/95 backdrop-blur-xl lg:hidden"
+              className="pane-raised mx-auto mt-2 max-w-7xl overflow-hidden lg:hidden"
             >
-              <div className="container-wide flex flex-col gap-1 py-4">
+              <div className="flex flex-col gap-1 p-3">
                 {links.map((l, i) => (
                   <motion.div
                     key={l.to}
@@ -208,7 +232,7 @@ export function Navbar() {
             </motion.div>
           )}
         </AnimatePresence>
-      </header>
+      </motion.header>
 
       <SearchOverlay open={searchOpen} onClose={() => setSearchOpen(false)} />
     </>

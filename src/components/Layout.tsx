@@ -12,6 +12,7 @@ import { CursorGlow } from './effects/CursorGlow';
 import { LiveNotifications } from '../sections/LiveNotifications';
 import { RecentlyViewed } from '../sections/RecentlyViewed';
 import { Loader } from './Loader';
+import { useLightSource } from '../hooks/useLightSource';
 
 function ScrollToTop() {
   const { pathname } = useLocation();
@@ -24,6 +25,7 @@ function ScrollToTop() {
 export function Layout() {
   const [loading, setLoading] = useState(true);
   const location = useLocation();
+  useLightSource();
 
   useEffect(() => {
     const t = setTimeout(() => setLoading(false), 1400);

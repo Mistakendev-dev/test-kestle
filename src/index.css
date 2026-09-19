@@ -4,6 +4,13 @@
 
 :root {
   color-scheme: dark;
+
+  /* Virtual light source. Written once per frame from the pointer, in viewport
+     coordinates, and read by every .lit-* surface via background-attachment:fixed
+     so lighting stays consistent across elements with zero per-element JS. */
+  --px: 50vw;
+  --py: 0vh;
+  --light: 0; /* 0 until the pointer is seen, so nothing glows on touch devices */
 }
 
 html {
@@ -42,6 +49,26 @@ body {
   .glass-strong {
     @apply bg-panel/80 backdrop-blur-2xl border border-edge;
   }
+  /* The one glass material the redesign standardises on: dark translucent
+     surface, hairline top highlight, moderate blur, large soft shadow. */
+  .pane {
+    @apply relative rounded-2xl border border-white/[0.07] bg-[#0a0a12]/70 shadow-rest backdrop-blur-xl;
+  }
+  .pane-raised {
+    @apply relative rounded-3xl border border-white/[0.08] bg-[#0a0a12]/80 shadow-lift backdrop-blur-2xl;
+  }
+  /* Hairline specular highlight along the top edge — reads as a bevel. */
+  .bevel::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    pointer-events: none;
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.07), transparent 42%);
+  }
+  .meta {
+    @apply text-[11px] font-medium uppercase tracking-[0.18em] text-zinc-500;
+  }
   .text-gradient {
     @apply bg-clip-text text-transparent bg-gradient-to-r from-white via-zinc-200 to-zinc-400;
   }
@@ -49,10 +76,29 @@ body {
     box-shadow: 0 0 40px -8px rgba(46, 48, 106, 0.55);
   }
   .btn-primary {
-    @apply relative inline-flex items-center justify-center gap-2 rounded-xl bg-accent px-6 py-3 text-sm font-semibold text-white transition-all duration-300 hover:bg-accent-light hover:shadow-[0_0_30px_-6px_rgba(74,79,158,0.7)] active:scale-[0.98] overflow-hidden;
+    @apply relative inline-flex items-center justify-center gap-2 overflow-hidden rounded-xl px-6 py-3 text-sm font-semibold text-white shadow-rest transition-all duration-300 ease-out;
+    background-image: linear-gradient(160deg, #3b3e86 0%, #2e306a 46%, #23244f 100%);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+  }
+  /* Glass highlight across the upper half — the "lit edge" of a physical key. */
+  .btn-primary::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    pointer-events: none;
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.16), transparent 50%);
+  }
+  .btn-primary:hover {
+    @apply -translate-y-0.5 shadow-glow;
+    background-image: linear-gradient(160deg, #4a4f9e 0%, #383b7e 46%, #2b2d60 100%);
+    border-color: rgba(140, 148, 255, 0.3);
+  }
+  .btn-primary:active {
+    @apply translate-y-0 scale-[0.99];
   }
   .btn-ghost {
-    @apply inline-flex items-center justify-center gap-2 rounded-xl border border-edge bg-white/[0.03] px-6 py-3 text-sm font-semibold text-zinc-200 transition-all duration-300 hover:border-accent-light/50 hover:bg-accent/10 hover:text-white active:scale-[0.98];
+    @apply inline-flex items-center justify-center gap-2 rounded-xl border border-white/[0.08] bg-white/[0.02] px-6 py-3 text-sm font-semibold text-zinc-300 transition-all duration-300 ease-out hover:-translate-y-0.5 hover:border-white/20 hover:bg-white/[0.05] hover:text-white active:translate-y-0 active:scale-[0.99];
   }
   .section-label {
     @apply text-xs font-semibold uppercase tracking-[0.25em] text-accent-bright;
@@ -63,6 +109,53 @@ body {
   .input-field {
     @apply w-full rounded-xl border border-edge bg-white/[0.03] px-4 py-2.5 text-sm text-zinc-200 placeholder-zinc-600 outline-none transition-colors duration-300 focus:border-accent-light/60 focus:bg-white/[0.05];
   }
+}
+
+/* --- Virtual light source -------------------------------------------------
+   background-attachment: fixed makes the gradient resolve against the viewport
+   rather than the element, so a single pair of custom properties lights every
+   surface coherently. No per-element listeners, no React state per frame. */
+
+.lit-edge::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  padding: 1px;
+  pointer-events: none;
+  opacity: var(--light);
+  transition: opacity 0.5s ease;
+  background-image: radial-gradient(
+    420px circle at var(--px) var(--py),
+    rgba(150, 157, 255, 0.55),
+    rgba(120, 128, 220, 0.12) 45%,
+    transparent 70%
+  );
+  background-attachment: fixed;
+  -webkit-mask:
+    linear-gradient(#000 0 0) content-box,
+    linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask:
+    linear-gradient(#000 0 0) content-box,
+    linear-gradient(#000 0 0);
+  mask-composite: exclude;
+}
+
+.lit-surface::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  opacity: var(--light);
+  transition: opacity 0.5s ease;
+  background-image: radial-gradient(
+    520px circle at var(--px) var(--py),
+    rgba(107, 114, 214, 0.13),
+    transparent 68%
+  );
+  background-attachment: fixed;
 }
 
 .bg-grid {

@@ -39,6 +39,12 @@ export function Hero() {
   const sx = useSpring(mx, { stiffness: 60, damping: 20, mass: 0.6 });
   const sy = useSpring(my, { stiffness: 60, damping: 20, mass: 0.6 });
 
+  // Background layers drift against the cursor; the card stack moves with it.
+  const gridX = useTransform(sx, (v) => v * -22);
+  const gridY = useTransform(sy, (v) => v * -16);
+  const glowX = useTransform(sx, (v) => v * -46);
+  const glowY = useTransform(sy, (v) => v * -30);
+
   const onPointerMove = useCallback(
     (e: React.PointerEvent) => {
       if (!pointerFx || !sectionRef.current) return;
@@ -61,21 +67,43 @@ export function Hero() {
       onPointerLeave={resetPointer}
       className="noise relative flex min-h-[100svh] items-center overflow-hidden"
     >
-      <div aria-hidden className="bg-grid absolute inset-0 [mask-image:radial-gradient(ellipse_70%_60%_at_50%_40%,black,transparent)]" />
-      <div
+      {/* Depth layers. Each moves at its own rate against the cursor, so the
+          scene reads as receding space rather than a flat backdrop. */}
+      <motion.div
         aria-hidden
+        style={{ x: gridX, y: gridY }}
+        className="bg-grid absolute -inset-12 [mask-image:radial-gradient(ellipse_70%_60%_at_50%_40%,black,transparent)]"
+      />
+      <motion.div
+        aria-hidden
+        style={{ x: glowX, y: glowY }}
         className="absolute left-1/2 top-0 h-[600px] w-[900px] -translate-x-1/2 rounded-full opacity-60 blur-[120px]"
-        style={{ background: 'radial-gradient(ellipse, rgba(46,48,106,0.35) 0%, transparent 65%)' }}
-      />
-      <div
+      >
+        <div
+          className="h-full w-full"
+          style={{ background: 'radial-gradient(ellipse, rgba(46,48,106,0.35) 0%, transparent 65%)' }}
+        />
+      </motion.div>
+      <motion.div
         aria-hidden
+        style={{ x: glowX, y: glowY }}
         className="absolute -right-40 top-1/3 h-[400px] w-[400px] rounded-full opacity-40 blur-[100px]"
-        style={{ background: 'radial-gradient(circle, rgba(74,79,158,0.3) 0%, transparent 70%)' }}
-      />
+      >
+        <div
+          className="h-full w-full"
+          style={{ background: 'radial-gradient(circle, rgba(74,79,158,0.3) 0%, transparent 70%)' }}
+        />
+      </motion.div>
       <div
         aria-hidden
         className="beam-drift pointer-events-none absolute -top-1/4 left-1/4 h-[150%] w-[40%] blur-[90px]"
         style={{ background: 'linear-gradient(100deg, transparent, rgba(46,48,106,0.28), transparent)' }}
+      />
+      {/* Horizon glow bleeding into the section below — §21 section continuity. */}
+      <div
+        aria-hidden
+        className="pointer-events-none absolute inset-x-0 bottom-0 h-56"
+        style={{ background: 'linear-gradient(180deg, transparent, rgba(46,48,106,0.16) 60%, rgba(5,5,7,0.9))' }}
       />
       <Particles density={45} />
 
@@ -194,7 +222,7 @@ export function Hero() {
             <div className="float-slow">
               <Link
                 to={`/product/${floatCards[0].id}`}
-                className="glass-strong block overflow-hidden rounded-2xl p-3 shadow-[0_30px_70px_-35px_rgba(0,0,0,1)]"
+                className="pane-raised bevel block overflow-hidden p-3"
               >
                 <ProductArt
                   gameId={floatCards[0].game}
@@ -275,7 +303,7 @@ function HeroCard({
         >
           <Link
             to={`/product/${product.id}`}
-            className="glass-strong block overflow-hidden rounded-2xl p-3 transition-all duration-500 hover:border-accent-light/50 hover:shadow-[0_0_50px_-10px_rgba(74,79,158,0.5)]"
+            className="pane-raised bevel lit-edge block overflow-hidden p-3 transition-all duration-500 hover:border-accent-light/50 hover:shadow-glow-lg"
             style={{ transform: `rotateY(${index % 2 === 0 ? -6 : 6}deg) rotateX(3deg)` }}
           >
             <ProductArt
