@@ -7,12 +7,12 @@ import { pushRecentlyViewed } from '../lib/recentlyViewed';
 import { ProductGrid } from '../components/ProductGrid';
 import { GameCard } from '../components/GameCard';
 import { Lightbox, type LightboxFrame } from '../components/Lightbox';
-import { ProductArt } from '../components/ProductArt';
 import { Reveal, Stagger } from '../components/anim/Reveal';
-import { ProductShowcase } from '../sections/product/ProductShowcase';
-import { ProductPurchase } from '../sections/product/ProductPurchase';
+import { ProductBackdrop } from '../sections/product/ProductBackdrop';
+import { ProductStage } from '../sections/product/ProductStage';
+import { ProductPanel } from '../sections/product/ProductPanel';
+import { ProductGallery } from '../sections/product/ProductGallery';
 import { ProductTabs } from '../sections/product/ProductTabs';
-import { ProductVisuals } from '../sections/product/ProductVisuals';
 
 export function ProductDetailPage() {
   const { id } = useParams<{ id: string }>();
@@ -27,18 +27,20 @@ export function ProductDetailPage() {
     if (product) pushRecentlyViewed(product.id);
   }, [id, product]);
 
+  /** Five frames: one focal plus four supporting, which fills the 4×2 gallery. */
   const frames = useMemo<LightboxFrame[]>(() => {
     if (!product) return [];
     const game = getGame(product.game);
     return [
       { label: product.category, variant: 0, image: product.image },
-      { label: game?.short ?? 'GAME', variant: 1 },
-      { label: 'Instant', variant: 2 },
-      { label: 'Verified', variant: 3 },
+      { label: game?.short ?? 'Game', variant: 1 },
+      { label: 'Preview', variant: 2 },
+      { label: 'Details', variant: 3 },
+      { label: 'Delivery', variant: 4 },
     ];
   }, [product]);
 
-  /** Same-game listings first, then other titles so the rail is never short. */
+  /** Same-game listings first, then same-type fill so the rail is never short. */
   const related = useMemo(() => {
     if (!product) return [];
     const sameGame = productsByGame(product.game).filter((p) => p.id !== product.id);
@@ -70,30 +72,7 @@ export function ProductDetailPage() {
 
   return (
     <div className="relative">
-      {/* Page-level ambient system — keeps the product lifted off the background. */}
-      <div aria-hidden className="pointer-events-none absolute inset-x-0 top-0 h-[900px] overflow-hidden">
-        {/* The product's own artwork, blurred far past legibility, gives each
-            listing its own environment without competing with the foreground. */}
-        <div className="absolute inset-x-0 top-0 h-[560px] scale-125 opacity-[0.22] blur-[80px]">
-          <ProductArt
-            gameId={product.game}
-            image={product.image}
-            alt=""
-            size="xl"
-            className="h-full w-full"
-          />
-        </div>
-        <div className="absolute inset-0 bg-void/45" />
-        <div className="bg-grid absolute inset-0 [mask-image:radial-gradient(ellipse_70%_55%_at_50%_25%,black,transparent)]" />
-        <div
-          className="absolute left-1/2 top-[-12%] h-[620px] w-[1100px] -translate-x-1/2 rounded-full opacity-70 blur-[130px]"
-          style={{ background: 'radial-gradient(ellipse, rgba(46,48,106,0.4) 0%, transparent 65%)' }}
-        />
-        <div
-          className="absolute inset-x-0 bottom-0 h-56"
-          style={{ background: 'linear-gradient(to bottom, transparent, #050507)' }}
-        />
-      </div>
+      <ProductBackdrop product={product} />
 
       <div className="container-wide relative pb-28 pt-24 md:pt-32">
         <Reveal>
@@ -110,9 +89,9 @@ export function ProductDetailPage() {
           </nav>
         </Reveal>
 
-        <div className="grid gap-12 lg:grid-cols-[minmax(0,1.05fr)_minmax(0,1fr)] lg:gap-16 xl:gap-20">
+        <div className="grid gap-10 lg:grid-cols-[minmax(0,1.12fr)_minmax(0,1fr)] lg:items-start lg:gap-14 xl:gap-16">
           <Reveal>
-            <ProductShowcase
+            <ProductStage
               product={product}
               frames={frames}
               index={frameIndex}
@@ -121,22 +100,22 @@ export function ProductDetailPage() {
             />
           </Reveal>
           <Reveal delay={0.1}>
-            <ProductPurchase product={product} />
+            <ProductPanel product={product} />
           </Reveal>
         </div>
 
-        <div className="mt-24">
+        <div className="mt-28">
+          <ProductGallery product={product} frames={frames} onOpen={setLightbox} />
+        </div>
+
+        <div className="mt-28">
           <Reveal>
             <ProductTabs product={product} />
           </Reveal>
         </div>
 
-        <div className="mt-24">
-          <ProductVisuals product={product} frames={frames} onOpen={setLightbox} />
-        </div>
-
         {related.length > 0 && (
-          <section className="mt-24">
+          <section className="mt-28">
             <Reveal>
               <div className="mb-8">
                 <p className="section-label">Keep looking</p>
@@ -149,7 +128,7 @@ export function ProductDetailPage() {
           </section>
         )}
 
-        <section className="mt-24">
+        <section className="mt-28">
           <Reveal>
             <div className="mb-8 flex items-end justify-between gap-4">
               <div>

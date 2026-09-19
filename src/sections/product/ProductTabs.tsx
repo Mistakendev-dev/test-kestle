@@ -71,8 +71,8 @@ export function ProductTabs({ product }: { product: Product }) {
                 </h3>
                 <p className="mt-5 max-w-2xl text-base leading-[1.8] text-zinc-400">{product.description}</p>
                 <p className="mt-4 max-w-2xl text-base leading-[1.8] text-zinc-400">
-                  Every listing is checked before it goes live and the details above describe exactly what is
-                  included. If anything is unclear, support can answer questions before you order.
+                  The details above describe exactly what is included in this listing. If anything is
+                  unclear, support can answer questions before you order.
                 </p>
                 {product.tags.length > 0 && (
                   <div className="mt-7 flex flex-wrap gap-2">

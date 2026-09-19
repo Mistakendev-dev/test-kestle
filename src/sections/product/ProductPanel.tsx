@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { BadgeCheck, Check, Headset, Heart, Minus, Plus, ShieldCheck, ShoppingCart, Zap } from 'lucide-react';
+import { Check, Headset, Heart, Minus, Plus, ShieldCheck, ShoppingCart, Zap } from 'lucide-react';
 import type { Product } from '../../data/products';
 import { getGame } from '../../data/games';
 import { formatPrice } from '../../lib/utils';
@@ -10,14 +10,15 @@ import { useWishlist } from '../../context/WishlistContext';
 import { StockIndicator } from '../../components/Badge';
 
 const assurances = [
-  { icon: Zap, title: 'Fast delivery', text: 'Sent automatically after checkout' },
-  { icon: ShieldCheck, title: 'Secure checkout', text: 'Encrypted payment handling' },
-  { icon: Headset, title: '24/7 support', text: 'Reach us any time on Discord' },
+  { icon: Zap, label: 'Fast delivery' },
+  { icon: ShieldCheck, label: 'Secure checkout' },
+  { icon: Headset, label: '24/7 support' },
 ];
 
 const benefits = ['Fast delivery', 'Secure checkout', 'Support available', 'Clear product information'];
 
-export function ProductPurchase({ product }: { product: Product }) {
+/** The purchase decision, in one Level-3 glass panel. */
+export function ProductPanel({ product }: { product: Product }) {
   const game = getGame(product.game);
   const { addItem } = useCart();
   const { toast } = useToast();
@@ -26,7 +27,7 @@ export function ProductPurchase({ product }: { product: Product }) {
   const saved = has(product.id);
 
   return (
-    <div>
+    <div className="pane-hero lit-edge p-6 sm:p-8 lg:p-9">
       <div className="flex flex-wrap items-center gap-2.5">
         <Link
           to={`/games/${product.game}`}
@@ -40,15 +41,15 @@ export function ProductPurchase({ product }: { product: Product }) {
         </span>
       </div>
 
-      <h1 className="mt-5 font-display text-4xl font-bold leading-[1.05] tracking-tight text-white md:text-5xl">
+      <h1 className="mt-5 font-display text-[2rem] font-bold leading-[1.06] tracking-tight text-white sm:text-4xl lg:text-[2.75rem]">
         {product.name}
       </h1>
-      <p className="mt-3 text-base text-zinc-400">
+      <p className="mt-3 text-[15px] text-zinc-400">
         {game?.name} <span className="mx-1.5 text-zinc-700">/</span> Gaming Account
       </p>
 
-      <div className="mt-6 flex flex-wrap items-end gap-x-5 gap-y-3">
-        <span className="font-display text-5xl font-bold leading-none text-white md:text-6xl">
+      <div className="mt-7 flex flex-wrap items-end gap-x-5 gap-y-3">
+        <span className="font-display text-5xl font-bold leading-none tracking-tight text-white lg:text-6xl">
           {formatPrice(product.price)}
         </span>
         {product.originalPrice && (
@@ -61,22 +62,20 @@ export function ProductPurchase({ product }: { product: Product }) {
         )}
       </div>
 
-      <div className="mt-5">
+      <div className="mt-5 flex flex-wrap items-center gap-x-6 gap-y-3">
         <StockIndicator stock={product.stock} className="text-sm" />
-      </div>
-
-      <div className="mt-7 grid gap-3 sm:grid-cols-3">
-        {assurances.map(({ icon: Icon, title, text }) => (
-          <div key={title} className="rounded-xl border border-edge bg-white/[0.02] p-4">
-            <Icon className="h-6 w-6 text-accent-bright" />
-            <p className="mt-3 text-sm font-semibold text-white">{title}</p>
-            <p className="mt-1 text-xs leading-relaxed text-zinc-500">{text}</p>
-          </div>
-        ))}
+        <div className="flex flex-wrap items-center gap-x-5 gap-y-2">
+          {assurances.map(({ icon: Icon, label }) => (
+            <span key={label} className="flex items-center gap-2 text-sm text-zinc-400">
+              <Icon className="h-[18px] w-[18px] text-accent-bright" />
+              {label}
+            </span>
+          ))}
+        </div>
       </div>
 
       <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:items-stretch">
-        <div className="flex items-center justify-between rounded-xl border border-edge bg-white/[0.03] sm:justify-start">
+        <div className="flex items-center justify-between rounded-xl border border-edge bg-white/[0.04] sm:justify-start">
           <button
             onClick={() => setQty((q) => Math.max(1, q - 1))}
             aria-label="Decrease quantity"
@@ -101,7 +100,7 @@ export function ProductPurchase({ product }: { product: Product }) {
             addItem(product.id, qty);
             toast('Added to cart', { detail: `${qty} × ${product.name}` });
           }}
-          className="btn-primary btn-shine h-14 flex-1 text-base shadow-[0_0_40px_-12px_rgba(74,79,158,0.9)] hover:-translate-y-0.5"
+          className="btn-primary btn-shine h-14 flex-1 text-base shadow-[0_0_44px_-12px_rgba(74,79,158,0.95)]"
         >
           <ShoppingCart className="h-5 w-5" />
           Add to Cart — {formatPrice(product.price * qty)}
@@ -117,22 +116,13 @@ export function ProductPurchase({ product }: { product: Product }) {
         {saved ? 'Saved to Wishlist' : 'Add to Wishlist'}
       </button>
 
-      <ul className="mt-7 grid gap-3 sm:grid-cols-2">
+      <ul className="mt-8 grid gap-3 border-t border-edge pt-7 sm:grid-cols-2">
         {benefits.map((b) => (
           <li key={b} className="flex items-center gap-2.5 text-sm text-zinc-300">
-            <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-accent/20">
+            <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-accent/25">
               <Check className="h-3.5 w-3.5 text-accent-bright" />
             </span>
             {b}
-          </li>
-        ))}
-      </ul>
-
-      <ul className="mt-7 space-y-3 border-t border-edge pt-7">
-        {product.features.map((f) => (
-          <li key={f} className="flex items-start gap-3 text-sm leading-relaxed text-zinc-300">
-            <BadgeCheck className="mt-0.5 h-4 w-4 shrink-0 text-accent-bright" />
-            {f}
           </li>
         ))}
       </ul>
