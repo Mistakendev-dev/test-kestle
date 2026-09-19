@@ -146,6 +146,7 @@ export function SearchOverlay({ open, onClose }: { open: boolean; onClose: () =>
                         gameId={p.game}
                         image={p.image}
                         alt={p.name}
+                        size="sm"
                         className="h-10 w-14 shrink-0 rounded-lg"
                       />
                       <div className="min-w-0 flex-1">

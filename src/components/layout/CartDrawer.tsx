@@ -81,6 +81,7 @@ export function CartDrawer() {
                             gameId={product.game}
                             image={product.image}
                             alt={product.name}
+                            size="sm"
                             className="h-16 w-20 rounded-xl"
                           />
                         </Link>

@@ -62,6 +62,7 @@ export function RecentlyViewed({ showEmptyState = false }: { showEmptyState?: bo
                       gameId={p.game}
                       image={p.image}
                       alt={p.name}
+                      size="sm"
                       className="h-12 w-16 shrink-0 rounded-lg"
                     />
                     <div className="min-w-0 flex-1">

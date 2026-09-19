@@ -56,6 +56,7 @@ export function MarketplaceActivity() {
                     gameId={product.game}
                     image={product.image}
                     alt={product.name}
+                    size="sm"
                     className="h-14 w-16 shrink-0 rounded-xl"
                   />
                   <div className="min-w-0 flex-1">
