@@ -4,12 +4,12 @@ import { Hero } from '../sections/Hero';
 import { ProductMarquee } from '../sections/ProductMarquee';
 import { MarketplaceStatus } from '../sections/MarketplaceStatus';
 import { TheLatestDrop } from '../sections/TheLatestDrop';
-import { SeeItInAction } from '../sections/SeeItInAction';
+import { GlassDeck } from '../sections/GlassDeck';
+import { ScrollJourney } from '../sections/ScrollJourney';
 import { FeaturedProducts } from '../sections/FeaturedProducts';
 import { FindYourGame } from '../sections/FindYourGame';
 import { SearchSpotlight } from '../sections/SearchSpotlight';
 import { PopularProducts } from '../sections/PopularProducts';
-import { HowItWorks } from '../sections/HowItWorks';
 import { Stats } from '../sections/Stats';
 import { WhyShopHere } from '../sections/WhyShopHere';
 import { MarketplaceActivity } from '../sections/MarketplaceActivity';
@@ -31,12 +31,12 @@ export function HomePage() {
       </div>
       <MarketplaceStatus />
       <TheLatestDrop />
-      <SeeItInAction />
+      <GlassDeck />
       <FeaturedProducts />
       <FindYourGame />
       <SearchSpotlight />
       <PopularProducts />
-      <HowItWorks />
+      <ScrollJourney />
       <Stats />
       <WhyShopHere />
       <MarketplaceActivity />

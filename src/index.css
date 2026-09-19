@@ -158,6 +158,27 @@ body {
   background-attachment: fixed;
 }
 
+/* Glass deck: hovering one tile brings it forward and recedes its neighbours.
+   Pure CSS so no pointer handler runs per tile. */
+@media (hover: hover) and (pointer: fine) {
+  .deck:hover .deck-tile {
+    opacity: 0.5;
+    transform: scale(0.99);
+  }
+  .deck .deck-tile:hover {
+    opacity: 1;
+    transform: translateY(-4px) scale(1.01);
+    z-index: 10;
+  }
+}
+.deck-tile {
+  transition:
+    opacity 0.45s cubic-bezier(0.22, 1, 0.36, 1),
+    transform 0.45s cubic-bezier(0.22, 1, 0.36, 1),
+    border-color 0.45s ease;
+  will-change: transform, opacity;
+}
+
 .bg-grid {
   background-image:
     linear-gradient(rgba(46, 48, 106, 0.08) 1px, transparent 1px),
@@ -266,7 +287,7 @@ body {
   animation-play-state: paused;
 }
 
-/* Launcher slider. Filled portion is driven by the --pct custom property. */
+/* Range input. Filled portion is driven by the --pct custom property. */
 .range-accent {
   -webkit-appearance: none;
   appearance: none;
