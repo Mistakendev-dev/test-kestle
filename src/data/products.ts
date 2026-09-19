@@ -1,3 +1,5 @@
+import { games } from './games';
+
 export type ProductCategory = 'NFA' | 'FA' | 'Ranked' | 'Stacked';
 
 export interface Product {
@@ -6,19 +8,29 @@ export interface Product {
   game: string;
   price: number;
   originalPrice?: number;
+  /** Optional real artwork. When absent the generated ProductArt is rendered. */
+  image?: string;
   description: string;
   stock: number;
   category: ProductCategory;
   features: string[];
   badge?: 'Best Seller' | 'New' | 'Low Stock';
-  sold: number;
+  tags: string[];
+  featured: boolean;
+  new: boolean;
+  popular: boolean;
+  /** Demo ranking weight only — not a real sales figure. */
+  popularity: number;
   createdAt: number;
 }
+
+/** Shape authored by hand below. Swap this array for an API response to go live. */
+type CatalogEntry = Omit<Product, 'tags' | 'featured' | 'new' | 'popular'>;
 
 const DAY = 86400000;
 const now = Date.now();
 
-export const products: Product[] = [
+const catalog: CatalogEntry[] = [
   {
     id: 'rust-nfa',
     name: 'Rust Steam NFA Account',
@@ -30,7 +42,7 @@ export const products: Product[] = [
     category: 'NFA',
     features: ['Full Rust game license', 'Instant delivery', 'Steam Guard ready', 'Region free', 'Fresh account, zero hours'],
     badge: 'Best Seller',
-    sold: 3210,
+    popularity: 3210,
     createdAt: now - 220 * DAY,
   },
   {
@@ -42,7 +54,7 @@ export const products: Product[] = [
     stock: 38,
     category: 'NFA',
     features: ['Account created 2019 or earlier', 'Full Rust license', 'Instant delivery', 'Region free'],
-    sold: 870,
+    popularity: 870,
     createdAt: now - 180 * DAY,
   },
   {
@@ -54,7 +66,7 @@ export const products: Product[] = [
     stock: 21,
     category: 'FA',
     features: ['Original email included', 'Full ownership transfer', 'Change all credentials', 'Instant delivery'],
-    sold: 445,
+    popularity: 445,
     createdAt: now - 150 * DAY,
   },
   {
@@ -67,7 +79,7 @@ export const products: Product[] = [
     category: 'Stacked',
     features: ['500+ hours played', 'Clean VAC history', 'Instant delivery', 'Region free'],
     badge: 'Low Stock',
-    sold: 260,
+    popularity: 260,
     createdAt: now - 90 * DAY,
   },
   {
@@ -80,7 +92,7 @@ export const products: Product[] = [
     category: 'Stacked',
     features: ['1000+ hours played', 'Clean VAC history', 'Established profile', 'Instant delivery'],
     badge: 'Low Stock',
-    sold: 190,
+    popularity: 190,
     createdAt: now - 60 * DAY,
   },
   {
@@ -92,7 +104,7 @@ export const products: Product[] = [
     stock: 14,
     category: 'Stacked',
     features: ['Rust base game', 'Instruments DLC', 'Sunburn DLC', 'Instant delivery'],
-    sold: 120,
+    popularity: 120,
     createdAt: now - 30 * DAY,
   },
   {
@@ -106,7 +118,7 @@ export const products: Product[] = [
     category: 'NFA',
     features: ['CS2 ready', 'Prime upgrade eligible', 'Instant delivery', 'Region free', 'Zero VAC history'],
     badge: 'Best Seller',
-    sold: 4120,
+    popularity: 4120,
     createdAt: now - 240 * DAY,
   },
   {
@@ -118,7 +130,7 @@ export const products: Product[] = [
     stock: 54,
     category: 'FA',
     features: ['Prime Status unlocked', 'Instant delivery', 'Ranked ready', 'Region free'],
-    sold: 1540,
+    popularity: 1540,
     createdAt: now - 200 * DAY,
   },
   {
@@ -130,7 +142,7 @@ export const products: Product[] = [
     stock: 27,
     category: 'Ranked',
     features: ['Placements completed', 'Competitive rank calibrated', 'Prime Status', 'Instant delivery'],
-    sold: 680,
+    popularity: 680,
     createdAt: now - 120 * DAY,
   },
   {
@@ -143,7 +155,7 @@ export const products: Product[] = [
     category: 'Ranked',
     features: ['Global Elite rank', 'High trust factor', 'Prime Status', 'Instant delivery'],
     badge: 'Low Stock',
-    sold: 95,
+    popularity: 95,
     createdAt: now - 45 * DAY,
   },
   {
@@ -155,7 +167,7 @@ export const products: Product[] = [
     stock: 11,
     category: 'Stacked',
     features: ['Service medal included', 'Established play history', 'Prime Status', 'Instant delivery'],
-    sold: 210,
+    popularity: 210,
     createdAt: now - 75 * DAY,
   },
   {
@@ -168,7 +180,7 @@ export const products: Product[] = [
     category: 'NFA',
     features: ['Full GTA V license', 'GTA Online access', 'Instant delivery', 'Region free'],
     badge: 'Best Seller',
-    sold: 2380,
+    popularity: 2380,
     createdAt: now - 210 * DAY,
   },
   {
@@ -181,7 +193,7 @@ export const products: Product[] = [
     category: 'Stacked',
     features: ['$500M GTA Online cash', 'Rank 120+', 'All unlocks', 'Instant delivery'],
     badge: 'Low Stock',
-    sold: 340,
+    popularity: 340,
     createdAt: now - 100 * DAY,
   },
   {
@@ -193,7 +205,7 @@ export const products: Product[] = [
     stock: 33,
     category: 'FA',
     features: ['Premium Edition', 'Criminal Enterprise Starter Pack', 'Instant delivery', 'Region free'],
-    sold: 520,
+    popularity: 520,
     createdAt: now - 140 * DAY,
   },
   {
@@ -205,7 +217,7 @@ export const products: Product[] = [
     stock: 61,
     category: 'NFA',
     features: ['Epic Games launcher', 'GTA Online access', 'Instant delivery'],
-    sold: 890,
+    popularity: 890,
     createdAt: now - 160 * DAY,
   },
   {
@@ -217,7 +229,7 @@ export const products: Product[] = [
     stock: 128,
     category: 'NFA',
     features: ['Warzone ready', 'MWIII compatible', 'Cross-progression', 'Instant delivery'],
-    sold: 1760,
+    popularity: 1760,
     createdAt: now - 190 * DAY,
   },
   {
@@ -230,7 +242,7 @@ export const products: Product[] = [
     category: 'Stacked',
     features: ['Damascus camo', 'Maxed weapon arsenal', 'Legacy operator skins', 'Instant delivery'],
     badge: 'Low Stock',
-    sold: 45,
+    popularity: 45,
     createdAt: now - 80 * DAY,
   },
   {
@@ -242,7 +254,7 @@ export const products: Product[] = [
     stock: 17,
     category: 'Ranked',
     features: ['Level 250+', 'Meta loadouts unlocked', 'Battle pass rewards', 'Instant delivery'],
-    sold: 320,
+    popularity: 320,
     createdAt: now - 70 * DAY,
   },
   {
@@ -254,7 +266,7 @@ export const products: Product[] = [
     stock: 12,
     category: 'FA',
     features: ['Vault Edition', 'Nemesis operator pack', 'Weapon vaults', 'Instant delivery'],
-    sold: 150,
+    popularity: 150,
     createdAt: now - 55 * DAY,
   },
   {
@@ -266,7 +278,7 @@ export const products: Product[] = [
     stock: 175,
     category: 'NFA',
     features: ['Fortnite ready', 'Epic Games account', 'Instant delivery', 'All platforms'],
-    sold: 2940,
+    popularity: 2940,
     createdAt: now - 230 * DAY,
   },
   {
@@ -279,7 +291,7 @@ export const products: Product[] = [
     category: 'Stacked',
     features: ['Renegade Raider', 'Aerial Assault Trooper', 'Season 1 rewards', 'Full access'],
     badge: 'Low Stock',
-    sold: 12,
+    popularity: 12,
     createdAt: now - 40 * DAY,
   },
   {
@@ -291,7 +303,7 @@ export const products: Product[] = [
     stock: 7,
     category: 'Stacked',
     features: ['100+ skins', 'Multiple battle passes', 'Rare emotes', 'Instant delivery'],
-    sold: 230,
+    popularity: 230,
     createdAt: now - 65 * DAY,
   },
   {
@@ -303,7 +315,7 @@ export const products: Product[] = [
     stock: 22,
     category: 'FA',
     features: ['Save The World access', 'Founder pack', 'Daily V-Bucks', 'Instant delivery'],
-    sold: 410,
+    popularity: 410,
     createdAt: now - 110 * DAY,
   },
   {
@@ -315,7 +327,7 @@ export const products: Product[] = [
     stock: 190,
     category: 'NFA',
     features: ['Ranked ready', 'Fresh account', 'Instant delivery', 'All platforms'],
-    sold: 1830,
+    popularity: 1830,
     createdAt: now - 200 * DAY,
   },
   {
@@ -328,7 +340,7 @@ export const products: Product[] = [
     category: 'Stacked',
     features: ['Heirloom unlocked', 'Rare badges', 'Multiple legend skins', 'Instant delivery'],
     badge: 'Low Stock',
-    sold: 88,
+    popularity: 88,
     createdAt: now - 50 * DAY,
   },
   {
@@ -340,7 +352,7 @@ export const products: Product[] = [
     stock: 5,
     category: 'Ranked',
     features: ['Predator badge', 'Ranked trail rewards', 'Instant delivery'],
-    sold: 64,
+    popularity: 64,
     createdAt: now - 35 * DAY,
   },
   {
@@ -352,7 +364,7 @@ export const products: Product[] = [
     stock: 88,
     category: 'NFA',
     features: ['Ubisoft Connect', 'Ranked ready', 'Instant delivery', 'Region free'],
-    sold: 1240,
+    popularity: 1240,
     createdAt: now - 170 * DAY,
   },
   {
@@ -365,7 +377,7 @@ export const products: Product[] = [
     category: 'Ranked',
     features: ['Diamond rank', 'Strong seasonal KD', 'All operators unlocked', 'Instant delivery'],
     badge: 'Low Stock',
-    sold: 140,
+    popularity: 140,
     createdAt: now - 60 * DAY,
   },
   {
@@ -377,7 +389,7 @@ export const products: Product[] = [
     stock: 29,
     category: 'FA',
     features: ['Deluxe Edition', '38 operators unlocked', 'Instant delivery'],
-    sold: 380,
+    popularity: 380,
     createdAt: now - 130 * DAY,
   },
   {
@@ -391,7 +403,7 @@ export const products: Product[] = [
     category: 'NFA',
     features: ['Riot Games account', 'Region selectable', 'Instant delivery', 'Ranked ready at level 20'],
     badge: 'Best Seller',
-    sold: 3650,
+    popularity: 3650,
     createdAt: now - 250 * DAY,
   },
   {
@@ -403,7 +415,7 @@ export const products: Product[] = [
     stock: 45,
     category: 'Ranked',
     features: ['Level 20+', 'Competitive unlocked', 'Instant delivery'],
-    sold: 920,
+    popularity: 920,
     createdAt: now - 150 * DAY,
   },
   {
@@ -416,7 +428,7 @@ export const products: Product[] = [
     category: 'Stacked',
     features: ['Premium skin collections', 'Multiple battle passes', 'Instant delivery'],
     badge: 'Low Stock',
-    sold: 72,
+    popularity: 72,
     createdAt: now - 25 * DAY,
   },
   {
@@ -428,7 +440,7 @@ export const products: Product[] = [
     stock: 26,
     category: 'NFA',
     features: ['Standard Edition', 'Full game access', 'Instant delivery', 'Region free'],
-    sold: 480,
+    popularity: 480,
     createdAt: now - 120 * DAY,
   },
   {
@@ -441,7 +453,7 @@ export const products: Product[] = [
     category: 'Stacked',
     features: ['Edge of Darkness edition', 'Gamma container', 'Expanded stash', 'All future DLC'],
     badge: 'Low Stock',
-    sold: 55,
+    popularity: 55,
     createdAt: now - 90 * DAY,
   },
   {
@@ -454,7 +466,7 @@ export const products: Product[] = [
     category: 'FA',
     features: ['Unheard Edition', 'PvE co-op access', 'Unique gear set', 'Instant delivery'],
     badge: 'New',
-    sold: 30,
+    popularity: 30,
     createdAt: now - 12 * DAY,
   },
   {
@@ -466,7 +478,7 @@ export const products: Product[] = [
     stock: 110,
     category: 'NFA',
     features: ['PUBG ready', 'Steam account', 'Instant delivery', 'Region free'],
-    sold: 1420,
+    popularity: 1420,
     createdAt: now - 180 * DAY,
   },
   {
@@ -478,7 +490,7 @@ export const products: Product[] = [
     stock: 18,
     category: 'Stacked',
     features: ['Survivor Pass rewards', 'Exclusive skins', 'Instant delivery'],
-    sold: 260,
+    popularity: 260,
     createdAt: now - 100 * DAY,
   },
   {
@@ -490,7 +502,7 @@ export const products: Product[] = [
     stock: 150,
     category: 'NFA',
     features: ['Rocket League ready', 'Trade eligible', 'Instant delivery', 'All platforms'],
-    sold: 1680,
+    popularity: 1680,
     createdAt: now - 190 * DAY,
   },
   {
@@ -503,7 +515,7 @@ export const products: Product[] = [
     category: 'Ranked',
     features: ['Grand Champion title', 'Season rewards', 'Instant delivery'],
     badge: 'Low Stock',
-    sold: 95,
+    popularity: 95,
     createdAt: now - 70 * DAY,
   },
   {
@@ -516,7 +528,7 @@ export const products: Product[] = [
     category: 'FA',
     features: ['Java + Bedrock', 'Email changeable', 'Full ownership', 'Instant delivery'],
     badge: 'Best Seller',
-    sold: 2210,
+    popularity: 2210,
     createdAt: now - 220 * DAY,
   },
   {
@@ -529,7 +541,7 @@ export const products: Product[] = [
     category: 'Stacked',
     features: ['Rare cape', 'Java + Bedrock', 'Full access', 'Instant delivery'],
     badge: 'Low Stock',
-    sold: 38,
+    popularity: 38,
     createdAt: now - 50 * DAY,
   },
   {
@@ -541,7 +553,7 @@ export const products: Product[] = [
     stock: 135,
     category: 'NFA',
     features: ['Battle.net account', 'OW2 ready', 'Instant delivery', 'Region free'],
-    sold: 1350,
+    popularity: 1350,
     createdAt: now - 160 * DAY,
   },
   {
@@ -554,7 +566,7 @@ export const products: Product[] = [
     category: 'Ranked',
     features: ['Grandmaster rank', 'Competitive points', 'Instant delivery'],
     badge: 'Low Stock',
-    sold: 42,
+    popularity: 42,
     createdAt: now - 40 * DAY,
   },
   {
@@ -566,7 +578,7 @@ export const products: Product[] = [
     stock: 58,
     category: 'NFA',
     features: ['BF2042 full game', 'Steam or EA App', 'Instant delivery'],
-    sold: 720,
+    popularity: 720,
     createdAt: now - 140 * DAY,
   },
   {
@@ -578,7 +590,7 @@ export const products: Product[] = [
     stock: 14,
     category: 'FA',
     features: ['Ultimate Edition', 'Year 1 pass content', 'Exclusive skins', 'Instant delivery'],
-    sold: 190,
+    popularity: 190,
     createdAt: now - 85 * DAY,
   },
   {
@@ -590,7 +602,7 @@ export const products: Product[] = [
     stock: 36,
     category: 'NFA',
     features: ['Full DayZ license', 'Clean history', 'Instant delivery', 'Region free'],
-    sold: 640,
+    popularity: 640,
     createdAt: now - 130 * DAY,
   },
   {
@@ -602,12 +614,63 @@ export const products: Product[] = [
     stock: 19,
     category: 'Stacked',
     features: ['DayZ base game', 'Livonia DLC', 'Instant delivery'],
-    sold: 210,
+    popularity: 210,
     createdAt: now - 95 * DAY,
   },
 ];
 
+const KEYWORDS: [RegExp, string][] = [
+  [/instant/i, 'instant delivery'],
+  [/rank|diamond|global elite|grandmaster|predator|champion/i, 'ranked'],
+  [/skin|cape|heirloom|camo|cosmetic/i, 'cosmetics'],
+  [/region free/i, 'region free'],
+  [/email/i, 'email included'],
+  [/hours/i, 'high hours'],
+  [/dlc|edition|pass|bundle|pack/i, 'bundle'],
+];
+
+const popularIds = new Set(
+  [...catalog].sort((a, b) => b.popularity - a.popularity).slice(0, 12).map((p) => p.id),
+);
+
+const gameNames = new Map(games.map((g) => [g.id, g.name]));
+
+function enrich(entry: CatalogEntry): Product {
+  const gameName = gameNames.get(entry.game) ?? entry.game;
+  const haystack = `${entry.name} ${entry.description} ${entry.features.join(' ')}`;
+  const tags = new Set<string>([entry.category.toLowerCase(), gameName.toLowerCase()]);
+  for (const [re, tag] of KEYWORDS) if (re.test(haystack)) tags.add(tag);
+  if (entry.price < 6) tags.add('budget');
+  if (entry.price >= 40) tags.add('premium');
+  if (entry.stock <= 10) tags.add('rare');
+
+  return {
+    ...entry,
+    tags: [...tags],
+    featured: entry.badge === 'Best Seller' || entry.badge === 'Low Stock',
+    new: entry.badge === 'New' || now - entry.createdAt < 45 * DAY,
+    popular: popularIds.has(entry.id),
+  };
+}
+
+export const products: Product[] = catalog.map(enrich);
+
 export const getProduct = (id: string) => products.find((p) => p.id === id);
 export const productsByGame = (gameId: string) => products.filter((p) => p.game === gameId);
-export const featuredProducts = products.filter((p) => p.badge === 'Best Seller' || p.badge === 'Low Stock').slice(0, 8);
-export const popularProducts = [...products].sort((a, b) => b.sold - a.sold).slice(0, 8);
+export const featuredProducts = products.filter((p) => p.featured).slice(0, 10);
+export const popularProducts = [...products].sort((a, b) => b.popularity - a.popularity).slice(0, 8);
+export const newProducts = [...products].sort((a, b) => b.createdAt - a.createdAt).slice(0, 8);
+
+/** Shared matcher so global search, page search and filters stay consistent. */
+export function matchesQuery(product: Product, query: string) {
+  const q = query.trim().toLowerCase();
+  if (!q) return true;
+  const gameName = gameNames.get(product.game) ?? '';
+  return (
+    product.name.toLowerCase().includes(q) ||
+    gameName.toLowerCase().includes(q) ||
+    product.category.toLowerCase().includes(q) ||
+    product.description.toLowerCase().includes(q) ||
+    product.tags.some((t) => t.includes(q))
+  );
+}

@@ -1,8 +1,9 @@
 import { useEffect, useState } from 'react';
 import { Link, NavLink, useLocation } from 'react-router-dom';
 import { AnimatePresence, motion } from 'framer-motion';
-import { Menu, Search, ShoppingCart, X } from 'lucide-react';
+import { Heart, Menu, Search, ShoppingCart, X } from 'lucide-react';
 import { useCart } from '../../context/CartContext';
+import { useWishlist } from '../../context/WishlistContext';
 import { cn } from '../../lib/utils';
 import { SearchOverlay } from './SearchOverlay';
 
@@ -19,7 +20,9 @@ export function Navbar() {
   const [searchOpen, setSearchOpen] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const { count, openCart } = useCart();
+  const { count: wishCount, open: openWishlist } = useWishlist();
   const location = useLocation();
+  const onProductsPage = location.pathname === '/products';
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 24);
@@ -27,6 +30,19 @@ export function Navbar() {
     window.addEventListener('scroll', onScroll, { passive: true });
     return () => window.removeEventListener('scroll', onScroll);
   }, []);
+
+  // ⌘K / Ctrl+K opens global search, except on /products where the page owns it.
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key.toLowerCase() === 'k' && (e.metaKey || e.ctrlKey)) {
+        if (onProductsPage) return;
+        e.preventDefault();
+        setSearchOpen(true);
+      }
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [onProductsPage]);
 
   useEffect(() => {
     setMenuOpen(false);
@@ -87,6 +103,25 @@ export function Navbar() {
               className="flex h-10 w-10 items-center justify-center rounded-xl border border-transparent text-zinc-400 transition-all duration-300 hover:border-edge hover:bg-white/[0.04] hover:text-white"
             >
               <Search className="h-[18px] w-[18px]" />
+            </button>
+            <button
+              onClick={openWishlist}
+              aria-label="Wishlist"
+              className="relative hidden h-10 w-10 items-center justify-center rounded-xl border border-transparent text-zinc-400 transition-all duration-300 hover:border-edge hover:bg-white/[0.04] hover:text-white sm:flex"
+            >
+              <Heart className={cn('h-[18px] w-[18px]', wishCount > 0 && 'fill-rose-400/80 text-rose-300')} />
+              <AnimatePresence>
+                {wishCount > 0 && (
+                  <motion.span
+                    initial={{ scale: 0 }}
+                    animate={{ scale: 1 }}
+                    exit={{ scale: 0 }}
+                    className="absolute -right-0.5 -top-0.5 flex h-[18px] min-w-[18px] items-center justify-center rounded-full bg-rose-500 px-1 text-[10px] font-bold text-white"
+                  >
+                    {wishCount}
+                  </motion.span>
+                )}
+              </AnimatePresence>
             </button>
             <button
               onClick={openCart}
@@ -153,6 +188,19 @@ export function Navbar() {
                     </NavLink>
                   </motion.div>
                 ))}
+                <button
+                  onClick={() => {
+                    setMenuOpen(false);
+                    openWishlist();
+                  }}
+                  className="flex items-center justify-between rounded-xl px-4 py-3 text-sm font-medium text-zinc-400 transition-colors hover:bg-white/[0.04] hover:text-white sm:hidden"
+                >
+                  <span className="flex items-center gap-2">
+                    <Heart className={cn('h-4 w-4', wishCount > 0 && 'fill-rose-400/80 text-rose-300')} />
+                    Wishlist
+                  </span>
+                  {wishCount > 0 && <span className="text-xs text-rose-300">{wishCount}</span>}
+                </button>
                 <Link to="/products" className="btn-primary btn-shine mt-2">
                   Browse Products
                 </Link>

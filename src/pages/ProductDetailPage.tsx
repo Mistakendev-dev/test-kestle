@@ -14,22 +14,15 @@ import {
 import { getProduct, productsByGame } from '../data/products';
 import { getGame } from '../data/games';
 import { faqItems } from '../data/content';
-import { formatPrice, formatSold, cn } from '../lib/utils';
+import { formatPrice, cn } from '../lib/utils';
+import { pushRecentlyViewed } from '../lib/recentlyViewed';
 import { useCart } from '../context/CartContext';
+import { useToast } from '../context/ToastContext';
 import { ProductArt } from '../components/ProductArt';
-import { ProductCard } from '../components/ProductCard';
+import { ProductGrid } from '../components/ProductGrid';
 import { Badge, StockIndicator } from '../components/Badge';
-import { Reveal, Stagger } from '../components/anim/Reveal';
-
-const RECENT_KEY = 'nfa-recently-viewed';
-
-export function getRecentlyViewed(): string[] {
-  try {
-    return JSON.parse(localStorage.getItem(RECENT_KEY) ?? '[]');
-  } catch {
-    return [];
-  }
-}
+import { WishlistButton } from '../components/WishlistButton';
+import { Reveal } from '../components/anim/Reveal';
 
 const tabs = ['Product Details', 'Delivery Information', 'Requirements', 'FAQ'] as const;
 
@@ -37,6 +30,7 @@ export function ProductDetailPage() {
   const { id } = useParams<{ id: string }>();
   const product = getProduct(id ?? '');
   const { addItem } = useCart();
+  const { toast } = useToast();
   const [qty, setQty] = useState(1);
   const [imageIndex, setImageIndex] = useState(0);
   const [tab, setTab] = useState<(typeof tabs)[number]>('Product Details');
@@ -46,11 +40,7 @@ export function ProductDetailPage() {
     setQty(1);
     setImageIndex(0);
     setTab('Product Details');
-    if (product) {
-      const recent = getRecentlyViewed().filter((rid) => rid !== product.id);
-      recent.unshift(product.id);
-      localStorage.setItem(RECENT_KEY, JSON.stringify(recent.slice(0, 8)));
-    }
+    if (product) pushRecentlyViewed(product.id);
   }, [id, product]);
 
   const related = useMemo(
@@ -98,12 +88,23 @@ export function ProductDetailPage() {
                   animate={{ opacity: 1, scale: 1 }}
                   exit={{ opacity: 0, scale: 0.98 }}
                   transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
+                  drag="x"
+                  dragConstraints={{ left: 0, right: 0 }}
+                  dragElastic={0.12}
+                  onDragEnd={(_, info) => {
+                    if (info.offset.x < -60) setImageIndex((i) => (i + 1) % galleryLabels.length);
+                    else if (info.offset.x > 60)
+                      setImageIndex((i) => (i - 1 + galleryLabels.length) % galleryLabels.length);
+                  }}
+                  className="cursor-grab active:cursor-grabbing"
                 >
                   <ProductArt
                     gameId={product.game}
+                    image={product.image}
+                    alt={product.name}
                     label={galleryLabels[imageIndex]}
                     large
-                    className="aspect-[4/3] w-full"
+                    className="pointer-events-none aspect-[4/3] w-full"
                   />
                 </motion.div>
               </AnimatePresence>
@@ -138,7 +139,9 @@ export function ProductDetailPage() {
               >
                 {game?.name}
               </Link>
-              <span className="text-xs text-zinc-600">{formatSold(product.sold)} sold</span>
+              <span className="rounded-md border border-edge px-2 py-0.5 text-[11px] font-semibold uppercase tracking-wider text-zinc-500">
+                {product.category}
+              </span>
             </div>
 
             <h1 className="mt-4 font-display text-3xl font-bold tracking-tight text-white md:text-4xl">
@@ -193,13 +196,30 @@ export function ProductDetailPage() {
                 </button>
               </div>
               <button
-                onClick={() => addItem(product.id, qty)}
-                className="btn-primary btn-shine flex-1 !py-3.5 text-base"
+                onClick={() => {
+                  addItem(product.id, qty);
+                  toast('Added to cart', { detail: `${qty} × ${product.name}` });
+                }}
+                className="btn-primary btn-shine min-w-[200px] flex-1 !py-3.5 text-base"
               >
                 <ShoppingCart className="h-4 w-4" />
                 Add to Cart — {formatPrice(product.price * qty)}
               </button>
+              <WishlistButton productId={product.id} size="md" className="h-12 w-12" />
             </div>
+
+            {product.tags.length > 0 && (
+              <div className="mt-5 flex flex-wrap gap-2">
+                {product.tags.map((t) => (
+                  <span
+                    key={t}
+                    className="rounded-lg border border-edge bg-white/[0.02] px-2.5 py-1 text-[11px] font-medium capitalize text-zinc-400"
+                  >
+                    {t}
+                  </span>
+                ))}
+              </div>
+            )}
 
             <div className="mt-6 grid grid-cols-3 gap-3">
               {[
@@ -322,11 +342,7 @@ export function ProductDetailPage() {
               More {game?.name} accounts
             </h2>
           </Reveal>
-          <Stagger className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4" step={0.07}>
-            {related.map((p) => (
-              <ProductCard key={p.id} product={p} />
-            ))}
-          </Stagger>
+          <ProductGrid products={related} animateLayout={false} />
         </div>
       )}
     </div>

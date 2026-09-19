@@ -75,7 +75,12 @@ export function CartDrawer() {
                         className="mb-3 flex gap-4 rounded-2xl border border-edge bg-white/[0.02] p-3"
                       >
                         <Link to={`/product/${product.id}`} onClick={closeCart} className="shrink-0">
-                          <ProductArt gameId={product.game} className="h-16 w-20 rounded-xl" />
+                          <ProductArt
+                            gameId={product.game}
+                            image={product.image}
+                            alt={product.name}
+                            className="h-16 w-20 rounded-xl"
+                          />
                         </Link>
                         <div className="min-w-0 flex-1">
                           <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-zinc-500">
@@ -129,7 +134,10 @@ export function CartDrawer() {
                     <span className="font-display text-xl font-bold text-white">{formatPrice(subtotal)}</span>
                   </div>
                   <p className="mb-4 text-xs text-zinc-600">Taxes calculated at checkout. Delivery is instant.</p>
-                  <button className="btn-primary btn-shine w-full !py-3.5 text-base">Checkout</button>
+                  <button type="button" className="btn-primary btn-shine w-full !py-3.5 text-base">
+                    Checkout
+                  </button>
+                  <p className="mt-2 text-center text-[11px] text-zinc-600">Demo storefront — checkout is disabled.</p>
                   <div className="mt-4 flex items-center justify-center gap-5 text-[11px] text-zinc-500">
                     <span className="flex items-center gap-1.5">
                       <ShieldCheck className="h-3.5 w-3.5 text-accent-bright" /> Secure checkout

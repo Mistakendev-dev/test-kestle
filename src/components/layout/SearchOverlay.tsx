@@ -2,7 +2,7 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { AnimatePresence, motion } from 'framer-motion';
 import { ArrowRight, Search, X } from 'lucide-react';
-import { products } from '../../data/products';
+import { matchesQuery, products } from '../../data/products';
 import { games, getGame } from '../../data/games';
 import { formatPrice } from '../../lib/utils';
 import { ProductArt } from '../ProductArt';
@@ -30,16 +30,7 @@ export function SearchOverlay({ open, onClose }: { open: boolean; onClose: () =>
   const q = query.trim().toLowerCase();
   const matchedProducts = useMemo(
     () =>
-      q
-        ? products
-            .filter(
-              (p) =>
-                p.name.toLowerCase().includes(q) ||
-                getGame(p.game)?.name.toLowerCase().includes(q) ||
-                p.category.toLowerCase().includes(q),
-            )
-            .slice(0, 6)
-        : [],
+      q ? products.filter((p) => matchesQuery(p, q)).slice(0, 6) : [],
     [q],
   );
   const matchedGames = useMemo(
@@ -147,7 +138,12 @@ export function SearchOverlay({ open, onClose }: { open: boolean; onClose: () =>
                       onClick={onClose}
                       className="group flex items-center gap-3 rounded-xl px-3 py-2.5 transition-colors hover:bg-white/[0.04]"
                     >
-                      <ProductArt gameId={p.game} className="h-10 w-14 shrink-0 rounded-lg" />
+                      <ProductArt
+                        gameId={p.game}
+                        image={p.image}
+                        alt={p.name}
+                        className="h-10 w-14 shrink-0 rounded-lg"
+                      />
                       <div className="min-w-0 flex-1">
                         <p className="truncate text-sm font-medium text-zinc-200 group-hover:text-white">{p.name}</p>
                         <p className="text-xs text-zinc-500">{getGame(p.game)?.name}</p>

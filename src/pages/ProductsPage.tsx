@@ -55,7 +55,7 @@ export function ProductsPage() {
         list.sort((a, b) => b.createdAt - a.createdAt);
         break;
       default:
-        list.sort((a, b) => b.sold - a.sold);
+        list.sort((a, b) => b.popularity - a.popularity);
     }
     return list;
   }, [selectedGame, selectedType, maxPrice, inStockOnly, sort]);

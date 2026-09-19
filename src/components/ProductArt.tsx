@@ -6,15 +6,35 @@ export function ProductArt({
   label,
   className,
   large = false,
+  image,
+  alt,
 }: {
   gameId: string;
   label?: string;
   className?: string;
   large?: boolean;
+  /** Real artwork URL. Falls back to the generated gradient when omitted. */
+  image?: string;
+  alt?: string;
 }) {
   const game = getGame(gameId);
   const color = game?.color ?? '#2e306a';
   const short = game?.short ?? 'NFA';
+
+  if (image) {
+    return (
+      <div className={cn('relative overflow-hidden bg-panel', className)}>
+        <img
+          src={image}
+          alt={alt ?? game?.name ?? 'Product artwork'}
+          loading="lazy"
+          decoding="async"
+          className="h-full w-full object-cover"
+        />
+        <div className="absolute inset-0 bg-gradient-to-t from-void/70 via-transparent to-transparent" />
+      </div>
+    );
+  }
 
   return (
     <div
