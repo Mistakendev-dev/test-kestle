@@ -7,6 +7,7 @@ import { getGame } from '../data/games';
 import { formatPrice } from '../lib/utils';
 import { useCart } from '../context/CartContext';
 import { useToast } from '../context/ToastContext';
+import { useBodyScrollLock } from '../hooks/useBodyScrollLock';
 import { ProductArt } from './ProductArt';
 import { Badge, StockIndicator } from './Badge';
 import { WishlistButton } from './WishlistButton';
@@ -15,17 +16,15 @@ export function QuickViewModal({ product, onClose }: { product: Product | null; 
   const { addItem } = useCart();
   const { toast } = useToast();
 
+  useBodyScrollLock(Boolean(product));
+
   useEffect(() => {
     if (!product) return;
     const onKey = (e: KeyboardEvent) => {
       if (e.key === 'Escape') onClose();
     };
     window.addEventListener('keydown', onKey);
-    document.body.style.overflow = 'hidden';
-    return () => {
-      window.removeEventListener('keydown', onKey);
-      document.body.style.overflow = '';
-    };
+    return () => window.removeEventListener('keydown', onKey);
   }, [product, onClose]);
 
   const game = product ? getGame(product.game) : null;

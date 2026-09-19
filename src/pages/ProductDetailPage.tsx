@@ -342,7 +342,7 @@ export function ProductDetailPage() {
               More {game?.name} accounts
             </h2>
           </Reveal>
-          <ProductGrid products={related} animateLayout={false} />
+          <ProductGrid products={related} columns="compact" animateLayout={false} />
         </div>
       )}
     </div>

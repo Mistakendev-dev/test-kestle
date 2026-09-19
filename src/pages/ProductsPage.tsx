@@ -4,10 +4,11 @@ import { AnimatePresence, motion } from 'framer-motion';
 import { ChevronDown, PackageSearch, Search, SlidersHorizontal, X } from 'lucide-react';
 import { matchesQuery, products, type ProductCategory } from '../data/products';
 import { games } from '../data/games';
-import { cn, formatPrice } from '../lib/utils';
+import { cn, formatPrice, shortcutLabel } from '../lib/utils';
 import { ProductGrid } from '../components/ProductGrid';
 import { CategoryRail, type RailOption } from '../components/CategoryRail';
 import { Reveal } from '../components/anim/Reveal';
+import { useBodyScrollLock } from '../hooks/useBodyScrollLock';
 
 type SortKey = 'featured' | 'newest' | 'price-asc' | 'price-desc' | 'popular';
 
@@ -42,6 +43,8 @@ export function ProductsPage() {
 
   const selectedGame = searchParams.get('game') ?? 'all';
   const selectedType = (searchParams.get('type') ?? 'All') as ProductCategory | 'All';
+
+  useBodyScrollLock(filtersOpen);
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
@@ -269,8 +272,8 @@ export function ProductsPage() {
                   <X className="h-3.5 w-3.5" />
                 </button>
               )}
-              <kbd className="hidden rounded-md border border-edge bg-white/[0.04] px-1.5 py-0.5 font-body text-[10px] font-medium text-zinc-500 sm:block">
-                ⌘K
+              <kbd className="hidden whitespace-nowrap rounded-md border border-edge bg-white/[0.04] px-1.5 py-0.5 font-body text-[10px] font-medium text-zinc-500 sm:block">
+                {shortcutLabel()}
               </kbd>
             </div>
           </div>
@@ -351,7 +354,7 @@ export function ProductsPage() {
                 </button>
               </motion.div>
             ) : (
-              <ProductGrid products={filtered} className="2xl:grid-cols-4" />
+              <ProductGrid products={filtered} columns="sidebar" />
             )}
           </div>
         </div>

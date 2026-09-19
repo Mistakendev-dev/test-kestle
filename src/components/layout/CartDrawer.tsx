@@ -5,9 +5,11 @@ import { useCart } from '../../context/CartContext';
 import { getGame } from '../../data/games';
 import { formatPrice } from '../../lib/utils';
 import { ProductArt } from '../ProductArt';
+import { useBodyScrollLock } from '../../hooks/useBodyScrollLock';
 
 export function CartDrawer() {
   const { isOpen, closeCart, detailed, setQty, removeItem, subtotal, count } = useCart();
+  useBodyScrollLock(isOpen);
 
   return (
     <AnimatePresence>

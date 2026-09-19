@@ -12,8 +12,16 @@ export function RecentlyViewed({ showEmptyState = false }: { showEmptyState?: bo
   const [items, setItems] = useState<Product[]>([]);
 
   useEffect(() => {
+    // Never list the product the user is already looking at.
+    const currentId = location.pathname.match(/^\/product\/(.+)$/)?.[1];
     const load = () =>
-      setItems(getRecentlyViewed().map(getProduct).filter((p): p is Product => Boolean(p)).slice(0, 6));
+      setItems(
+        getRecentlyViewed()
+          .filter((id) => id !== currentId)
+          .map(getProduct)
+          .filter((p): p is Product => Boolean(p))
+          .slice(0, 6),
+      );
     load();
     window.addEventListener('nfa:recently-viewed', load);
     return () => window.removeEventListener('nfa:recently-viewed', load);

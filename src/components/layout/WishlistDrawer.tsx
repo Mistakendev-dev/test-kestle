@@ -8,11 +8,13 @@ import { getGame } from '../../data/games';
 import { formatPrice } from '../../lib/utils';
 import { ProductArt } from '../ProductArt';
 import { StockIndicator } from '../Badge';
+import { useBodyScrollLock } from '../../hooks/useBodyScrollLock';
 
 export function WishlistDrawer() {
   const { isOpen, close, detailed, remove, count } = useWishlist();
   const { addItem } = useCart();
   const { toast } = useToast();
+  useBodyScrollLock(isOpen);
 
   return (
     <AnimatePresence>
