@@ -6,6 +6,7 @@ import { products } from '../data/products';
 import { games, getGame } from '../data/games';
 import { formatPrice } from '../lib/utils';
 import { Particles } from '../components/effects/Particles';
+import { DiscoverOrb } from '../components/effects/DiscoverOrb';
 import { MagneticButton } from '../components/anim/MagneticButton';
 import { ProductArt } from '../components/ProductArt';
 import { usePointerEffects } from '../hooks/usePointerEffects';
@@ -200,6 +201,7 @@ export function Hero() {
           {floatCards.map((p, i) => (
             <HeroCard key={p.id} product={p} index={i} sx={sx} sy={sy} />
           ))}
+          <DiscoverOrb className="left-[2%] top-[52%]" />
         </div>
 
         {/* Touch devices get one floating card instead of the cursor-driven

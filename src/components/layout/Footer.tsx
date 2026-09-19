@@ -50,13 +50,22 @@ const columns = [
 
 export function Footer() {
   return (
-    <footer className="relative overflow-hidden border-t border-edge bg-panel/40">
+    <footer className="relative overflow-hidden border-t border-edge bg-surface-1">
+      {/* Brand mark set huge and nearly invisible — reads as texture at a
+          glance, as the wordmark once you look. */}
       <div
         aria-hidden
-        className="pointer-events-none absolute -bottom-24 left-1/2 -translate-x-1/2 select-none font-display text-[22vw] font-bold leading-none tracking-tighter text-white/[0.02]"
+        className="pointer-events-none absolute inset-x-0 -bottom-[3vw] select-none text-center font-display text-[19vw] font-bold leading-none tracking-tighter text-white/[0.022]"
       >
-        NFA
+        NFA MARKET
       </div>
+      <div
+        aria-hidden
+        className="pointer-events-none absolute inset-x-0 bottom-0 h-72"
+        style={{
+          background: 'radial-gradient(ellipse 55% 100% at 50% 100%, rgba(46,48,106,0.3), transparent 72%)',
+        }}
+      />
       <div
         aria-hidden
         className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-accent-light/50 to-transparent"
@@ -66,7 +75,7 @@ export function Footer() {
         <div className="grid gap-12 lg:grid-cols-[minmax(0,1.1fr)_minmax(0,2.6fr)] lg:gap-16">
           <div>
             <Link to="/" className="flex items-center gap-2.5">
-              <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-accent font-display text-sm font-bold text-white">
+              <span className="flex h-9 w-9 items-center justify-center rounded-xl border border-white/10 bg-gradient-to-br from-accent-light to-accent-deep font-display text-sm font-bold text-white shadow-rest">
                 N
               </span>
               <span className="font-display text-xl font-bold tracking-tight text-white">
@@ -74,7 +83,8 @@ export function Footer() {
               </span>
             </Link>
             <p className="mt-4 max-w-xs text-sm leading-relaxed text-zinc-500">
-              The premium marketplace for gaming accounts. Instant delivery, verified stock, and 24/7 support — built for gamers.
+              A premium marketplace for gaming accounts — {games.length} titles, filters that
+              actually narrow things down, and full product detail before anything reaches your cart.
             </p>
             <div className="mt-6 flex gap-3">
               <a
