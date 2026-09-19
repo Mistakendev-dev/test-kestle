@@ -4,6 +4,7 @@ import { Hero } from '../sections/Hero';
 import { ProductMarquee } from '../sections/ProductMarquee';
 import { MarketplaceStatus } from '../sections/MarketplaceStatus';
 import { TheLatestDrop } from '../sections/TheLatestDrop';
+import { SeeItInAction } from '../sections/SeeItInAction';
 import { FeaturedProducts } from '../sections/FeaturedProducts';
 import { FindYourGame } from '../sections/FindYourGame';
 import { SearchSpotlight } from '../sections/SearchSpotlight';
@@ -30,6 +31,7 @@ export function HomePage() {
       </div>
       <MarketplaceStatus />
       <TheLatestDrop />
+      <SeeItInAction />
       <FeaturedProducts />
       <FindYourGame />
       <SearchSpotlight />
