@@ -30,10 +30,13 @@ export function ProductCard({
   const rotateY = useTransform(sx, [0, 1], [-3.5, 3.5]);
   const imgX = useTransform(sx, [0, 1], [-6, 6]);
   const imgY = useTransform(sy, [0, 1], [-6, 6]);
+  // Normalised -1..1, handed to ProductArt's layers as custom properties.
+  const ax = useTransform(sx, [0, 1], [-1, 1]);
+  const ay = useTransform(sy, [0, 1], [-1, 1]);
   const glowX = useTransform(sx, [0, 1], ['0%', '100%']);
   const glowY = useTransform(sy, [0, 1], ['0%', '100%']);
   const sheen = useMotionTemplate`radial-gradient(260px circle at ${glowX} ${glowY}, rgba(107,114,214,0.16), transparent 68%)`;
-  const rim = useMotionTemplate`radial-gradient(180px circle at ${glowX} ${glowY}, rgba(107,114,214,0.55), transparent 60%)`;
+  const ring = useMotionTemplate`radial-gradient(220px circle at ${glowX} ${glowY}, rgba(107,114,214,0.7), rgba(107,114,214,0.05) 60%)`;
 
   function handleMove(e: MouseEvent) {
     if (!rich || !ref.current) return;
@@ -57,12 +60,26 @@ export function ProductCard({
       ref={ref}
       onMouseMove={handleMove}
       onMouseLeave={handleLeave}
-      style={rich ? { rotateX, rotateY, transformStyle: 'preserve-3d', perspective: 900 } : undefined}
+      style={
+        rich
+          ? ({ rotateX, rotateY, transformStyle: 'preserve-3d', perspective: 900, '--ax': ax, '--ay': ay } as never)
+          : undefined
+      }
       whileHover={rich ? { y: -6 } : undefined}
       transition={{ type: 'spring', stiffness: 300, damping: 25 }}
       className="group relative h-full"
     >
-      <div className="relative flex h-full flex-col overflow-hidden rounded-2xl border border-edge bg-panel/60 backdrop-blur-sm transition-colors duration-300 group-hover:border-accent-light/40">
+      {/* Ambient halo tinted toward the game's identity colour, kept on-brand
+          by the accent underneath it. Sits behind the card, never over it. */}
+      <div
+        aria-hidden
+        className="pointer-events-none absolute -inset-4 -z-10 rounded-[28px] opacity-0 blur-2xl transition-opacity duration-300 group-hover:opacity-100"
+        style={{
+          background: `radial-gradient(60% 55% at 50% 45%, ${game?.color ?? '#6b72d6'}2e 0%, transparent 70%), radial-gradient(75% 70% at 50% 60%, rgba(46,48,106,0.55) 0%, transparent 72%)`,
+        }}
+      />
+
+      <div className="relative flex h-full flex-col overflow-hidden rounded-2xl border border-edge bg-panel/60 backdrop-blur-sm transition-[background-color,border-color,box-shadow] duration-300 group-hover:border-accent-light/40 group-hover:bg-[#07070c]/90 group-hover:shadow-[0_18px_50px_-24px_rgba(0,0,0,0.9)]">
         {rich && (
           <>
             <motion.div
@@ -70,10 +87,17 @@ export function ProductCard({
               className="pointer-events-none absolute inset-0 z-10 opacity-0 transition-opacity duration-300 group-hover:opacity-100"
               style={{ background: sheen }}
             />
+            {/* True 1px border light: the ring gradient is masked down to the
+                padding box so only the edge is painted. */}
             <motion.div
               aria-hidden
-              className="pointer-events-none absolute -inset-px z-0 rounded-2xl opacity-0 transition-opacity duration-300 group-hover:opacity-100"
-              style={{ background: rim, maskImage: 'linear-gradient(#000,#000)', padding: 1 }}
+              className="pointer-events-none absolute inset-0 z-20 rounded-2xl p-px opacity-0 transition-opacity duration-300 group-hover:opacity-100"
+              style={{
+                background: ring,
+                WebkitMask: 'linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0)',
+                WebkitMaskComposite: 'xor',
+                maskComposite: 'exclude',
+              }}
             />
           </>
         )}
@@ -90,6 +114,7 @@ export function ProductCard({
                 alt={product.name}
                 label={product.category}
                 size="lg"
+                depth={rich}
                 className="aspect-[4/3] w-full"
               />
             </motion.div>
@@ -124,8 +149,8 @@ export function ProductCard({
             {game?.name}
           </span>
 
-          <Link to={`/product/${product.id}`} className="mt-1.5">
-            <h3 className="line-clamp-2 font-display text-lg font-semibold leading-snug text-white transition-colors group-hover:text-accent-bright">
+          <Link to={`/product/${product.id}`} className="mt-1.5 block">
+            <h3 className="line-clamp-2 font-display text-lg font-semibold leading-snug text-white transition-[color,transform] duration-300 group-hover:translate-x-0.5 group-hover:text-accent-bright">
               {product.name}
             </h3>
           </Link>
@@ -157,7 +182,7 @@ export function ProductCard({
             </div>
             <Link
               to={`/product/${product.id}`}
-              className="inline-flex shrink-0 items-center gap-1.5 rounded-lg border border-edge bg-white/[0.03] px-3.5 py-2.5 text-xs font-semibold text-zinc-300 transition-all duration-300 hover:border-accent-light/50 hover:bg-accent/20 hover:text-white"
+              className="inline-flex shrink-0 items-center gap-1.5 rounded-lg border border-edge bg-white/[0.03] px-3.5 py-2.5 text-xs font-semibold text-zinc-300 transition-all duration-300 group-hover:border-accent-light/60 group-hover:bg-accent group-hover:text-white group-hover:shadow-[0_0_24px_-8px_rgba(74,79,158,0.9)] hover:!bg-accent-light"
             >
               View Product
               <ArrowRight className="h-3.5 w-3.5 transition-transform duration-300 group-hover:translate-x-0.5" />

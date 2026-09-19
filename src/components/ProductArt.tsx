@@ -45,6 +45,7 @@ export function ProductArt({
   alt,
   priority = false,
   variant = 0,
+  depth = false,
 }: {
   gameId: string;
   label?: string;
@@ -52,6 +53,13 @@ export function ProductArt({
   size?: ArtSize;
   /** Shifts the generated composition — used for distinct gallery frames. */
   variant?: number;
+  /**
+   * Lets the internal layers drift against the `--ax` / `--ay` custom
+   * properties (-1..1) set by a parent on pointer move. Layers travel at
+   * different rates and directions, so the art gains real depth rather than
+   * sliding as one flat image.
+   */
+  depth?: boolean;
   /** Real artwork URL. Falls back to the generated composition when omitted. */
   image?: string;
   alt?: string;
@@ -62,6 +70,10 @@ export function ProductArt({
   const color = game?.color ?? '#6b72d6';
   const short = game?.short ?? 'NFA';
   const { angle, bloomX, bloomY, stripeGap } = seed(gameId, variant);
+
+  /** Per-layer drift. Negative rates move against the cursor for parallax. */
+  const drift = (rate: number) =>
+    depth ? ` translate3d(calc(var(--ax, 0) * ${rate}px), calc(var(--ay, 0) * ${rate * 0.7}px), 0)` : '';
 
   return (
     <div
@@ -85,7 +97,7 @@ export function ProductArt({
             style={{
               left: `${bloomX}%`,
               top: `${bloomY}%`,
-              transform: 'translate(-40%, -40%)',
+              transform: `translate(-40%, -40%)${drift(18)}`,
               background: `radial-gradient(circle, ${color}55 0%, ${color}14 45%, transparent 70%)`,
             }}
           />
@@ -100,7 +112,7 @@ export function ProductArt({
             aria-hidden
             className="absolute -inset-1/2 opacity-[0.55]"
             style={{
-              transform: `rotate(${angle}deg)`,
+              transform: `rotate(${angle}deg)${drift(6)}`,
               backgroundImage: `repeating-linear-gradient(90deg, ${color}1f 0px, ${color}1f 1px, transparent 1px, transparent ${stripeGap}px)`,
             }}
           />
@@ -109,7 +121,7 @@ export function ProductArt({
             aria-hidden
             className="absolute inset-y-0 left-1/2 w-[38%] opacity-70"
             style={{
-              transform: `skewX(${angle / 2}deg)`,
+              transform: `skewX(${angle / 2}deg)${drift(11)}`,
               background: `linear-gradient(100deg, transparent, ${color}1a 45%, transparent)`,
             }}
           />
@@ -127,6 +139,7 @@ export function ProductArt({
               color: 'transparent',
               filter: `drop-shadow(0 0 28px ${color}4d)`,
               opacity: 0.92,
+              transform: drift(-8).trim() || undefined,
             }}
           >
             {short}

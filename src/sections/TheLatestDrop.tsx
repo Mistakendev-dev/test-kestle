@@ -1,6 +1,6 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState, type MouseEvent } from 'react';
 import { Link } from 'react-router-dom';
-import { AnimatePresence, motion } from 'framer-motion';
+import { AnimatePresence, motion, useMotionValue, useSpring, useTransform } from 'framer-motion';
 import { ArrowRight, ChevronLeft, ChevronRight, ShoppingCart } from 'lucide-react';
 import { newProducts } from '../data/products';
 import { getGame } from '../data/games';
@@ -22,6 +22,31 @@ export function TheLatestDrop() {
   const { addItem } = useCart();
   const { toast } = useToast();
   const animate = usePointerEffects();
+
+  const stageRef = useRef<HTMLDivElement>(null);
+  const mx = useMotionValue(0.5);
+  const my = useMotionValue(0.5);
+  const sx = useSpring(mx, { stiffness: 140, damping: 22 });
+  const sy = useSpring(my, { stiffness: 140, damping: 22 });
+  const tiltX = useTransform(sy, [0, 1], [5, -5]);
+  const tiltY = useTransform(sx, [0, 1], [-6, 6]);
+  const ax = useTransform(sx, [0, 1], [-1, 1]);
+  const ay = useTransform(sy, [0, 1], [-1, 1]);
+
+  const trackPointer = useCallback(
+    (e: MouseEvent) => {
+      if (!animate || !stageRef.current) return;
+      const r = stageRef.current.getBoundingClientRect();
+      mx.set((e.clientX - r.left) / r.width);
+      my.set((e.clientY - r.top) / r.height);
+    },
+    [animate, mx, my],
+  );
+
+  const releasePointer = useCallback(() => {
+    mx.set(0.5);
+    my.set(0.5);
+  }, [mx, my]);
 
   const go = useCallback((delta: number) => {
     setIndex((i) => (i + delta + slides.length) % slides.length);
@@ -63,7 +88,13 @@ export function TheLatestDrop() {
 
       <div className="container-wide relative grid items-center gap-10 lg:grid-cols-[minmax(0,1.1fr)_minmax(0,1fr)] lg:gap-16">
         <Reveal>
-          <div className="relative" style={{ perspective: 1200 }}>
+          <div
+            ref={stageRef}
+            onMouseMove={trackPointer}
+            onMouseLeave={releasePointer}
+            className="relative"
+            style={{ perspective: 1200 }}
+          >
             <div
               aria-hidden
               className="pointer-events-none absolute -inset-8 -z-10 blur-[70px]"
@@ -72,10 +103,11 @@ export function TheLatestDrop() {
             <AnimatePresence mode="wait">
               <motion.div
                 key={product.id}
-                initial={{ opacity: 0, scale: 0.96, rotateY: animate ? -8 : 0 }}
-                animate={{ opacity: 1, scale: 1, rotateY: 0 }}
-                exit={{ opacity: 0, scale: 0.98 }}
+                initial={{ opacity: 0, scale: 0.96, x: animate ? 28 : 0 }}
+                animate={{ opacity: 1, scale: 1, x: 0 }}
+                exit={{ opacity: 0, scale: 0.98, x: animate ? -20 : 0 }}
                 transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
+                style={animate ? ({ rotateX: tiltX, rotateY: tiltY, '--ax': ax, '--ay': ay } as never) : undefined}
               >
                 <Link to={`/product/${product.id}`} className="group block">
                   <ProductArt
@@ -84,6 +116,7 @@ export function TheLatestDrop() {
                     alt={product.name}
                     label={product.category}
                     size="xl"
+                    depth={animate}
                     className="aspect-[16/10] w-full rounded-3xl border border-edge shadow-[0_40px_90px_-40px_rgba(0,0,0,1)] transition-transform duration-700 group-hover:scale-[1.02]"
                   />
                 </Link>
@@ -99,9 +132,9 @@ export function TheLatestDrop() {
             <AnimatePresence mode="wait">
               <motion.div
                 key={product.id}
-                initial={{ opacity: 0, y: 16 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -10 }}
+                initial={{ opacity: 0, y: 14, x: 12 }}
+                animate={{ opacity: 1, y: 0, x: 0 }}
+                exit={{ opacity: 0, y: -8, x: -12 }}
                 transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
               >
                 <p className="mt-4 text-sm font-semibold uppercase tracking-[0.2em]" style={{ color: game?.color }}>
@@ -158,24 +191,43 @@ export function TheLatestDrop() {
               </div>
 
               {/* CSS-driven so pausing is a play-state flip, not a React re-render loop. */}
-              <div className={`flex flex-1 gap-2 ${paused ? 'drop-paused' : ''}`}>
-                {slides.map((s, i) => (
-                  <button
-                    key={s.id}
-                    onClick={() => setIndex(i)}
-                    aria-label={`Show ${s.name}`}
-                    aria-current={i === index}
-                    className="h-1 flex-1 overflow-hidden rounded-full bg-white/10"
-                  >
-                    {i === index && (
+              <div className={`flex flex-1 gap-2 sm:gap-3 ${paused ? 'drop-paused' : ''}`}>
+                {slides.map((s, i) => {
+                  const active = i === index;
+                  return (
+                    <button
+                      key={s.id}
+                      onClick={() => setIndex(i)}
+                      aria-label={`Show ${s.name}`}
+                      aria-current={active}
+                      className="group/sel flex flex-1 flex-col gap-2 text-left"
+                    >
+                      <span className="h-px w-full overflow-hidden bg-white/10">
+                        {active && (
+                          <span
+                            key={index}
+                            className="drop-progress block h-full bg-accent-bright"
+                            style={{ animationDuration: `${ROTATE_MS}ms` }}
+                          />
+                        )}
+                      </span>
                       <span
-                        key={index}
-                        className="drop-progress block h-full rounded-full bg-accent-bright"
-                        style={{ animationDuration: `${ROTATE_MS}ms` }}
-                      />
-                    )}
-                  </button>
-                ))}
+                        className={`font-display text-xs font-bold tabular-nums transition-colors duration-300 ${
+                          active ? 'text-white' : 'text-zinc-600 group-hover/sel:text-zinc-400'
+                        }`}
+                      >
+                        {String(i + 1).padStart(2, '0')}
+                      </span>
+                      <span
+                        className={`hidden truncate text-[10px] font-medium uppercase tracking-[0.18em] transition-colors duration-300 sm:block ${
+                          active ? 'text-zinc-400' : 'text-zinc-700 group-hover/sel:text-zinc-500'
+                        }`}
+                      >
+                        {getGame(s.game)?.short}
+                      </span>
+                    </button>
+                  );
+                })}
               </div>
             </div>
           </div>
