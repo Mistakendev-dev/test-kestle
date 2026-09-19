@@ -38,13 +38,19 @@ export function ProductsPage() {
   const [maxPrice, setMaxPrice] = useState(MAX_PRICE);
   const [inStockOnly, setInStockOnly] = useState(false);
   const [filtersOpen, setFiltersOpen] = useState(false);
-  const [query, setQuery] = useState('');
   const searchRef = useRef<HTMLInputElement>(null);
+  // Seeded from ?q= so links in from the homepage search land pre-filtered.
+  const [query, setQuery] = useState(() => searchParams.get('q') ?? '');
 
   const selectedGame = searchParams.get('game') ?? 'all';
   const selectedType = (searchParams.get('type') ?? 'All') as ProductCategory | 'All';
 
   useBodyScrollLock(filtersOpen);
+
+  // Re-sync when ?q= changes while the page stays mounted. Typing only touches
+  // local state, so this never fights the input.
+  const urlQuery = searchParams.get('q') ?? '';
+  useEffect(() => setQuery(urlQuery), [urlQuery]);
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {

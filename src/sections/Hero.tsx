@@ -1,7 +1,7 @@
 import { useCallback, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { motion, useMotionValue, useSpring, useTransform, type MotionValue } from 'framer-motion';
-import { ArrowRight, Gamepad2, ShieldCheck, Zap } from 'lucide-react';
+import { ArrowDown, ArrowRight, Gamepad2, ShieldCheck, Zap } from 'lucide-react';
 import { products } from '../data/products';
 import { games, getGame } from '../data/games';
 import { formatPrice } from '../lib/utils';
@@ -131,10 +131,22 @@ export function Hero() {
             <MagneticButton>
               <Link to="/games" className="btn-ghost !px-8 !py-4 text-base">
                 <Gamepad2 className="h-4 w-4" />
-                View Games
+                Explore Games
               </Link>
             </MagneticButton>
           </motion.div>
+
+          <motion.a
+            href="#marketplace"
+            variants={fadeUp}
+            initial="hidden"
+            animate="visible"
+            custom={0.5}
+            className="group mt-7 inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.25em] text-zinc-500 transition-colors hover:text-accent-bright"
+          >
+            <ArrowDown className="h-3.5 w-3.5 transition-transform duration-300 group-hover:translate-y-0.5" />
+            Explore marketplace
+          </motion.a>
 
           <motion.div
             variants={fadeUp}

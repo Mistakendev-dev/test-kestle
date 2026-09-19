@@ -1,7 +1,7 @@
 import { Link } from 'react-router-dom';
 import { ArrowRight } from 'lucide-react';
 import { HowItWorks } from '../sections/HowItWorks';
-import { TrustFeatures } from '../sections/TrustFeatures';
+import { WhyShopHere } from '../sections/WhyShopHere';
 import { Reveal } from '../components/anim/Reveal';
 import { MagneticButton } from '../components/anim/MagneticButton';
 
@@ -20,7 +20,7 @@ export function HowItWorksPage() {
         </Reveal>
       </div>
       <HowItWorks />
-      <TrustFeatures />
+      <WhyShopHere />
       <div className="container-wide py-20 text-center">
         <Reveal>
           <h2 className="font-display text-2xl font-bold text-white md:text-3xl">See it in action</h2>

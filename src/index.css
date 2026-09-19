@@ -152,6 +152,21 @@ body {
   animation-play-state: paused;
 }
 
+/* Featured-drop progress bar. Pauses with the carousel via a play-state flip. */
+@keyframes drop-progress {
+  from { transform: scaleX(0); }
+  to { transform: scaleX(1); }
+}
+.drop-progress {
+  transform-origin: left;
+  animation-name: drop-progress;
+  animation-timing-function: linear;
+  animation-fill-mode: forwards;
+}
+.drop-paused .drop-progress {
+  animation-play-state: paused;
+}
+
 .mask-fade-x {
   -webkit-mask-image: linear-gradient(90deg, transparent, #000 8%, #000 92%, transparent);
   mask-image: linear-gradient(90deg, transparent, #000 8%, #000 92%, transparent);

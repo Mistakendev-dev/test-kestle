@@ -3,12 +3,14 @@ import { ArrowRight } from 'lucide-react';
 import { Hero } from '../sections/Hero';
 import { ProductMarquee } from '../sections/ProductMarquee';
 import { MarketplaceStatus } from '../sections/MarketplaceStatus';
-import { GameCategories } from '../sections/GameCategories';
+import { TheLatestDrop } from '../sections/TheLatestDrop';
 import { FeaturedProducts } from '../sections/FeaturedProducts';
-import { Stats } from '../sections/Stats';
-import { HowItWorks } from '../sections/HowItWorks';
-import { TrustFeatures } from '../sections/TrustFeatures';
+import { FindYourGame } from '../sections/FindYourGame';
+import { SearchSpotlight } from '../sections/SearchSpotlight';
 import { PopularProducts } from '../sections/PopularProducts';
+import { HowItWorks } from '../sections/HowItWorks';
+import { Stats } from '../sections/Stats';
+import { WhyShopHere } from '../sections/WhyShopHere';
 import { MarketplaceActivity } from '../sections/MarketplaceActivity';
 import { RecentlyViewed } from '../sections/RecentlyViewed';
 import { Testimonials } from '../sections/Testimonials';
@@ -16,18 +18,26 @@ import { FaqSection } from '../sections/FaqSection';
 import { Reveal } from '../components/anim/Reveal';
 import { MagneticButton } from '../components/anim/MagneticButton';
 
+/**
+ * Ordered by intended attention: hero and CTA, then the featured drop, then
+ * discovery, then the supporting detail that rewards a longer scroll.
+ */
 export function HomePage() {
   return (
     <>
       <Hero />
-      <ProductMarquee />
+      <div id="marketplace" className="scroll-mt-20">
+        <ProductMarquee />
+      </div>
       <MarketplaceStatus />
+      <TheLatestDrop />
       <FeaturedProducts />
-      <GameCategories />
-      <Stats />
+      <FindYourGame />
+      <SearchSpotlight />
       <PopularProducts />
       <HowItWorks />
-      <TrustFeatures />
+      <Stats />
+      <WhyShopHere />
       <MarketplaceActivity />
       <RecentlyViewed />
       <Testimonials />
