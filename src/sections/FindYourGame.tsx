@@ -35,7 +35,12 @@ export function FindYourGame() {
           </div>
         </Reveal>
 
-        <Stagger className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3" step={0.08}>
+        {/* Horizontal browsing on phones, poster grid from tablet up. The child
+            selectors size the Stagger wrappers without changing its API. */}
+        <Stagger
+          className="snap-row no-scrollbar -mx-4 flex gap-4 overflow-x-auto px-4 pb-2 [&>*]:w-[76vw] [&>*]:shrink-0 [&>*]:snap-start sm:mx-0 sm:grid sm:grid-cols-2 sm:overflow-visible sm:px-0 lg:grid-cols-3 [&>*]:sm:w-auto"
+          step={0.08}
+        >
           {featured.map((game) => {
             const count = productsByGame(game.id).length;
             return (
@@ -62,7 +67,9 @@ export function FindYourGame() {
                   style={{ background: `linear-gradient(to top, ${game.color}26, transparent 60%)` }}
                 />
 
-                <div className="absolute inset-x-0 bottom-0 flex items-end justify-between gap-4 p-5">
+                {/* Copy lifts on hover, so the card reads as responding rather
+                    than just brightening. */}
+                <div className="absolute inset-x-0 bottom-0 flex items-end justify-between gap-4 p-5 transition-transform duration-500 ease-out group-hover:-translate-y-1">
                   <div className="min-w-0">
                     <h3 className="truncate font-display text-xl font-bold tracking-tight text-white transition-colors duration-300 group-hover:text-accent-bright">
                       {game.name}

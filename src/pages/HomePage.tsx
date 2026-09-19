@@ -1,49 +1,29 @@
 import { Link } from 'react-router-dom';
 import { ArrowRight } from 'lucide-react';
 import { Hero } from '../sections/Hero';
-import { ProductMarquee } from '../sections/ProductMarquee';
-import { MarketplaceStatus } from '../sections/MarketplaceStatus';
 import { TheLatestDrop } from '../sections/TheLatestDrop';
-import { GlassDeck } from '../sections/GlassDeck';
-import { ScrollJourney } from '../sections/ScrollJourney';
-import { FeaturedProducts } from '../sections/FeaturedProducts';
+import { ProductBelt } from '../sections/ProductBelt';
 import { FindYourGame } from '../sections/FindYourGame';
-import { SearchSpotlight } from '../sections/SearchSpotlight';
-import { PopularProducts } from '../sections/PopularProducts';
-import { Stats } from '../sections/Stats';
-import { WhyShopHere } from '../sections/WhyShopHere';
-import { MarketplaceActivity } from '../sections/MarketplaceActivity';
-import { RecentlyViewed } from '../sections/RecentlyViewed';
-import { FaqSection } from '../sections/FaqSection';
+import { MarketplaceOverview } from '../sections/MarketplaceOverview';
 import { Reveal } from '../components/anim/Reveal';
 import { MagneticButton } from '../components/anim/MagneticButton';
 
 /**
- * Ordered by intended attention: hero and CTA, then the featured drop, then
- * discovery, then the supporting detail that rewards a longer scroll.
+ * Deliberately short. One big visual moment, one supporting section, repeat —
+ * rather than a stack of competing product rails.
  */
 export function HomePage() {
   return (
     <>
       <Hero />
       <div id="marketplace" className="scroll-mt-20">
-        <ProductMarquee />
+        <TheLatestDrop />
       </div>
-      <MarketplaceStatus />
-      <TheLatestDrop />
-      <GlassDeck />
-      <FeaturedProducts />
+      <ProductBelt />
       <FindYourGame />
-      <SearchSpotlight />
-      <PopularProducts />
-      <ScrollJourney />
-      <Stats />
-      <WhyShopHere />
-      <MarketplaceActivity />
-      <RecentlyViewed />
-      <FaqSection limit={4} />
+      <MarketplaceOverview />
 
-      <section className="relative overflow-hidden py-24">
+      <section className="relative overflow-hidden py-28 md:py-36">
         <div
           aria-hidden
           className="absolute inset-0"
@@ -57,7 +37,7 @@ export function HomePage() {
             <p className="mx-auto mt-4 max-w-md text-zinc-400">
               Browse the full catalogue, pick your account, and get instant access. No waiting around.
             </p>
-            <div className="mt-8 flex justify-center">
+            <div className="mt-9 flex justify-center">
               <MagneticButton>
                 <Link to="/products" className="btn-primary btn-shine !px-10 !py-4 text-base">
                   Browse Products

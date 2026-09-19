@@ -8,8 +8,13 @@ import { cn } from '../../lib/utils';
 import { SearchOverlay } from './SearchOverlay';
 
 const links = [
-  { to: '/', label: 'Home' },
   { to: '/products', label: 'Products' },
+  { to: '/resell', label: 'Resell' },
+  { to: '/docs', label: 'Docs' },
+];
+
+/** Secondary destinations — surfaced in the mobile sheet and the footer. */
+const secondaryLinks = [
   { to: '/games', label: 'Games' },
   { to: '/how-it-works', label: 'How It Works' },
   { to: '/faq', label: 'FAQ' },
@@ -189,7 +194,7 @@ export function Navbar() {
               className="pane-raised mx-auto mt-2 max-w-7xl overflow-hidden lg:hidden"
             >
               <div className="flex flex-col gap-1 p-3">
-                {links.map((l, i) => (
+                {[...links, ...secondaryLinks].map((l, i) => (
                   <motion.div
                     key={l.to}
                     initial={{ opacity: 0, x: -12 }}

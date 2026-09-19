@@ -32,10 +32,10 @@ const columns = [
   {
     title: 'Company',
     links: [
-      { label: 'About Us', to: '/how-it-works' },
+      { label: 'Resell', to: '/resell' },
+      { label: 'Docs', to: '/docs' },
       { label: 'How It Works', to: '/how-it-works' },
       { label: 'Contact', to: '/faq' },
-      { label: 'Status', to: '/faq' },
     ],
   },
   {

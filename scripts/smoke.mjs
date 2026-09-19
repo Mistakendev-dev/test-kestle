@@ -25,6 +25,8 @@ const paths = [
   '/products?game=rust&sort=price-asc',
   '/games',
   '/games/rust',
+  '/resell',
+  '/docs',
   '/how-it-works',
   '/faq',
   '/this-route-does-not-exist',
