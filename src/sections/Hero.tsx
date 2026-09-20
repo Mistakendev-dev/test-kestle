@@ -110,22 +110,12 @@ export function Hero() {
 
       <div className="container-wide relative grid items-center gap-16 pb-24 pt-32 lg:grid-cols-2 lg:pb-16 lg:pt-24">
         <div>
-          <motion.div variants={fadeUp} initial="hidden" animate="visible" custom={0.1}>
-            <div className="inline-flex items-center gap-2.5 rounded-full border border-edge bg-white/[0.03] px-4 py-1.5 backdrop-blur-sm">
-              <span className="live-dot h-1.5 w-1.5 rounded-full bg-emerald-400" />
-              <span className="text-xs font-medium text-zinc-300">
-                <span className="font-semibold text-emerald-400">LIVE</span> — {products.length} products across{' '}
-                {games.length} games
-              </span>
-            </div>
-          </motion.div>
-
           <motion.h1
             variants={fadeUp}
             initial="hidden"
             animate="visible"
-            custom={0.2}
-            className="mt-6 font-display text-5xl font-bold leading-[1.05] tracking-tight text-white sm:text-6xl lg:text-7xl"
+            custom={0.1}
+            className="font-display text-5xl font-bold leading-[1.05] tracking-tight text-white sm:text-6xl lg:text-7xl"
           >
             THE GAMING
             <br />
