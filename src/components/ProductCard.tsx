@@ -1,7 +1,7 @@
 import { useRef, type MouseEvent } from 'react';
 import { Link } from 'react-router-dom';
-import { motion, useMotionTemplate, useMotionValue, useSpring, useTransform } from 'framer-motion';
-import { ArrowRight, Eye } from 'lucide-react';
+import { motion, useMotionValue, useSpring, useTransform } from 'framer-motion';
+import { ArrowUpRight, Eye } from 'lucide-react';
 import type { Product } from '../data/products';
 import { getGame } from '../data/games';
 import { formatPrice } from '../lib/utils';
@@ -10,6 +10,12 @@ import { ProductArt } from './ProductArt';
 import { Badge, StockIndicator } from './Badge';
 import { WishlistButton } from './WishlistButton';
 
+/**
+ * A product as a physical display piece: portrait artwork fills the whole
+ * surface and the copy is printed onto its lower third. Hovering tilts the
+ * pane while the artwork travels forward on Z, so card and art separate in
+ * depth instead of sliding together as one flat image.
+ */
 export function ProductCard({
   product,
   onQuickView,
@@ -23,20 +29,14 @@ export function ProductCard({
 
   const mx = useMotionValue(0.5);
   const my = useMotionValue(0.5);
-  const sx = useSpring(mx, { stiffness: 260, damping: 28 });
-  const sy = useSpring(my, { stiffness: 260, damping: 28 });
+  const sx = useSpring(mx, { stiffness: 220, damping: 26 });
+  const sy = useSpring(my, { stiffness: 220, damping: 26 });
 
-  const rotateX = useTransform(sy, [0, 1], [3.5, -3.5]);
-  const rotateY = useTransform(sx, [0, 1], [-3.5, 3.5]);
-  const imgX = useTransform(sx, [0, 1], [-6, 6]);
-  const imgY = useTransform(sy, [0, 1], [-6, 6]);
+  const rotateX = useTransform(sy, [0, 1], [4, -4]);
+  const rotateY = useTransform(sx, [0, 1], [-4, 4]);
   // Normalised -1..1, handed to ProductArt's layers as custom properties.
   const ax = useTransform(sx, [0, 1], [-1, 1]);
   const ay = useTransform(sy, [0, 1], [-1, 1]);
-  const glowX = useTransform(sx, [0, 1], ['0%', '100%']);
-  const glowY = useTransform(sy, [0, 1], ['0%', '100%']);
-  const sheen = useMotionTemplate`radial-gradient(260px circle at ${glowX} ${glowY}, rgba(107,114,214,0.16), transparent 68%)`;
-  const ring = useMotionTemplate`radial-gradient(220px circle at ${glowX} ${glowY}, rgba(107,114,214,0.7), rgba(107,114,214,0.05) 60%)`;
 
   function handleMove(e: MouseEvent) {
     if (!rich || !ref.current) return;
@@ -50,10 +50,9 @@ export function ProductCard({
     my.set(0.5);
   }
 
-  const badges = [
-    product.badge,
-    !product.badge && product.new ? 'New' : null,
-  ].filter(Boolean) as string[];
+  const badges = [product.badge, !product.badge && product.new ? 'New' : null].filter(
+    Boolean,
+  ) as string[];
 
   return (
     <motion.article
@@ -62,135 +61,136 @@ export function ProductCard({
       onMouseLeave={handleLeave}
       style={
         rich
-          ? ({ rotateX, rotateY, transformStyle: 'preserve-3d', perspective: 900, '--ax': ax, '--ay': ay } as never)
+          ? ({
+              rotateX,
+              rotateY,
+              transformStyle: 'preserve-3d',
+              perspective: 1000,
+              '--ax': ax,
+              '--ay': ay,
+            } as never)
           : undefined
       }
-      whileHover={rich ? { y: -6 } : undefined}
-      transition={{ type: 'spring', stiffness: 300, damping: 25 }}
-      className="group relative h-full"
+      whileHover={rich ? { y: -8 } : undefined}
+      transition={{ type: 'spring', stiffness: 260, damping: 24 }}
+      className="group relative"
     >
-      {/* Ambient halo tinted toward the game's identity colour, kept on-brand
-          by the accent underneath it. Sits behind the card, never over it. */}
+      {/* Halo tinted toward the title's identity colour, resting on the brand
+          accent. Sits behind the pane and never paints over it. */}
       <div
         aria-hidden
-        className="pointer-events-none absolute -inset-4 -z-10 rounded-[28px] opacity-0 blur-2xl transition-opacity duration-300 group-hover:opacity-100"
+        className="pointer-events-none absolute -inset-5 -z-10 rounded-[32px] opacity-0 blur-2xl transition-opacity duration-500 group-hover:opacity-100"
         style={{
-          background: `radial-gradient(60% 55% at 50% 45%, ${game?.color ?? '#6b72d6'}2e 0%, transparent 70%), radial-gradient(75% 70% at 50% 60%, rgba(46,48,106,0.55) 0%, transparent 72%)`,
+          background: `radial-gradient(58% 52% at 50% 44%, ${game?.color ?? '#6b72d6'}30 0%, transparent 70%), radial-gradient(78% 72% at 50% 62%, rgba(46,48,106,0.6) 0%, transparent 72%)`,
         }}
       />
 
-      <div className="relative flex h-full flex-col overflow-hidden rounded-2xl border border-white/[0.07] bg-surface-2/70 shadow-rest backdrop-blur-sm transition-[background-color,border-color,box-shadow] duration-300 group-hover:border-accent-light/40 group-hover:bg-surface-1/90 group-hover:shadow-lift">
-        {rich && (
-          <>
-            <motion.div
-              aria-hidden
-              className="pointer-events-none absolute inset-0 z-10 opacity-0 transition-opacity duration-300 group-hover:opacity-100"
-              style={{ background: sheen }}
-            />
-            {/* True 1px border light: the ring gradient is masked down to the
-                padding box so only the edge is painted. */}
-            <motion.div
-              aria-hidden
-              className="pointer-events-none absolute inset-0 z-20 rounded-2xl p-px opacity-0 transition-opacity duration-300 group-hover:opacity-100"
-              style={{
-                background: ring,
-                WebkitMask: 'linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0)',
-                WebkitMaskComposite: 'xor',
-                maskComposite: 'exclude',
-              }}
-            />
-          </>
-        )}
+      <div className="glass-card relative aspect-[3/4] overflow-hidden rounded-[22px] transition-[border-color,box-shadow] duration-500 group-hover:border-accent-light/35 group-hover:shadow-[inset_0_1px_0_rgba(255,255,255,0.12),0_34px_70px_-30px_rgba(0,0,0,1)]">
+        {/* Artwork fills the pane and is the dominant element. */}
+        <motion.div
+          aria-hidden
+          style={rich ? { translateZ: 26 } : undefined}
+          className="absolute inset-0 transition-transform duration-[900ms] ease-out group-hover:scale-[1.06]"
+        >
+          <ProductArt
+            gameId={product.game}
+            image={product.image}
+            alt={product.name}
+            size="lg"
+            depth={rich}
+            className="h-full w-full"
+          />
+        </motion.div>
 
-        <div className="relative overflow-hidden">
-          <Link to={`/product/${product.id}`} className="block" aria-label={product.name}>
-            {/* Art is pushed forward on Z and casts a contact shadow, so it
-                reads as sitting above the card rather than printed onto it. */}
-            <motion.div
-              style={rich ? { x: imgX, y: imgY, translateZ: 28 } : undefined}
-              className="transition-transform duration-500 group-hover:scale-[1.04]"
-            >
-              <ProductArt
-                gameId={product.game}
-                image={product.image}
-                alt={product.name}
-                label={product.category}
-                size="lg"
-                depth={rich}
-                className="aspect-[4/3] w-full transition-[filter] duration-500 group-hover:[filter:drop-shadow(0_18px_28px_rgba(0,0,0,0.65))]"
-              />
-            </motion.div>
-          </Link>
+        {/* Reading scrim. Deep enough at the foot to carry the copy, clear
+            across the top two-thirds so the art stays the subject. */}
+        <div
+          aria-hidden
+          className="pointer-events-none absolute inset-0"
+          style={{
+            background:
+              'linear-gradient(to top, rgba(4,4,7,0.95) 0%, rgba(4,4,7,0.78) 26%, rgba(4,4,7,0.2) 54%, transparent 78%)',
+          }}
+        />
+        {/* Polished top edge — the light catching the lip of the glass. */}
+        <div
+          aria-hidden
+          className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/25 to-transparent"
+        />
 
-          <div className="pointer-events-none absolute left-3 top-3 z-20 flex flex-wrap gap-1.5">
-            {badges.map((b) => (
-              <Badge key={b} label={b} />
-            ))}
-          </div>
-
-          <div className="absolute right-3 top-3 z-20">
-            <WishlistButton productId={product.id} />
-          </div>
-
-          {onQuickView && (
-            <div className="absolute inset-x-3 bottom-3 z-20 hidden translate-y-2 opacity-0 transition-all duration-300 group-hover:translate-y-0 group-hover:opacity-100 md:block">
-              <button
-                type="button"
-                onClick={() => onQuickView(product)}
-                className="flex w-full items-center justify-center gap-2 rounded-xl border border-edge bg-void/80 py-2.5 text-xs font-semibold text-white backdrop-blur-md transition-colors hover:border-accent-light/60 hover:bg-accent/30"
-              >
-                <Eye className="h-3.5 w-3.5" />
-                Quick View
-              </button>
-            </div>
-          )}
+        <div className="pointer-events-none absolute left-3.5 top-3.5 z-20 flex flex-wrap gap-1.5">
+          {badges.map((b) => (
+            <Badge key={b} label={b} />
+          ))}
         </div>
 
-        <div className="relative z-10 flex flex-1 flex-col p-5">
-          <span className="truncate text-[11px] font-semibold uppercase tracking-[0.2em] text-zinc-500">
-            {game?.name}
-          </span>
+        <div className="absolute right-3.5 top-3.5 z-30">
+          <WishlistButton productId={product.id} />
+        </div>
 
-          <Link to={`/product/${product.id}`} className="mt-1.5 block">
-            <h3 className="line-clamp-2 font-display text-lg font-semibold leading-snug text-white transition-[color,transform] duration-300 group-hover:translate-x-0.5 group-hover:text-accent-bright">
-              {product.name}
-            </h3>
-          </Link>
+        {onQuickView && (
+          <div className="absolute inset-x-0 top-[34%] z-30 hidden justify-center opacity-0 transition-all duration-300 group-hover:opacity-100 md:flex">
+            <button
+              type="button"
+              onClick={() => onQuickView(product)}
+              className="glass-thin inline-flex translate-y-1.5 items-center gap-2 rounded-full px-4 py-2 text-[11px] font-semibold uppercase tracking-[0.16em] text-white transition-[transform,border-color,background-color] duration-300 group-hover:translate-y-0 hover:border-accent-light/60 hover:bg-accent/40"
+            >
+              <Eye className="h-3.5 w-3.5" />
+              Quick View
+            </button>
+          </div>
+        )}
 
-          {product.tags.length > 0 && (
-            <div className="mt-3 flex flex-wrap gap-1.5">
-              {product.tags.slice(0, 3).map((t) => (
-                <span
-                  key={t}
-                  className="rounded-md border border-edge bg-white/[0.02] px-2 py-0.5 text-[10px] font-medium capitalize text-zinc-500"
-                >
-                  {t}
-                </span>
-              ))}
-            </div>
-          )}
+        {/* Copy printed onto the artwork. */}
+        <div className="pointer-events-none absolute inset-x-0 bottom-0 z-20 p-4 sm:p-5">
+          <div className="flex items-center gap-2">
+            <span
+              aria-hidden
+              className="h-1.5 w-1.5 shrink-0 rounded-full"
+              style={{ background: game?.color ?? '#6b72d6' }}
+            />
+            <span className="truncate text-[10px] font-semibold uppercase tracking-[0.2em] text-zinc-400">
+              {game?.name}
+            </span>
+            <span className="ml-auto shrink-0 rounded-md border border-white/10 bg-white/[0.06] px-1.5 py-0.5 text-[9px] font-semibold uppercase tracking-[0.14em] text-zinc-300">
+              {product.category}
+            </span>
+          </div>
 
-          <div className="mt-auto flex items-end justify-between gap-3 pt-5">
+          <h3 className="mt-2 line-clamp-2 font-display text-[15px] font-semibold leading-snug text-white transition-colors duration-300 group-hover:text-accent-bright sm:text-lg">
+            {product.name}
+          </h3>
+
+          <div className="mt-3 flex items-end justify-between gap-3">
             <div className="min-w-0">
               <div className="flex items-baseline gap-2">
-                <span className="font-display text-2xl font-bold leading-none text-white">
+                <span className="font-display text-xl font-bold leading-none text-white sm:text-2xl">
                   {formatPrice(product.price)}
                 </span>
                 {product.originalPrice && (
-                  <span className="text-sm text-zinc-600 line-through">{formatPrice(product.originalPrice)}</span>
+                  <span className="text-xs text-zinc-500 line-through">
+                    {formatPrice(product.originalPrice)}
+                  </span>
                 )}
               </div>
-              <StockIndicator stock={product.stock} className="mt-2" />
+              <StockIndicator stock={product.stock} className="mt-1.5" />
             </div>
-            <Link
-              to={`/product/${product.id}`}
-              className="inline-flex shrink-0 items-center gap-1.5 rounded-lg border border-edge bg-white/[0.03] px-3.5 py-2.5 text-xs font-semibold text-zinc-300 transition-all duration-300 group-hover:border-accent-light/60 group-hover:bg-accent group-hover:text-white group-hover:shadow-[0_0_24px_-8px_rgba(74,79,158,0.9)] hover:!bg-accent-light"
+
+            <span
+              aria-hidden
+              className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-white/10 bg-white/[0.06] text-zinc-300 transition-all duration-300 group-hover:border-accent-light/50 group-hover:bg-accent group-hover:text-white"
             >
-              View Product
-              <ArrowRight className="h-3.5 w-3.5 transition-transform duration-300 group-hover:translate-x-0.5" />
-            </Link>
+              <ArrowUpRight className="h-4 w-4" />
+            </span>
           </div>
         </div>
+
+        {/* Whole pane is the link; the controls above sit on higher layers. */}
+        <Link
+          to={`/product/${product.id}`}
+          aria-label={product.name}
+          className="absolute inset-0 z-10 rounded-[22px] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent-light"
+        />
       </div>
     </motion.article>
   );

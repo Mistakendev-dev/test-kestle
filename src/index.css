@@ -68,6 +68,53 @@ body {
     pointer-events: none;
     background: linear-gradient(180deg, rgba(255, 255, 255, 0.07), transparent 42%);
   }
+  /* --- Smoked glass -------------------------------------------------------
+     Three densities of the same material. Each is a stack: a hairline top
+     highlight, a faint accent tint, then the dark translucent base — plus an
+     inset top line and a broad drop shadow so the sheet reads as a physical
+     pane sitting above the page rather than a tinted rectangle. */
+  .glass-thin {
+    @apply relative border border-white/[0.06] backdrop-blur-md;
+    background-image:
+      linear-gradient(180deg, rgba(255, 255, 255, 0.05) 0%, rgba(255, 255, 255, 0) 34%),
+      linear-gradient(180deg, rgba(10, 10, 18, 0.62) 0%, rgba(7, 7, 12, 0.7) 100%);
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.07),
+      0 10px 30px -18px rgba(0, 0, 0, 0.9);
+  }
+  .glass-panel {
+    @apply relative border border-white/[0.08] backdrop-blur-xl;
+    background-image:
+      linear-gradient(180deg, rgba(255, 255, 255, 0.06) 0%, rgba(255, 255, 255, 0) 30%),
+      radial-gradient(130% 100% at 14% 0%, rgba(74, 79, 158, 0.13) 0%, transparent 58%),
+      linear-gradient(180deg, rgba(9, 9, 16, 0.8) 0%, rgba(6, 6, 11, 0.88) 100%);
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.08),
+      0 2px 6px rgba(0, 0, 0, 0.45),
+      0 28px 70px -34px rgba(0, 0, 0, 1);
+  }
+  .glass-deep {
+    @apply relative border border-white/[0.1] backdrop-blur-2xl;
+    background-image:
+      linear-gradient(180deg, rgba(255, 255, 255, 0.075) 0%, rgba(255, 255, 255, 0) 26%),
+      radial-gradient(120% 95% at 10% -5%, rgba(74, 79, 158, 0.2) 0%, transparent 55%),
+      linear-gradient(180deg, rgba(8, 8, 14, 0.9) 0%, rgba(5, 5, 9, 0.96) 100%);
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.1),
+      0 2px 8px rgba(0, 0, 0, 0.55),
+      0 48px 110px -40px rgba(0, 0, 0, 1);
+  }
+  /* Card-weight glass. Deliberately omits backdrop-filter: over a near-black
+     page the blur is invisible, and the grid paints dozens of these at once. */
+  .glass-card {
+    @apply relative border border-white/[0.07];
+    background-image:
+      linear-gradient(180deg, rgba(255, 255, 255, 0.055) 0%, rgba(255, 255, 255, 0) 24%),
+      linear-gradient(180deg, rgba(11, 11, 19, 0.72) 0%, rgba(6, 6, 11, 0.86) 100%);
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.07),
+      0 18px 40px -26px rgba(0, 0, 0, 1);
+  }
   .meta {
     @apply text-[11px] font-medium uppercase tracking-[0.18em] text-zinc-500;
   }
@@ -228,6 +275,37 @@ body {
   animation: shine 0.8s ease;
 }
 
+/* Autonomous glass reflection: one slow pass of light across the pane, then a
+   long rest. Never pointer-driven, never pulsing — you should notice it only
+   if you happen to be looking. Transform + opacity only. */
+@keyframes glass-sheen {
+  0% { transform: translate3d(-130%, 0, 0) skewX(-14deg); opacity: 0; }
+  6% { opacity: 0.5; }
+  22% { opacity: 0.5; }
+  30% { transform: translate3d(230%, 0, 0) skewX(-14deg); opacity: 0; }
+  100% { transform: translate3d(230%, 0, 0) skewX(-14deg); opacity: 0; }
+}
+
+.glass-sheen::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  width: 45%;
+  pointer-events: none;
+  border-radius: inherit;
+  background: linear-gradient(
+    100deg,
+    transparent,
+    rgba(255, 255, 255, 0.055) 45%,
+    rgba(160, 168, 255, 0.045) 58%,
+    transparent
+  );
+  animation: glass-sheen 19s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+  will-change: transform, opacity;
+}
+
 /* Slow ambient light sweep behind the hero — transform/opacity only. */
 @keyframes beam-drift {
   0%, 100% { transform: translate3d(-12%, 0, 0) rotate(8deg); opacity: 0.35; }
@@ -357,6 +435,10 @@ body {
   }
   .beam-drift {
     animation: none !important;
+  }
+  .glass-sheen::after {
+    animation: none !important;
+    opacity: 0 !important;
   }
   .btn-shine:hover::before {
     animation: none !important;

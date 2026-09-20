@@ -14,6 +14,8 @@ const columnPresets = {
   full: 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4',
   sidebar: 'grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4',
   compact: 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-4',
+  /* Portrait poster wall. Two-up only once there is room for the printed copy. */
+  catalog: 'grid-cols-1 min-[420px]:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4',
 } as const;
 
 /** Grid that owns its own quick-view state so pages stay declarative. */
