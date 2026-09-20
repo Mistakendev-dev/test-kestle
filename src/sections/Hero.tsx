@@ -1,20 +1,13 @@
-import { useCallback, useRef } from 'react';
 import { Link } from 'react-router-dom';
-import { motion, useMotionValue, useSpring, useTransform, type MotionValue } from 'framer-motion';
+import { motion } from 'framer-motion';
 import { ArrowDown, ArrowRight, Gamepad2, ShieldCheck, Zap } from 'lucide-react';
 import { products } from '../data/products';
 import { games, getGame } from '../data/games';
 import { formatPrice } from '../lib/utils';
 import { Particles } from '../components/effects/Particles';
-import { DiscoverOrb } from '../components/effects/DiscoverOrb';
-import { MagneticButton } from '../components/anim/MagneticButton';
 import { ProductArt } from '../components/ProductArt';
-import { usePointerEffects } from '../hooks/usePointerEffects';
 
 const floatCards = [products[0], products[6], products[29], products[38]];
-
-/** Per-card parallax depth — front cards travel further than the ones behind. */
-const depths = [1, 0.62, 0.4, 0.22];
 
 const cardPositions = [
   'left-[8%] top-[6%] z-30',
@@ -33,68 +26,24 @@ const fadeUp = {
 };
 
 export function Hero() {
-  const pointerFx = usePointerEffects();
-  const sectionRef = useRef<HTMLElement>(null);
-  const mx = useMotionValue(0);
-  const my = useMotionValue(0);
-  const sx = useSpring(mx, { stiffness: 60, damping: 20, mass: 0.6 });
-  const sy = useSpring(my, { stiffness: 60, damping: 20, mass: 0.6 });
-
-  // Background layers drift against the cursor; the card stack moves with it.
-  const gridX = useTransform(sx, (v) => v * -22);
-  const gridY = useTransform(sy, (v) => v * -16);
-  const glowX = useTransform(sx, (v) => v * -46);
-  const glowY = useTransform(sy, (v) => v * -30);
-
-  const onPointerMove = useCallback(
-    (e: React.PointerEvent) => {
-      if (!pointerFx || !sectionRef.current) return;
-      const r = sectionRef.current.getBoundingClientRect();
-      mx.set((e.clientX - r.left) / r.width - 0.5);
-      my.set((e.clientY - r.top) / r.height - 0.5);
-    },
-    [pointerFx, mx, my],
-  );
-
-  const resetPointer = useCallback(() => {
-    mx.set(0);
-    my.set(0);
-  }, [mx, my]);
-
   return (
-    <section
-      ref={sectionRef}
-      onPointerMove={onPointerMove}
-      onPointerLeave={resetPointer}
-      className="noise relative flex min-h-[100svh] items-center overflow-hidden"
-    >
-      {/* Depth layers. Each moves at its own rate against the cursor, so the
-          scene reads as receding space rather than a flat backdrop. */}
-      <motion.div
+    <section className="noise relative flex min-h-[100svh] items-center overflow-hidden">
+      {/* Static depth layers. Ambient drift comes from the beam below, not the
+          cursor, so the scene reads as receding space without tracking input. */}
+      <div
         aria-hidden
-        style={{ x: gridX, y: gridY }}
         className="bg-grid absolute -inset-12 [mask-image:radial-gradient(ellipse_70%_60%_at_50%_40%,black,transparent)]"
       />
-      <motion.div
+      <div
         aria-hidden
-        style={{ x: glowX, y: glowY }}
         className="absolute left-1/2 top-0 h-[600px] w-[900px] -translate-x-1/2 rounded-full opacity-60 blur-[120px]"
-      >
-        <div
-          className="h-full w-full"
-          style={{ background: 'radial-gradient(ellipse, rgba(46,48,106,0.35) 0%, transparent 65%)' }}
-        />
-      </motion.div>
-      <motion.div
+        style={{ background: 'radial-gradient(ellipse, rgba(46,48,106,0.35) 0%, transparent 65%)' }}
+      />
+      <div
         aria-hidden
-        style={{ x: glowX, y: glowY }}
         className="absolute -right-40 top-1/3 h-[400px] w-[400px] rounded-full opacity-40 blur-[100px]"
-      >
-        <div
-          className="h-full w-full"
-          style={{ background: 'radial-gradient(circle, rgba(74,79,158,0.3) 0%, transparent 70%)' }}
-        />
-      </motion.div>
+        style={{ background: 'radial-gradient(circle, rgba(74,79,158,0.3) 0%, transparent 70%)' }}
+      />
       <div
         aria-hidden
         className="beam-drift pointer-events-none absolute -top-1/4 left-1/4 h-[150%] w-[40%] blur-[90px]"
@@ -141,18 +90,14 @@ export function Hero() {
             custom={0.4}
             className="mt-9 flex flex-wrap items-center gap-4"
           >
-            <MagneticButton>
-              <Link to="/products" className="btn-primary btn-shine !px-8 !py-4 text-base">
-                Browse Products
-                <ArrowRight className="h-4 w-4" />
-              </Link>
-            </MagneticButton>
-            <MagneticButton>
-              <Link to="/games" className="btn-ghost !px-8 !py-4 text-base">
-                <Gamepad2 className="h-4 w-4" />
-                Explore Games
-              </Link>
-            </MagneticButton>
+            <Link to="/products" className="btn-primary btn-shine !px-8 !py-4 text-base">
+              Browse Products
+              <ArrowRight className="h-4 w-4" />
+            </Link>
+            <Link to="/games" className="btn-ghost !px-8 !py-4 text-base">
+              <Gamepad2 className="h-4 w-4" />
+              Explore Games
+            </Link>
           </motion.div>
 
           <motion.a
@@ -189,9 +134,8 @@ export function Hero() {
 
         <div className="relative hidden h-[520px] lg:block" style={{ perspective: 1200 }}>
           {floatCards.map((p, i) => (
-            <HeroCard key={p.id} product={p} index={i} sx={sx} sy={sy} />
+            <HeroCard key={p.id} product={p} index={i} />
           ))}
-          <DiscoverOrb className="left-[2%] top-[52%]" />
         </div>
 
         {/* Touch devices get one floating card instead of the cursor-driven
@@ -261,24 +205,8 @@ export function Hero() {
   );
 }
 
-function HeroCard({
-  product,
-  index,
-  sx,
-  sy,
-}: {
-  product: (typeof products)[number];
-  index: number;
-  sx: MotionValue<number>;
-  sy: MotionValue<number>;
-}) {
+function HeroCard({ product, index }: { product: (typeof products)[number]; index: number }) {
   const game = getGame(product.game);
-  const depth = depths[index];
-  const x = useTransform(sx, (v) => v * 46 * depth);
-  const y = useTransform(sy, (v) => v * 34 * depth);
-  // Hero springs run -0.5..0.5; ProductArt's layers expect -1..1.
-  const ax = useTransform(sx, (v) => v * 2);
-  const ay = useTransform(sy, (v) => v * 2);
 
   return (
     <motion.div
@@ -287,34 +215,30 @@ function HeroCard({
       transition={{ duration: 1, delay: 0.5 + index * 0.15, ease: [0.22, 1, 0.36, 1] }}
       className={`absolute w-60 ${cardPositions[index]}`}
     >
-      {/* Cursor parallax — springs rest at 0 when pointer effects are disabled. */}
-      <motion.div style={{ x, y, '--ax': ax, '--ay': ay } as never}>
-        <motion.div
-          animate={{ y: [0, -14, 0], rotateZ: [0, index % 2 === 0 ? 1.5 : -1.5, 0] }}
-          transition={{ duration: 6 + index, repeat: Infinity, ease: 'easeInOut', delay: index * 0.6 }}
+      <motion.div
+        animate={{ y: [0, -14, 0], rotateZ: [0, index % 2 === 0 ? 1.5 : -1.5, 0] }}
+        transition={{ duration: 6 + index, repeat: Infinity, ease: 'easeInOut', delay: index * 0.6 }}
+      >
+        <Link
+          to={`/product/${product.id}`}
+          className="pane-raised bevel lit-edge block overflow-hidden p-3 transition-all duration-500 hover:border-accent-light/50 hover:shadow-glow-lg"
+          style={{ transform: `rotateY(${index % 2 === 0 ? -6 : 6}deg) rotateX(3deg)` }}
         >
-          <Link
-            to={`/product/${product.id}`}
-            className="pane-raised bevel lit-edge block overflow-hidden p-3 transition-all duration-500 hover:border-accent-light/50 hover:shadow-glow-lg"
-            style={{ transform: `rotateY(${index % 2 === 0 ? -6 : 6}deg) rotateX(3deg)` }}
-          >
-            <ProductArt
-              gameId={product.game}
-              image={product.image}
-              alt={product.name}
-              label={product.category}
-              depth
-              className="aspect-[16/10] w-full rounded-xl"
-            />
-            <div className="flex items-center justify-between px-1 pb-1 pt-3">
-              <div className="min-w-0">
-                <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-zinc-500">{game?.name}</p>
-                <p className="truncate text-sm font-semibold text-white">{product.name}</p>
-              </div>
-              <span className="font-display text-sm font-bold text-accent-bright">{formatPrice(product.price)}</span>
+          <ProductArt
+            gameId={product.game}
+            image={product.image}
+            alt={product.name}
+            label={product.category}
+            className="aspect-[16/10] w-full rounded-xl"
+          />
+          <div className="flex items-center justify-between px-1 pb-1 pt-3">
+            <div className="min-w-0">
+              <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-zinc-500">{game?.name}</p>
+              <p className="truncate text-sm font-semibold text-white">{product.name}</p>
             </div>
-          </Link>
-        </motion.div>
+            <span className="font-display text-sm font-bold text-accent-bright">{formatPrice(product.price)}</span>
+          </div>
+        </Link>
       </motion.div>
     </motion.div>
   );

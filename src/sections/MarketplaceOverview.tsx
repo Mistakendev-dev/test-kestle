@@ -4,7 +4,6 @@ import { games } from '../data/games';
 import { products } from '../data/products';
 import { ProductArt } from '../components/ProductArt';
 import { Reveal } from '../components/anim/Reveal';
-import { MagneticButton } from '../components/anim/MagneticButton';
 
 /** Derived from the catalogue, so the panel can never drift from the data. */
 const stats = [
@@ -52,12 +51,10 @@ export function MarketplaceOverview() {
                 </p>
 
                 <div className="mt-9 flex flex-wrap items-center gap-4">
-                  <MagneticButton>
-                    <Link to="/products" className="btn-primary btn-shine !px-8 !py-3.5 text-[15px]">
-                      Browse marketplace
-                      <ArrowRight className="h-4 w-4" />
-                    </Link>
-                  </MagneticButton>
+                  <Link to="/products" className="btn-primary btn-shine !px-8 !py-3.5 text-[15px]">
+                    Browse marketplace
+                    <ArrowRight className="h-4 w-4" />
+                  </Link>
                   <Link to="/games" className="btn-ghost !py-3.5">
                     View games
                   </Link>

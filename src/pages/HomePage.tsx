@@ -6,7 +6,6 @@ import { ProductBelt } from '../sections/ProductBelt';
 import { FindYourGame } from '../sections/FindYourGame';
 import { MarketplaceOverview } from '../sections/MarketplaceOverview';
 import { Reveal } from '../components/anim/Reveal';
-import { MagneticButton } from '../components/anim/MagneticButton';
 
 /**
  * Deliberately short. One big visual moment, one supporting section, repeat —
@@ -38,12 +37,10 @@ export function HomePage() {
               Browse the full catalogue, pick your account, and get instant access. No waiting around.
             </p>
             <div className="mt-9 flex justify-center">
-              <MagneticButton>
-                <Link to="/products" className="btn-primary btn-shine !px-10 !py-4 text-base">
-                  Browse Products
-                  <ArrowRight className="h-4 w-4" />
-                </Link>
-              </MagneticButton>
+              <Link to="/products" className="btn-primary btn-shine !px-10 !py-4 text-base">
+                Browse Products
+                <ArrowRight className="h-4 w-4" />
+              </Link>
             </div>
           </Reveal>
         </div>

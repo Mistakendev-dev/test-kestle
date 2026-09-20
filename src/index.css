@@ -4,13 +4,6 @@
 
 :root {
   color-scheme: dark;
-
-  /* Virtual light source. Written once per frame from the pointer, in viewport
-     coordinates, and read by every .lit-* surface via background-attachment:fixed
-     so lighting stays consistent across elements with zero per-element JS. */
-  --px: 50vw;
-  --py: 0vh;
-  --light: 0; /* 0 until the pointer is seen, so nothing glows on touch devices */
 }
 
 html {
@@ -121,9 +114,8 @@ body {
 }
 
 /* --- Virtual light source -------------------------------------------------
-   background-attachment: fixed makes the gradient resolve against the viewport
-   rather than the element, so a single pair of custom properties lights every
-   surface coherently. No per-element listeners, no React state per frame. */
+   A single fixed key light sitting above and slightly left of every surface.
+   Resolved per element, so it costs one painted gradient and tracks nothing. */
 
 .lit-edge::before {
   content: '';
@@ -132,15 +124,12 @@ body {
   border-radius: inherit;
   padding: 1px;
   pointer-events: none;
-  opacity: var(--light);
-  transition: opacity 0.5s ease;
   background-image: radial-gradient(
-    420px circle at var(--px) var(--py),
-    rgba(150, 157, 255, 0.55),
-    rgba(120, 128, 220, 0.12) 45%,
-    transparent 70%
+    120% 160% at 30% -40%,
+    rgba(150, 157, 255, 0.5),
+    rgba(120, 128, 220, 0.1) 42%,
+    transparent 68%
   );
-  background-attachment: fixed;
   -webkit-mask:
     linear-gradient(#000 0 0) content-box,
     linear-gradient(#000 0 0);
@@ -157,14 +146,11 @@ body {
   inset: 0;
   border-radius: inherit;
   pointer-events: none;
-  opacity: var(--light);
-  transition: opacity 0.5s ease;
   background-image: radial-gradient(
-    520px circle at var(--px) var(--py),
-    rgba(107, 114, 214, 0.13),
-    transparent 68%
+    110% 150% at 30% -30%,
+    rgba(107, 114, 214, 0.12),
+    transparent 65%
   );
-  background-attachment: fixed;
 }
 
 /* Glass deck: hovering one tile brings it forward and recedes its neighbours.

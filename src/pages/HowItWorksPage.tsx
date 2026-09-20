@@ -3,7 +3,6 @@ import { ArrowRight } from 'lucide-react';
 import { HowItWorks } from '../sections/HowItWorks';
 import { WhyShopHere } from '../sections/WhyShopHere';
 import { Reveal } from '../components/anim/Reveal';
-import { MagneticButton } from '../components/anim/MagneticButton';
 
 export function HowItWorksPage() {
   return (
@@ -28,12 +27,10 @@ export function HowItWorksPage() {
             Browse live stock and place your first order — delivery is instant.
           </p>
           <div className="mt-7 flex justify-center">
-            <MagneticButton>
-              <Link to="/products" className="btn-primary btn-shine !px-8 !py-3.5">
-                Browse Products
-                <ArrowRight className="h-4 w-4" />
-              </Link>
-            </MagneticButton>
+            <Link to="/products" className="btn-primary btn-shine !px-8 !py-3.5">
+              Browse Products
+              <ArrowRight className="h-4 w-4" />
+            </Link>
           </div>
         </Reveal>
       </div>

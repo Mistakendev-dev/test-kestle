@@ -1,7 +1,6 @@
 import { Link } from 'react-router-dom';
 import { ArrowRight, Boxes, Code2, LineChart, Palette, Tags, Wallet } from 'lucide-react';
 import { Reveal, Stagger } from '../components/anim/Reveal';
-import { MagneticButton } from '../components/anim/MagneticButton';
 
 const benefits = [
   {
@@ -65,12 +64,10 @@ export function ResellPage() {
               fulfilment — you own the customer relationship and set the price.
             </p>
             <div className="mt-9 flex flex-wrap items-center gap-4">
-              <MagneticButton>
-                <Link to="/docs" className="btn-primary btn-shine !px-8 !py-3.5 text-[15px]">
-                  Read the docs
-                  <ArrowRight className="h-4 w-4" />
-                </Link>
-              </MagneticButton>
+              <Link to="/docs" className="btn-primary btn-shine !px-8 !py-3.5 text-[15px]">
+                Read the docs
+                <ArrowRight className="h-4 w-4" />
+              </Link>
               <Link to="/products" className="btn-ghost !py-3.5">
                 Browse the catalogue
               </Link>
@@ -129,12 +126,10 @@ export function ResellPage() {
                 Reach out and we will walk you through catalogue access and setup.
               </p>
             </div>
-            <MagneticButton>
-              <Link to="/docs" className="btn-primary btn-shine shrink-0 !px-8 !py-3.5 text-[15px]">
-                Get started
-                <ArrowRight className="h-4 w-4" />
-              </Link>
-            </MagneticButton>
+            <Link to="/docs" className="btn-primary btn-shine shrink-0 !px-8 !py-3.5 text-[15px]">
+              Get started
+              <ArrowRight className="h-4 w-4" />
+            </Link>
           </div>
         </Reveal>
       </div>

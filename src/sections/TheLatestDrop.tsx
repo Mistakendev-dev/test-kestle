@@ -11,7 +11,6 @@ import { usePointerEffects } from '../hooks/usePointerEffects';
 import { ProductArt } from '../components/ProductArt';
 import { StockIndicator } from '../components/Badge';
 import { Reveal } from '../components/anim/Reveal';
-import { MagneticButton } from '../components/anim/MagneticButton';
 
 const ROTATE_MS = 7000;
 const slides = newProducts.slice(0, 4);
@@ -154,12 +153,10 @@ export function TheLatestDrop() {
             </AnimatePresence>
 
             <div className="mt-8 flex flex-wrap gap-3">
-              <MagneticButton>
-                <Link to={`/product/${product.id}`} className="btn-primary btn-shine !px-7 !py-3.5 text-base">
-                  View Product
-                  <ArrowRight className="h-4 w-4" />
-                </Link>
-              </MagneticButton>
+              <Link to={`/product/${product.id}`} className="btn-primary btn-shine !px-7 !py-3.5 text-base">
+                View Product
+                <ArrowRight className="h-4 w-4" />
+              </Link>
               <button
                 onClick={() => {
                   addItem(product.id);
