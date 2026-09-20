@@ -1,5 +1,6 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
+import { useInView } from 'framer-motion';
 import { ChevronRight } from 'lucide-react';
 import { getProduct, products, productsByGame } from '../data/products';
 import { games, getGame } from '../data/games';
@@ -9,25 +10,39 @@ import { GameCard } from '../components/GameCard';
 import { Lightbox, type LightboxFrame } from '../components/Lightbox';
 import { Reveal, Stagger } from '../components/anim/Reveal';
 import { ProductBackdrop } from '../sections/product/ProductBackdrop';
-import { ProductStage } from '../sections/product/ProductStage';
-import { ProductPanel } from '../sections/product/ProductPanel';
+import { ProductHero } from '../sections/product/ProductHero';
+import { ProductSpecs } from '../sections/product/ProductSpecs';
+import { ProductIncludes } from '../sections/product/ProductIncludes';
 import { ProductGallery } from '../sections/product/ProductGallery';
 import { ProductTabs } from '../sections/product/ProductTabs';
+import { ProductDock } from '../sections/product/ProductDock';
 
 export function ProductDetailPage() {
   const { id } = useParams<{ id: string }>();
   const product = getProduct(id ?? '');
   const [frameIndex, setFrameIndex] = useState(0);
   const [lightbox, setLightbox] = useState<number | null>(null);
+  const [qty, setQty] = useState(1);
+
+  const railRef = useRef<HTMLDivElement>(null);
+  /** The dock takes over once the hero's own purchase rail leaves the viewport. */
+  const railVisible = useInView(railRef);
 
   useEffect(() => {
     window.scrollTo({ top: 0 });
     setFrameIndex(0);
     setLightbox(null);
+    setQty(1);
     if (product) pushRecentlyViewed(product.id);
   }, [id, product]);
 
-  /** Five frames: one focal plus four supporting, which fills the 4×2 gallery. */
+  const stock = product?.stock ?? 1;
+  const clampQty = useCallback(
+    (next: number) => setQty(Math.min(Math.max(1, next), Math.max(1, stock))),
+    [stock],
+  );
+
+  /** Five frames: one lead plus four supporting, which fills the gallery strip. */
   const frames = useMemo<LightboxFrame[]>(() => {
     if (!product) return [];
     const game = getGame(product.game);
@@ -74,34 +89,41 @@ export function ProductDetailPage() {
     <div className="relative">
       <ProductBackdrop product={product} />
 
-      <div className="container-wide relative pb-28 pt-24 md:pt-32">
-        <Reveal>
-          <nav aria-label="Breadcrumb" className="mb-10 flex flex-wrap items-center gap-1.5 text-sm text-zinc-500">
-            <Link to="/" className="transition-colors hover:text-white">Home</Link>
-            <ChevronRight className="h-3.5 w-3.5" />
-            <Link to="/products" className="transition-colors hover:text-white">Products</Link>
-            <ChevronRight className="h-3.5 w-3.5" />
-            <Link to={`/games/${product.game}`} className="transition-colors hover:text-white">
-              {game?.name}
-            </Link>
-            <ChevronRight className="h-3.5 w-3.5" />
-            <span className="truncate text-zinc-300">{product.name}</span>
-          </nav>
-        </Reveal>
+      <div className="container-wide relative pb-28 pt-24 md:pt-28">
+        <nav
+          aria-label="Breadcrumb"
+          className="mb-12 flex flex-wrap items-center gap-1.5 text-sm text-zinc-500"
+        >
+          <Link to="/" className="transition-colors hover:text-white">Home</Link>
+          <ChevronRight className="h-3.5 w-3.5" />
+          <Link to="/products" className="transition-colors hover:text-white">Products</Link>
+          <ChevronRight className="h-3.5 w-3.5" />
+          <Link to={`/games/${product.game}`} className="transition-colors hover:text-white">
+            {game?.name}
+          </Link>
+          <ChevronRight className="h-3.5 w-3.5" />
+          <span className="truncate text-zinc-300">{product.name}</span>
+        </nav>
 
-        <div className="grid gap-10 lg:grid-cols-[minmax(0,1.12fr)_minmax(0,1fr)] lg:items-start lg:gap-14 xl:gap-16">
+        <ProductHero
+          product={product}
+          frames={frames}
+          index={frameIndex}
+          onSelect={setFrameIndex}
+          onExpand={() => setLightbox(frameIndex)}
+          qty={qty}
+          onQty={clampQty}
+          railRef={railRef}
+        />
+
+        <div className="mt-6">
           <Reveal>
-            <ProductStage
-              product={product}
-              frames={frames}
-              index={frameIndex}
-              onSelect={setFrameIndex}
-              onExpand={() => setLightbox(frameIndex)}
-            />
+            <ProductSpecs product={product} />
           </Reveal>
-          <Reveal delay={0.1}>
-            <ProductPanel product={product} />
-          </Reveal>
+        </div>
+
+        <div className="mt-28">
+          <ProductIncludes product={product} />
         </div>
 
         <div className="mt-28">
@@ -152,6 +174,8 @@ export function ProductDetailPage() {
           </Stagger>
         </section>
       </div>
+
+      <ProductDock product={product} qty={qty} visible={!railVisible} />
 
       <Lightbox
         frames={frames}

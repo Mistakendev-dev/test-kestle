@@ -3,12 +3,14 @@ import { ArrowUpRight } from 'lucide-react';
 import type { Game } from '../data/games';
 import { productsByGame } from '../data/products';
 import { ProductArt } from './ProductArt';
+import { Tilt } from './anim/Tilt';
 
 /** Shares the visual language of the homepage discovery grid. */
 export function GameCard({ game }: { game: Game }) {
   const count = productsByGame(game.id).length;
 
   return (
+    <Tilt strength={4} className="h-full">
     <Link
       to={`/games/${game.id}`}
       className="lit-edge group relative block overflow-hidden rounded-2xl border border-white/[0.07] shadow-rest transition-all duration-500 ease-out hover:-translate-y-1.5 hover:border-accent-light/45 hover:shadow-glow-lg"
@@ -44,5 +46,6 @@ export function GameCard({ game }: { game: Game }) {
         </span>
       </div>
     </Link>
+    </Tilt>
   );
 }
