@@ -1,4 +1,5 @@
 import { chromium } from 'playwright';
+import { expect } from 'playwright/test';
 
 const BASE = process.env.AUDIT_BASE ?? 'http://127.0.0.1:4173';
 const WIDTH = Number(process.env.AUDIT_WIDTH ?? 1440);
@@ -26,172 +27,149 @@ async function check(name, fn) {
 }
 
 const cards = () => page.locator('article');
+const search = () => page.getByLabel('Search products or games');
 
 await page.goto(`${BASE}/products`, { waitUntil: 'networkidle' });
 
 await check('products grid renders cards', async () => {
+  await expect(cards().first()).toBeVisible();
   const n = await cards().count();
   if (n < 4) throw new Error(`only ${n} cards`);
 });
 
 await check('search filters the grid', async () => {
   const all = await cards().count();
-  await page.getByLabel('Search products or games').fill('valorant');
-  await page.waitForTimeout(400);
+  await search().fill('valorant');
+  await expect.poll(() => cards().count()).toBeLessThan(all);
   const hits = await cards().count();
   if (hits === 0) throw new Error('search returned nothing');
-  if (hits >= all) throw new Error(`no narrowing: ${all} -> ${hits}`);
   const text = (await cards().first().innerText()).toLowerCase();
   if (!text.includes('valorant')) throw new Error(`irrelevant hit: ${text.slice(0, 60)}`);
 });
 
 await check('empty state on no match', async () => {
-  await page.getByLabel('Search products or games').fill('zzzzqqq');
-  await page.waitForTimeout(400);
-  if (await cards().count()) throw new Error('cards still visible');
+  await search().fill('zzzzqqq');
+  await expect.poll(() => cards().count()).toBe(0);
   const body = await page.locator('main').innerText();
   if (!/no|nothing|clear/i.test(body)) throw new Error('no empty-state copy');
 });
 
 await check('clear search restores grid', async () => {
   await page.getByLabel('Clear search').click();
-  await page.waitForTimeout(400);
-  if ((await cards().count()) < 4) throw new Error('grid did not restore');
+  await expect.poll(() => cards().count()).toBeGreaterThan(4);
 });
 
 await check('category rail filters', async () => {
   const all = await cards().count();
-  await page.getByRole('button', { name: 'Rust', exact: true }).first().click();
-  await page.waitForTimeout(500);
-  const hits = await cards().count();
-  if (hits === 0 || hits >= all) throw new Error(`rail did not narrow: ${all} -> ${hits}`);
-  await page.getByRole('button', { name: 'All', exact: true }).first().click();
-  await page.waitForTimeout(400);
+  await page.getByRole('button', { name: /^Rust\b/ }).first().click();
+  await expect.poll(() => cards().count()).toBeLessThan(all);
+  await page.getByRole('button', { name: /^All\b/ }).first().click();
+  await expect.poll(() => cards().count()).toBe(all);
 });
 
 await check('sort control changes order', async () => {
   const first = await cards().first().innerText();
   await page.getByLabel('Sort products').selectOption({ label: 'Price: High to Low' });
-  await page.waitForTimeout(500);
-  const after = await cards().first().innerText();
-  if (first === after) throw new Error('order unchanged');
+  await expect.poll(async () => (await cards().first().innerText()) !== first).toBe(true);
+  await page.getByLabel('Sort products').selectOption({ index: 0 });
 });
 
-await check('wishlist toggle + toast + badge', async () => {
-  await page.getByLabel('Sort products').selectOption({ index: 0 });
-  await page.waitForTimeout(300);
+await check('wishlist toggle announces and opens drawer', async () => {
   const card = cards().first();
   await card.hover();
   await card.getByLabel('Add to wishlist').click();
-  await page.waitForTimeout(500);
-  const toast = page.locator('[role="status"]');
-  if (!(await toast.innerText()).trim()) throw new Error('no toast announced');
-  await page.getByLabel('Wishlist').click();
-  await page.waitForTimeout(600);
-  const drawer = page.getByLabel('Close wishlist');
-  if (!(await drawer.isVisible())) throw new Error('wishlist drawer did not open');
+  await expect(page.locator('[role="status"]')).not.toBeEmpty();
+  await page.getByLabel('Wishlist', { exact: true }).click();
+  await expect(page.getByLabel('Close wishlist')).toBeVisible();
+});
+
+await check('Escape closes the wishlist drawer', async () => {
   await page.keyboard.press('Escape');
-  await page.waitForTimeout(400);
+  await expect(page.getByLabel('Close wishlist')).toBeHidden();
 });
 
 await check('quick view opens and Escape closes', async () => {
   const card = cards().first();
   await card.hover();
-  await page.waitForTimeout(300);
   await card.getByText('Quick View').click();
-  await page.waitForTimeout(600);
   const close = page.getByLabel('Close quick view');
-  if (!(await close.isVisible())) throw new Error('modal did not open');
+  await expect(close).toBeVisible();
   await page.keyboard.press('Escape');
-  await page.waitForTimeout(500);
-  if (await close.isVisible()) throw new Error('Escape did not close modal');
+  await expect(close).toBeHidden();
 });
 
-await check('add to cart from quick view', async () => {
+await check('add to cart from quick view lands in the drawer', async () => {
   const card = cards().first();
   await card.hover();
-  await page.waitForTimeout(300);
   await card.getByText('Quick View').click();
-  await page.waitForTimeout(600);
+  await expect(page.getByLabel('Close quick view')).toBeVisible();
   await page.getByRole('button', { name: /Add to Cart/i }).click();
-  await page.waitForTimeout(500);
   await page.keyboard.press('Escape');
-  await page.waitForTimeout(400);
-  await page.getByLabel('Cart').click();
-  await page.waitForTimeout(600);
-  if (!(await page.getByLabel('Close cart').isVisible())) throw new Error('cart drawer did not open');
-  if (!(await page.getByLabel('Increase quantity').first().isVisible())) throw new Error('cart is empty');
+  await expect(page.getByLabel('Close quick view')).toBeHidden();
+  await page.getByLabel('Cart', { exact: true }).click();
+  await expect(page.getByLabel('Close cart')).toBeVisible();
+  await expect(page.getByLabel('Increase quantity').first()).toBeVisible();
 });
 
-await check('cart quantity + remove', async () => {
+await check('cart quantity increases then item removes', async () => {
   await page.getByLabel('Increase quantity').first().click();
-  await page.waitForTimeout(400);
   await page.getByLabel('Remove item').first().click();
-  await page.waitForTimeout(500);
-  await page.keyboard.press('Escape');
-  await page.waitForTimeout(400);
+  await expect(page.getByLabel('Increase quantity')).toHaveCount(0);
 });
 
-await check('body scroll unlocked after overlays', async () => {
-  const overflow = await page.evaluate(() => getComputedStyle(document.body).overflow);
-  if (overflow === 'hidden') throw new Error('body still scroll-locked');
+await check('Escape closes the cart drawer', async () => {
+  await page.keyboard.press('Escape');
+  await expect(page.getByLabel('Close cart')).toBeHidden();
+});
+
+await check('body scroll unlocked after every overlay', async () => {
+  await expect.poll(() => page.evaluate(() => getComputedStyle(document.body).overflow)).not.toBe('hidden');
 });
 
 await page.goto(`${BASE}/product/rust-nfa`, { waitUntil: 'networkidle' });
 
-await check('product lightbox opens, arrows, Escape', async () => {
-  const trigger = page.locator('[aria-label$="preview"], button:has(img), [role="button"]').first();
-  await page.locator('main button').filter({ hasNot: page.locator('svg[data-lucide]') }).first().waitFor({ timeout: 5000 }).catch(() => {});
-  const frames = page.getByRole('button', { name: /preview|screenshot|image/i });
-  if (await frames.count()) {
-    await frames.first().click();
-  } else {
-    await trigger.click();
-  }
-  await page.waitForTimeout(600);
+await check('product lightbox opens, advances, Escape closes', async () => {
+  await page.getByRole('button', { name: /preview$/i }).first().click();
   const close = page.getByLabel('Close preview');
-  if (!(await close.isVisible())) throw new Error('lightbox did not open');
+  await expect(close).toBeVisible();
   await page.getByLabel('Next image').click();
-  await page.waitForTimeout(400);
   await page.keyboard.press('Escape');
-  await page.waitForTimeout(500);
-  if (await close.isVisible()) throw new Error('Escape did not close lightbox');
+  await expect(close).toBeHidden();
 });
 
-await check('product page add to cart', async () => {
+await check('product page add to cart announces', async () => {
   await page.getByRole('button', { name: /Add to Cart/i }).first().click();
-  await page.waitForTimeout(500);
-  const toast = page.locator('[role="status"]');
-  if (!(await toast.innerText()).trim()) throw new Error('no toast');
+  await expect(page.locator('[role="status"]')).not.toBeEmpty();
 });
 
 await check('recently viewed persists across navigation', async () => {
   await page.goto(`${BASE}/`, { waitUntil: 'networkidle' });
-  await page.waitForTimeout(600);
-  const stored = await page.evaluate(() => localStorage.getItem('nexus:recently-viewed') ?? localStorage.getItem('recently-viewed'));
+  const stored = await page.evaluate(() => localStorage.getItem('nfa-recently-viewed'));
   if (!stored) {
     const keys = await page.evaluate(() => Object.keys(localStorage));
     throw new Error(`no recently-viewed key; have ${keys.join(',')}`);
   }
+  if (!JSON.parse(stored).includes('rust-nfa')) throw new Error(`visited product not recorded: ${stored}`);
 });
 
 await check('global search overlay opens via keyboard', async () => {
   await page.keyboard.press('Control+k');
-  await page.waitForTimeout(500);
   const input = page.getByPlaceholder('Search products, games...');
-  if (!(await input.isVisible())) throw new Error('overlay did not open');
+  await expect(input).toBeVisible();
   await input.fill('rust');
-  await page.waitForTimeout(500);
   await page.keyboard.press('Escape');
-  await page.waitForTimeout(400);
-  if (await input.isVisible()) throw new Error('Escape did not close overlay');
+  await expect(input).toBeHidden();
 });
 
-await check('marquee belt pauses on hover', async () => {
-  const belt = page.locator('[class*="animate-"]').first();
-  if (!(await belt.count())) throw new Error('no animated belt found');
+await check('product belt pauses on hover', async () => {
+  const belt = page.locator('.marquee-track').first();
+  await expect(belt).toBeVisible();
+  const before = await belt.evaluate((el) => getComputedStyle(el).animationPlayState);
   await belt.hover();
-  await page.waitForTimeout(400);
+  await expect
+    .poll(() => belt.evaluate((el) => getComputedStyle(el).animationPlayState))
+    .toBe('paused');
+  if (before !== 'running') throw new Error(`belt was not animating to begin with (${before})`);
 });
 
 await browser.close();
