@@ -32,18 +32,18 @@ await check('catalog renders the full listing set', async () => {
 });
 
 await check('search narrows the grid', async () => {
-  await page.getByRole('searchbox').first().fill('valorant');
+  await page.getByLabel('Search products or games').fill('valorant');
   await expect(cards).not.toHaveCount(47);
   await expect(cards.first()).toBeVisible();
 });
 
 await check('no-match state appears', async () => {
-  await page.getByRole('searchbox').first().fill('zzzzqqq');
+  await page.getByLabel('Search products or games').fill('zzzzqqq');
   await expect(cards).toHaveCount(0);
 });
 
 await check('clearing search restores every listing', async () => {
-  await page.getByRole('searchbox').first().fill('');
+  await page.getByLabel('Search products or games').fill('');
   await expect(cards).toHaveCount(47);
 });
 
