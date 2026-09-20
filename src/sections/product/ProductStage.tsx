@@ -141,27 +141,27 @@ export function ProductStage({
           </motion.div>
         </motion.div>
 
-        {/* Floor reflection. Mirrored, compressed and faded into the stage. */}
+        {/* Floor reflection. The copy is hung above the clip box and mirrored
+            about its own bottom edge, so the artwork's lower edge lands exactly
+            on the stage floor and the rest falls away beneath it. */}
         <motion.div
           aria-hidden
-          style={calm ? undefined : { opacity: floorOpacity }}
-          className="pointer-events-none absolute inset-x-3 top-full -z-10 hidden h-32 overflow-hidden sm:block"
+          style={{
+            ...(calm ? undefined : { opacity: floorOpacity }),
+            maskImage: 'linear-gradient(to bottom, black 0%, transparent 94%)',
+            WebkitMaskImage: 'linear-gradient(to bottom, black 0%, transparent 94%)',
+          }}
+          className="pointer-events-none absolute inset-x-3 top-full -z-10 hidden h-24 overflow-hidden sm:block"
         >
-          <div
-            className="h-full w-full origin-top -scale-y-100 opacity-[0.22] blur-[2px]"
-            style={{
-              maskImage: 'linear-gradient(to top, transparent 8%, black 100%)',
-              WebkitMaskImage: 'linear-gradient(to top, transparent 8%, black 100%)',
-            }}
-          >
-            <div className="h-[320px] w-full">{art}</div>
+          <div className="absolute inset-x-0 bottom-full origin-bottom -scale-y-100 opacity-[0.22] blur-[2px]">
+            {art}
           </div>
         </motion.div>
       </div>
 
       {/* Filmstrip. Centred and understated so it reads as a control strip
           rather than a second gallery. */}
-      <div className="mt-8 flex justify-center gap-2 sm:mt-10 sm:gap-2.5">
+      <div className="mt-8 flex justify-center gap-2 sm:mt-28 sm:gap-2.5">
         {frames.map((frame, i) => (
           <button
             key={frame.label}

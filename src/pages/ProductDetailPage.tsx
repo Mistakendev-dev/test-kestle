@@ -25,14 +25,21 @@ export function ProductDetailPage() {
   const [qty, setQty] = useState(1);
 
   const railRef = useRef<HTMLDivElement>(null);
-  /** The dock takes over once the hero's own purchase rail leaves the viewport. */
+  /** The dock takes over once the hero's own purchase rail leaves the viewport.
+      `useInView` reports false until the observer first fires, so the dock waits
+      until the rail has actually been seen rather than flashing in on load. */
   const railVisible = useInView(railRef);
+  const [railSeen, setRailSeen] = useState(false);
+  useEffect(() => {
+    if (railVisible) setRailSeen(true);
+  }, [railVisible]);
 
   useEffect(() => {
     window.scrollTo({ top: 0 });
     setFrameIndex(0);
     setLightbox(null);
     setQty(1);
+    setRailSeen(false);
     if (product) pushRecentlyViewed(product.id);
   }, [id, product]);
 
@@ -175,7 +182,7 @@ export function ProductDetailPage() {
         </section>
       </div>
 
-      <ProductDock product={product} qty={qty} visible={!railVisible} />
+      <ProductDock product={product} qty={qty} visible={railSeen && !railVisible} />
 
       <Lightbox
         frames={frames}
