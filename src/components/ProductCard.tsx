@@ -90,7 +90,7 @@ export function ProductCard({
         <motion.div
           aria-hidden
           style={rich ? { translateZ: 26 } : undefined}
-          className="absolute inset-0 transition-transform duration-[900ms] ease-out group-hover:scale-[1.06]"
+          className="pointer-events-none absolute inset-0 transition-transform duration-[900ms] ease-out group-hover:scale-[1.06]"
         >
           <ProductArt
             gameId={product.game}
