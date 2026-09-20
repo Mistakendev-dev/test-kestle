@@ -56,7 +56,7 @@ export function ProductCard({
   ].filter(Boolean) as string[];
 
   return (
-    <motion.div
+    <motion.article
       ref={ref}
       onMouseMove={handleMove}
       onMouseLeave={handleLeave}
@@ -192,6 +192,6 @@ export function ProductCard({
           </div>
         </div>
       </div>
-    </motion.div>
+    </motion.article>
   );
 }

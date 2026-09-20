@@ -13,13 +13,13 @@ const steps = [
     num: '02',
     icon: CreditCard,
     title: 'Complete Your Order',
-    text: 'Checkout securely in under a minute. Multiple payment methods supported with buyer protection.',
+    text: 'Add what you want to the cart and review it in one place before you confirm the order.',
   },
   {
     num: '03',
     icon: Package,
     title: 'Receive Your Account',
-    text: 'Credentials are delivered instantly to your order page and email. Log in and start playing.',
+    text: 'Order details appear on your order page once checkout completes, with support on hand if anything looks wrong.',
   },
 ];
 
