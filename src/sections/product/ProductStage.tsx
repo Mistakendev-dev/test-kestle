@@ -59,7 +59,7 @@ export function ProductStage({
         {/* Pool of light the frame appears to rest in. */}
         <div
           aria-hidden
-          className="pointer-events-none absolute -inset-12 -z-10 opacity-90 blur-[80px]"
+          className="pointer-events-none absolute -inset-y-12 inset-x-0 -z-10 opacity-90 blur-[80px]"
           style={{
             background: `radial-gradient(ellipse 58% 52% at 50% 58%, ${game?.color ?? '#6b72d6'}26 0%, rgba(46,48,106,0.5) 40%, transparent 72%)`,
           }}
