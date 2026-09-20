@@ -129,10 +129,20 @@ await check('body scroll unlocked after every overlay', async () => {
 await page.goto(`${BASE}/product/rust-nfa`, { waitUntil: 'networkidle' });
 
 await check('product lightbox opens, advances, Escape closes', async () => {
-  await page.getByRole('button', { name: /preview$/i }).first().click();
+  // "Open full-size preview" is the floating stage control, not a gallery frame.
+  await page.getByRole('button', { name: /^Open (?!full-size).+ preview$/i }).first().click();
   const close = page.getByLabel('Close preview');
   await expect(close).toBeVisible();
   await page.getByLabel('Next image').click();
+  await page.keyboard.press('Escape');
+  await expect(close).toBeHidden();
+});
+
+await check('product stage opens the full-size preview', async () => {
+  // The stage floats continuously, so it never satisfies Playwright's stability check.
+  await page.getByRole('button', { name: 'Open full-size preview' }).click({ force: true });
+  const close = page.getByLabel('Close preview');
+  await expect(close).toBeVisible();
   await page.keyboard.press('Escape');
   await expect(close).toBeHidden();
 });
@@ -161,15 +171,26 @@ await check('global search overlay opens via keyboard', async () => {
   await expect(input).toBeHidden();
 });
 
-await check('product belt pauses on hover', async () => {
-  const belt = page.locator('.marquee-track').first();
-  await expect(belt).toBeVisible();
-  const before = await belt.evaluate((el) => getComputedStyle(el).animationPlayState);
-  await belt.hover();
-  await expect
-    .poll(() => belt.evaluate((el) => getComputedStyle(el).animationPlayState))
-    .toBe('paused');
-  if (before !== 'running') throw new Error(`belt was not animating to begin with (${before})`);
+await check('product belt pauses on hover then resumes', async () => {
+  const viewport = page.locator('.marquee-viewport').first();
+  const track = page.locator('.marquee-track').first();
+  await viewport.scrollIntoViewIfNeeded();
+  await expect(track).toBeVisible();
+
+  const state = () => track.evaluate((el) => getComputedStyle(el).animationPlayState);
+  if ((await state()) !== 'running') throw new Error('belt was not animating to begin with');
+
+  // The track scrolls continuously and never settles, so hover the static
+  // viewport that owns the :hover rule, via real mouse coordinates.
+  const box = await viewport.boundingBox();
+  if (!box) throw new Error('belt viewport has no box');
+  const x = Math.min(Math.max(box.x + box.width / 2, 1), WIDTH - 1);
+  const y = box.y + box.height / 2;
+  await page.mouse.move(x, y);
+  await expect.poll(state).toBe('paused');
+
+  await page.mouse.move(x, 0);
+  await expect.poll(state).toBe('running');
 });
 
 await browser.close();
