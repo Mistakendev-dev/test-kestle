@@ -186,21 +186,6 @@ export function Hero() {
         </motion.div>
       </div>
 
-      <motion.div
-        aria-hidden
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: 1.4, duration: 1 }}
-        className="absolute bottom-8 left-1/2 hidden -translate-x-1/2 lg:block"
-      >
-        <div className="flex h-10 w-6 items-start justify-center rounded-full border border-edge p-1.5">
-          <motion.div
-            animate={{ y: [0, 14, 0], opacity: [1, 0.2, 1] }}
-            transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut' }}
-            className="h-2 w-1 rounded-full bg-accent-bright"
-          />
-        </div>
-      </motion.div>
     </section>
   );
 }

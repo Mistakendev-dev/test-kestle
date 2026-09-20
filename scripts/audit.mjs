@@ -35,7 +35,7 @@ const probe = () => {
   return { scrollWidth: document.documentElement.scrollWidth, docWidth, offenders: offenders.slice(0, 5) };
 };
 
-const browser = await chromium.launch({ executablePath: process.env.CHROME_BIN ?? '/usr/bin/chromium' });
+const browser = await chromium.launch({ executablePath: process.env.CHROME_BIN ?? '/usr/bin/chromium', args: ['--no-sandbox', '--disable-gpu'] });
 let failures = 0;
 
 for (const width of WIDTHS) {

@@ -4,7 +4,7 @@ import { expect } from 'playwright/test';
 const BASE = process.env.AUDIT_BASE ?? 'http://127.0.0.1:4173';
 const WIDTH = Number(process.env.AUDIT_WIDTH ?? 1440);
 
-const browser = await chromium.launch({ executablePath: process.env.CHROME_BIN ?? '/usr/bin/chromium' });
+const browser = await chromium.launch({ executablePath: process.env.CHROME_BIN ?? '/usr/bin/chromium', args: ['--no-sandbox', '--disable-gpu'] });
 const context = await browser.newContext({ viewport: { width: WIDTH, height: 900 } });
 const page = await context.newPage();
 
