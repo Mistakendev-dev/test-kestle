@@ -6,10 +6,12 @@ import { getGame } from '../../data/games';
 import { formatPrice } from '../../lib/utils';
 import { ProductArt } from '../ProductArt';
 import { useBodyScrollLock } from '../../hooks/useBodyScrollLock';
+import { useEscapeKey } from '../../hooks/useEscapeKey';
 
 export function CartDrawer() {
   const { isOpen, closeCart, detailed, setQty, removeItem, subtotal, count } = useCart();
   useBodyScrollLock(isOpen);
+  useEscapeKey(isOpen, closeCart);
 
   return (
     <AnimatePresence>
@@ -28,6 +30,9 @@ export function CartDrawer() {
             animate={{ x: 0 }}
             exit={{ x: '100%' }}
             transition={{ type: 'spring', stiffness: 300, damping: 32 }}
+            role="dialog"
+            aria-modal="true"
+            aria-label="Cart"
             className="fixed inset-y-0 right-0 z-[90] flex w-full max-w-md flex-col border-l border-white/[0.08] bg-[#08080e]/95 shadow-deep backdrop-blur-2xl"
           >
             <div className="flex items-center justify-between border-b border-edge px-6 py-5">

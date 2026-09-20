@@ -9,12 +9,14 @@ import { formatPrice } from '../../lib/utils';
 import { ProductArt } from '../ProductArt';
 import { StockIndicator } from '../Badge';
 import { useBodyScrollLock } from '../../hooks/useBodyScrollLock';
+import { useEscapeKey } from '../../hooks/useEscapeKey';
 
 export function WishlistDrawer() {
   const { isOpen, close, detailed, remove, count } = useWishlist();
   const { addItem } = useCart();
   const { toast } = useToast();
   useBodyScrollLock(isOpen);
+  useEscapeKey(isOpen, close);
 
   return (
     <AnimatePresence>
@@ -33,6 +35,9 @@ export function WishlistDrawer() {
             animate={{ x: 0 }}
             exit={{ x: '100%' }}
             transition={{ type: 'spring', stiffness: 300, damping: 32 }}
+            role="dialog"
+            aria-modal="true"
+            aria-label="Wishlist"
             className="fixed inset-y-0 right-0 z-[90] flex w-full max-w-md flex-col border-l border-white/[0.08] bg-[#08080e]/95 shadow-deep backdrop-blur-2xl"
           >
             <div className="flex items-center justify-between border-b border-edge px-6 py-5">
