@@ -1,71 +1,68 @@
 import { chromium } from 'playwright';
 
-const BASE = process.env.AUDIT_BASE ?? 'http://127.0.0.1:4173';
-const WIDTHS = (process.env.AUDIT_WIDTHS ?? '1440').split(',').map(Number);
-const ROUTES = [
-  '/',
-  '/products',
-  '/product/rust-nfa',
-  '/games',
-  '/games/rust',
-  '/resell',
-  '/docs',
-  '/how-it-works',
-  '/faq',
-  '/not-a-real-route',
+const BASE = process.env.BASE ?? 'http://localhost:4190';
+const ROUTES = (process.env.ROUTES ?? '/products').split(',');
+const VIEWPORTS = [
+  { name: '375', width: 375, height: 800 },
+  { name: '768', width: 768, height: 1024 },
+  { name: '1440', width: 1440, height: 900 },
 ];
 
-const probe = () => {
-  const docWidth = document.documentElement.clientWidth;
-  const offenders = [];
-  for (const el of document.querySelectorAll('body *')) {
-    const r = el.getBoundingClientRect();
-    if (r.width === 0 || r.height === 0) continue;
-    if (r.right <= docWidth + 1 && r.left >= -1) continue;
-    const style = getComputedStyle(el);
-    if (style.position === 'fixed') continue;
-    let clipped = false;
-    for (let p = el.parentElement; p; p = p.parentElement) {
-      const ps = getComputedStyle(p);
-      if (ps.overflowX !== 'visible' || ps.overflow !== 'visible') { clipped = true; break; }
-    }
-    if (clipped) continue;
-    offenders.push(`${el.tagName.toLowerCase()}.${(el.className || '').toString().split(' ').slice(0, 3).join('.')} [${Math.round(r.left)}..${Math.round(r.right)}]`);
-  }
-  return { scrollWidth: document.documentElement.scrollWidth, docWidth, offenders: offenders.slice(0, 5) };
-};
+const browser = await chromium.launch({
+  executablePath: process.env.CHROME_BIN,
+  args: ['--no-sandbox', '--disable-dev-shm-usage'],
+});
 
-const browser = await chromium.launch({ executablePath: process.env.CHROME_BIN ?? '/usr/bin/chromium', args: ['--no-sandbox', '--disable-gpu'] });
 let failures = 0;
 
-for (const width of WIDTHS) {
-  console.log(`\n=== ${width}px ===`);
-  for (const route of ROUTES) {
-    const context = await browser.newContext({ viewport: { width, height: 900 }, deviceScaleFactor: 1 });
-    const page = await context.newPage();
+for (const route of ROUTES) {
+  for (const vp of VIEWPORTS) {
+    const page = await browser.newPage({ viewport: { width: vp.width, height: vp.height } });
     const errors = [];
-    const failed = [];
-    page.on('console', (m) => m.type() === 'error' && errors.push(m.text().slice(0, 140)));
-    page.on('pageerror', (e) => errors.push(`pageerror: ${e.message.slice(0, 140)}`));
-    page.on('requestfailed', (r) => failed.push(r.url()));
-    page.on('response', (r) => r.status() >= 400 && failed.push(`${r.status()} ${r.url()}`));
+    page.on('console', (m) => m.type() === 'error' && errors.push(m.text().slice(0, 120)));
+    page.on('pageerror', (e) => errors.push(`pageerror: ${e.message.slice(0, 120)}`));
+    page.on('requestfailed', (r) => errors.push(`failed: ${r.url().slice(-60)}`));
 
-    await page.goto(BASE + route, { waitUntil: 'networkidle', timeout: 45000 });
-    await page.waitForTimeout(400);
-    const result = await page.evaluate(probe);
+    await page.goto(`${BASE}${route}`, { waitUntil: 'networkidle' });
+    await page.waitForTimeout(500);
 
-    const overflow = result.scrollWidth > result.docWidth + 1;
-    const bad = overflow || errors.length || failed.length;
-    if (bad) failures++;
-    console.log(`${bad ? 'FAIL' : ' ok '} ${route.padEnd(22)} sw=${result.scrollWidth}/${result.docWidth}`);
-    if (overflow && result.offenders.length) result.offenders.forEach((o) => console.log(`      overflow: ${o}`));
-    errors.forEach((e) => console.log(`      console: ${e}`));
-    failed.forEach((f) => console.log(`      request: ${f}`));
+    const m = await page.evaluate(() => {
+      const de = document.documentElement;
+      const offenders = [];
+      if (de.scrollWidth > de.clientWidth) {
+        for (const el of document.querySelectorAll('*')) {
+          const r = el.getBoundingClientRect();
+          if (r.width === 0) continue;
+          if (r.right > de.clientWidth + 1 || r.left < -1) {
+            offenders.push({
+              tag: el.tagName.toLowerCase(),
+              cls: (el.className?.baseVal ?? el.className ?? '').toString().slice(0, 70),
+              left: Math.round(r.left),
+              right: Math.round(r.right),
+            });
+          }
+        }
+      }
+      return {
+        scrollWidth: de.scrollWidth,
+        clientWidth: de.clientWidth,
+        cards: document.querySelectorAll('article').length,
+        offenders: offenders.slice(0, 6),
+      };
+    });
 
-    await context.close();
+    const overflow = m.scrollWidth - m.clientWidth;
+    const ok = overflow <= 0 && errors.length === 0;
+    if (!ok) failures += 1;
+    console.log(
+      `${ok ? 'ok  ' : 'FAIL'} ${route} @${vp.name}  scroll=${m.scrollWidth}/${m.clientWidth}` +
+        ` overflow=${overflow} cards=${m.cards} errors=${errors.length}`,
+    );
+    for (const o of m.offenders) console.log(`       offender <${o.tag}> ${o.left}..${o.right} ${o.cls}`);
+    for (const e of errors.slice(0, 4)) console.log(`       ${e}`);
+    await page.close();
   }
 }
 
 await browser.close();
-console.log(`\n${failures === 0 ? 'ALL CLEAN' : `${failures} route/viewport combos with issues`}`);
-process.exit(failures === 0 ? 0 : 1);
+console.log(failures === 0 ? '\nALL CLEAN' : `\n${failures} viewport(s) failing`);

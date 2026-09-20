@@ -32,7 +32,7 @@ export function CategoryRail({
 
   return (
     <div className={cn('relative', className)}>
-      <div ref={scroller} className="no-scrollbar mask-fade-x -mx-1 flex gap-2 overflow-x-auto px-1 py-1">
+      <div ref={scroller} className="no-scrollbar mask-fade-x flex gap-2 overflow-x-auto px-1 py-1">
         {options.map((o) => {
           const active = o.id === value;
           return (

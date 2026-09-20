@@ -34,7 +34,7 @@ export function ProductGrid({
     <>
       <motion.div
         layout={animateLayout}
-        className={cn('grid gap-4 sm:gap-5', columnPresets[columns])}
+        className={cn('grid gap-4 overflow-x-clip sm:gap-5', columnPresets[columns])}
       >
         <AnimatePresence mode="popLayout">
           {products.map((p, i) => (
