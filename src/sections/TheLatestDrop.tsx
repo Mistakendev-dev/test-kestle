@@ -1,25 +1,21 @@
 import { useCallback, useEffect, useRef, useState, type MouseEvent } from 'react';
 import { Link } from 'react-router-dom';
 import { AnimatePresence, motion, useMotionValue, useSpring, useTransform } from 'framer-motion';
-import { ArrowRight, ChevronLeft, ChevronRight, ShoppingCart } from 'lucide-react';
-import { newProducts } from '../data/products';
-import { getGame } from '../data/games';
+import { ArrowRight, ChevronLeft, ChevronRight } from 'lucide-react';
+import { products } from '../data/products';
 import { formatPrice } from '../lib/utils';
-import { useCart } from '../context/CartContext';
-import { useToast } from '../context/ToastContext';
 import { usePointerEffects } from '../hooks/usePointerEffects';
 import { ProductArt } from '../components/ProductArt';
-import { StockIndicator } from '../components/Badge';
+import { StockBadge } from '../components/Badge';
 import { Reveal } from '../components/anim/Reveal';
 
 const ROTATE_MS = 7000;
-const slides = newProducts.slice(0, 4);
+/** One slide per title — the showcase presents games, never single options. */
+const slides = [...products].sort((a, b) => b.variantCount - a.variantCount).slice(0, 4);
 
 export function TheLatestDrop() {
   const [index, setIndex] = useState(0);
   const [paused, setPaused] = useState(false);
-  const { addItem } = useCart();
-  const { toast } = useToast();
   const animate = usePointerEffects();
 
   const stageRef = useRef<HTMLDivElement>(null);
@@ -58,7 +54,6 @@ export function TheLatestDrop() {
   }, [index, paused, go]);
 
   const product = slides[index];
-  const game = getGame(product.id);
 
   return (
     <section
@@ -79,7 +74,7 @@ export function TheLatestDrop() {
           transition={{ duration: 0.8 }}
           className="pointer-events-none absolute inset-0"
           style={{
-            background: `radial-gradient(ellipse 60% 70% at 22% 45%, ${game?.color}1f 0%, transparent 62%), radial-gradient(ellipse 50% 60% at 85% 30%, rgba(46,48,106,0.35) 0%, transparent 65%)`,
+            background: `radial-gradient(ellipse 60% 70% at 22% 45%, ${product.color}1f 0%, transparent 62%), radial-gradient(ellipse 50% 60% at 85% 30%, rgba(46,48,106,0.35) 0%, transparent 65%)`,
           }}
         />
       </AnimatePresence>
@@ -97,7 +92,7 @@ export function TheLatestDrop() {
             <div
               aria-hidden
               className="pointer-events-none absolute -inset-8 -z-10 blur-[70px]"
-              style={{ background: `radial-gradient(ellipse 55% 55% at 50% 50%, ${game?.color}3d, transparent 70%)` }}
+              style={{ background: `radial-gradient(ellipse 55% 55% at 50% 50%, ${product.color}3d, transparent 70%)` }}
             />
             <AnimatePresence mode="wait">
               <motion.div
@@ -108,12 +103,12 @@ export function TheLatestDrop() {
                 transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
                 style={animate ? ({ rotateX: tiltX, rotateY: tiltY, '--ax': ax, '--ay': ay } as never) : undefined}
               >
-                <Link to={`/product/${product.id}`} className="group block">
+                <Link to={`/products/${product.slug}`} className="group block">
                   <ProductArt
                     gameId={product.id}
                     image={product.image}
                     alt={product.name}
-                    label={product.category}
+                    label={product.short}
                     size="xl"
                     depth={animate}
                     className="aspect-[16/10] w-full rounded-3xl border border-edge shadow-[0_40px_90px_-40px_rgba(0,0,0,1)] transition-transform duration-700 group-hover:scale-[1.02]"
@@ -136,8 +131,11 @@ export function TheLatestDrop() {
                 exit={{ opacity: 0, y: -8, x: -12 }}
                 transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
               >
-                <p className="mt-4 text-sm font-semibold uppercase tracking-[0.2em]" style={{ color: game?.color }}>
-                  {game?.name}
+                <p
+                  className="mt-4 text-sm font-semibold uppercase tracking-[0.2em]"
+                  style={{ color: product.color }}
+                >
+                  {product.genre}
                 </p>
                 <h2 className="mt-2 font-display text-3xl font-bold leading-[1.08] tracking-tight text-white md:text-5xl">
                   {product.name}
@@ -146,27 +144,32 @@ export function TheLatestDrop() {
                   {product.description}
                 </p>
                 <div className="mt-7 flex flex-wrap items-center gap-x-6 gap-y-3">
-                  <span className="font-display text-4xl font-bold text-white">{formatPrice(product.price)}</span>
-                  <StockIndicator stock={product.stock} className="text-sm" />
+                  <span className="font-display text-4xl font-bold text-white">
+                    From {formatPrice(product.price)}
+                  </span>
+                  <span className="text-sm font-medium text-zinc-400">
+                    {product.variantCount} {product.variantCount === 1 ? 'option' : 'options'}
+                  </span>
+                  <StockBadge
+                    stock={product.stock}
+                    soldOutLabel="Currently unavailable"
+                    className="text-sm"
+                  />
                 </div>
               </motion.div>
             </AnimatePresence>
 
             <div className="mt-8 flex flex-wrap gap-3">
-              <Link to={`/product/${product.id}`} className="btn-primary btn-shine !px-7 !py-3.5 text-base">
-                View Product
+              <Link
+                to={`/products/${product.slug}`}
+                className="btn-primary btn-shine !px-7 !py-3.5 text-base"
+              >
+                View options
                 <ArrowRight className="h-4 w-4" />
               </Link>
-              <button
-                onClick={() => {
-                  addItem(product.id);
-                  toast('Added to cart', { detail: product.name });
-                }}
-                className="btn-ghost !px-7 !py-3.5 text-base"
-              >
-                <ShoppingCart className="h-4 w-4" />
-                Add to Cart
-              </button>
+              <Link to="/products" className="btn-ghost !px-7 !py-3.5 text-base">
+                Browse all titles
+              </Link>
             </div>
 
             <div className="mt-10 flex items-center gap-4">
@@ -220,7 +223,7 @@ export function TheLatestDrop() {
                           active ? 'text-zinc-400' : 'text-zinc-700 group-hover/sel:text-zinc-500'
                         }`}
                       >
-                        {getGame(s.id)?.short}
+                        {s.short}
                       </span>
                     </button>
                   );

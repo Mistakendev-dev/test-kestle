@@ -1,17 +1,13 @@
 import { Link } from 'react-router-dom';
-import type { Product } from '../data/products';
-import { featuredProducts, newProducts, popularProducts, products } from '../data/products';
-import { getGame } from '../data/games';
+import type { GameProduct } from '../data/products';
+import { products } from '../data/products';
 import { formatPrice } from '../lib/utils';
 import { ProductArt } from '../components/ProductArt';
 
-function Poster({ product }: { product: Product }) {
-  const game = getGame(product.id);
-  const low = product.stock <= 10;
-
+function Poster({ product }: { product: GameProduct }) {
   return (
     <Link
-      to={`/product/${product.id}`}
+      to={`/products/${product.slug}`}
       tabIndex={-1}
       className="group mr-4 block h-[260px] w-[170px] shrink-0 sm:mr-5 sm:h-[330px] sm:w-[210px] lg:h-[386px] lg:w-[250px]"
       style={{ perspective: '900px' }}
@@ -43,21 +39,25 @@ function Poster({ product }: { product: Product }) {
         />
 
         <span className="absolute left-3 top-3 rounded-md border border-white/10 bg-void/65 px-2 py-0.5 text-[9px] font-bold uppercase tracking-[0.18em] text-zinc-300 backdrop-blur-sm">
-          {product.category}
+          {product.variantCount} {product.variantCount === 1 ? 'option' : 'options'}
         </span>
 
         <div className="absolute inset-x-0 bottom-0 p-3.5 sm:p-4">
           <p className="truncate text-[10px] font-semibold uppercase tracking-[0.22em] text-zinc-400">
-            {game?.name}
+            {product.genre}
           </p>
           <p className="mt-1.5 line-clamp-2 text-sm font-semibold leading-snug text-white transition-colors group-hover:text-accent-bright sm:text-[15px]">
             {product.name}
           </p>
           <div className="mt-2.5 flex items-center justify-between gap-2">
-            <span className="font-display text-lg font-bold text-white">{formatPrice(product.price)}</span>
+            <span className="font-display text-lg font-bold text-white">
+              From {formatPrice(product.price)}
+            </span>
             <span className="flex items-center gap-1.5 text-[10px] font-medium text-zinc-400">
-              <span className={`h-1.5 w-1.5 rounded-full ${low ? 'bg-amber-400' : 'bg-emerald-400'}`} />
-              {low ? 'Low stock' : 'In stock'}
+              <span
+                className={`h-1.5 w-1.5 rounded-full ${product.available ? 'bg-emerald-400' : 'bg-zinc-600'}`}
+              />
+              {product.available ? 'Available' : 'Unavailable'}
             </span>
           </div>
         </div>
@@ -66,22 +66,8 @@ function Poster({ product }: { product: Product }) {
   );
 }
 
-/** De-duplicated so a title never appears twice in the belt. */
-function pick(pools: Product[][], count: number) {
-  const out: Product[] = [];
-  const seen = new Set<string>();
-  for (const pool of pools) {
-    for (const p of pool) {
-      if (out.length >= count) return out;
-      if (seen.has(p.id)) continue;
-      seen.add(p.id);
-      out.push(p);
-    }
-  }
-  return out;
-}
-
-const belt = pick([featuredProducts, popularProducts, newProducts, products], 14);
+/** One poster per title — the belt shows games, never individual options. */
+const belt = [...products].sort((a, b) => b.variantCount - a.variantCount);
 
 /**
  * One continuous poster belt. Two identical halves translated by -50% give a
