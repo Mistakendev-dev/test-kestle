@@ -53,6 +53,7 @@ export function VariantSelector({
       )}
 
       <ul
+        aria-label={`${product.name} options`}
         className={cn(
           'glass-panel divide-y divide-white/[0.06] overflow-hidden rounded-2xl',
           compact && 'max-h-[19rem] overflow-y-auto',
