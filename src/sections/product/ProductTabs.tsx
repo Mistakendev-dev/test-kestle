@@ -1,7 +1,6 @@
 import { useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
-import type { Product } from '../../data/products';
-import { getGame } from '../../data/games';
+import type { GameProduct, Variant } from '../../data/products';
 import { faqItems } from '../../data/content';
 import { cn } from '../../lib/utils';
 
@@ -17,16 +16,21 @@ function InfoCard({ label, value }: { label: string; value: string }) {
   );
 }
 
-export function ProductTabs({ product }: { product: Product }) {
+export function ProductTabs({
+  product,
+  variant,
+}: {
+  product: GameProduct;
+  variant: Variant;
+}) {
   const [tab, setTab] = useState<Tab>('Overview');
-  const game = getGame(product.id);
 
   const specs = [
-    { label: 'Game', value: game?.name ?? product.id },
-    { label: 'Type', value: product.category },
+    { label: 'Game', value: product.name },
+    { label: 'Option', value: variant.name },
     { label: 'Delivery', value: 'Instant' },
     { label: 'Platform', value: 'PC' },
-    { label: 'Status', value: product.stock > 0 ? 'Available' : 'Sold out' },
+    { label: 'Status', value: variant.available ? 'Available' : 'Out of stock' },
   ];
 
   return (
@@ -74,18 +78,16 @@ export function ProductTabs({ product }: { product: Product }) {
                   The details above describe exactly what is included in this listing. If anything is
                   unclear, support can answer questions before you order.
                 </p>
-                {product.tags.length > 0 && (
-                  <div className="mt-7 flex flex-wrap gap-2">
-                    {product.tags.map((t) => (
-                      <span
-                        key={t}
-                        className="rounded-lg border border-edge bg-white/[0.02] px-3 py-1.5 text-xs font-medium capitalize text-zinc-400"
-                      >
-                        {t}
-                      </span>
-                    ))}
-                  </div>
-                )}
+                <div className="mt-7 flex flex-wrap gap-2">
+                  {product.features.map((f) => (
+                    <span
+                      key={f}
+                      className="rounded-lg border border-edge bg-white/[0.02] px-3 py-1.5 text-xs font-medium text-zinc-400"
+                    >
+                      {f}
+                    </span>
+                  ))}
+                </div>
               </div>
               <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-1">
                 {specs.slice(0, 3).map((s) => (

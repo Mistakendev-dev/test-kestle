@@ -1,10 +1,8 @@
-import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import type { Product } from '../../data/products';
-import { getGame } from '../../data/games';
+import type { GameProduct } from '../../data/products';
+import { formatPrice } from '../../lib/utils';
 import type { LightboxFrame } from '../../components/Lightbox';
 import { ProductStage } from './ProductStage';
-import { ProductPurchase } from './ProductPurchase';
 
 const rise = {
   hidden: { opacity: 0, y: 26 },
@@ -16,9 +14,9 @@ const rise = {
 };
 
 /**
- * The cinematic half of the page: a centred title card, the product on its
- * stage beneath it, then the purchase rail. Deliberately vertical and
- * symmetrical — the homepage owns cards and rails, this owns one object.
+ * The cinematic half of the hub: a centred title card with the game on its
+ * stage beneath it. Deliberately vertical and symmetrical — the homepage owns
+ * cards and rails, this owns one title.
  */
 export function ProductHero({
   product,
@@ -26,35 +24,29 @@ export function ProductHero({
   index,
   onSelect,
   onExpand,
-  qty,
-  onQty,
-  railRef,
 }: {
-  product: Product;
+  product: GameProduct;
   frames: LightboxFrame[];
   index: number;
   onSelect: (i: number) => void;
   onExpand: () => void;
-  qty: number;
-  onQty: (next: number) => void;
-  railRef: React.RefObject<HTMLDivElement | null>;
 }) {
-  const game = getGame(product.id);
-
   return (
     <div className="relative">
       <div className="mx-auto max-w-3xl text-center">
         <motion.div variants={rise} initial="hidden" animate="visible" custom={0.05}>
           <div className="flex flex-wrap items-center justify-center gap-2.5">
-            <Link
-              to={`/games/${product.id}`}
-              className="rounded-lg px-3 py-1 text-[11px] font-bold uppercase tracking-[0.2em] transition-opacity hover:opacity-80"
-              style={{ background: game?.colorSoft, color: game?.color }}
+            <span
+              className="rounded-lg px-3 py-1 text-[11px] font-bold uppercase tracking-[0.2em]"
+              style={{ background: product.colorSoft, color: product.color }}
             >
-              {game?.name}
-            </Link>
+              {product.genre}
+            </span>
             <span className="rounded-lg border border-white/10 px-2.5 py-1 text-[11px] font-bold uppercase tracking-[0.2em] text-zinc-400">
-              {product.category}
+              {product.variantCount} {product.variantCount === 1 ? 'option' : 'options'}
+            </span>
+            <span className="rounded-lg border border-white/10 px-2.5 py-1 text-[11px] font-bold uppercase tracking-[0.2em] text-zinc-400">
+              From {formatPrice(product.price)}
             </span>
           </div>
         </motion.div>
@@ -92,16 +84,6 @@ export function ProductHero({
         </div>
       </div>
 
-      <motion.div
-        ref={railRef}
-        variants={rise}
-        initial="hidden"
-        animate="visible"
-        custom={0.45}
-        className="mt-10 sm:mt-12"
-      >
-        <ProductPurchase product={product} qty={qty} onQty={onQty} />
-      </motion.div>
     </div>
   );
 }

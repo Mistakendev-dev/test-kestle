@@ -1,19 +1,25 @@
-import type { Product } from '../../data/products';
-import { getGame } from '../../data/games';
+import type { GameProduct, Variant } from '../../data/products';
 
 /**
  * Thin divided band of the facts a buyer checks before committing. Reads as a
  * spec plate on the object rather than a card grid.
  */
-export function ProductSpecs({ product }: { product: Product }) {
-  const game = getGame(product.id);
-
+export function ProductSpecs({
+  product,
+  variant,
+}: {
+  product: GameProduct;
+  variant: Variant;
+}) {
   const specs = [
-    { label: 'Game', value: game?.name ?? product.id },
-    { label: 'Type', value: product.category },
+    { label: 'Game', value: product.name },
+    { label: 'Option', value: variant.name },
     { label: 'Platform', value: 'PC' },
     { label: 'Delivery', value: 'Instant' },
-    { label: 'Stock', value: product.stock > 0 ? `${product.stock} available` : 'Sold out' },
+    {
+      label: 'Stock',
+      value: variant.stock > 0 ? `${variant.stock} available` : 'Out of stock',
+    },
   ];
 
   return (

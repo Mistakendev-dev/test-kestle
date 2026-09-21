@@ -5,7 +5,6 @@ import type { Product } from '../../data/products';
 import { getGame } from '../../data/games';
 import { ProductArt } from '../../components/ProductArt';
 import type { LightboxFrame } from '../../components/Lightbox';
-import { Badge } from '../../components/Badge';
 import { cn } from '../../lib/utils';
 
 /**
@@ -126,8 +125,6 @@ export function ProductStage({
                 }}
               />
             </div>
-
-            {product.badge && <Badge label={product.badge} className="absolute left-5 top-5 z-10" />}
 
             <button
               type="button"
