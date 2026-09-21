@@ -1,15 +1,15 @@
 import { Link } from 'react-router-dom';
 import { ArrowRight } from 'lucide-react';
 import { games } from '../../data/games';
-import { products } from '../../data/products';
+import { products, totalStock, totalVariants } from '../../data/products';
 import { ProductArt } from '../../components/ProductArt';
 import { Reveal } from '../../components/anim/Reveal';
 
 /** Demo catalogue figures. Derived from the bundled data, never invented. */
 const figures = [
-  { value: String(games.length), label: 'Games' },
-  { value: String(products.length), label: 'Listings' },
-  { value: products.reduce((n, p) => n + p.stock, 0).toLocaleString(), label: 'In stock' },
+  { value: String(products.length), label: 'Games' },
+  { value: String(totalVariants), label: 'Options' },
+  { value: totalStock.toLocaleString(), label: 'In stock' },
 ];
 
 const backdrop = games.slice(0, 4);

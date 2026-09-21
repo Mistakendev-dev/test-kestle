@@ -55,7 +55,7 @@ export function RecentlyViewed({ showEmptyState = false }: { showEmptyState?: bo
                 {items.map((p) => (
                   <Link
                     key={p.id}
-                    to={`/product/${p.id}`}
+                    to={`/products/${p.slug}`}
                     className="group flex w-[248px] shrink-0 items-center gap-3 rounded-2xl border border-edge bg-white/[0.02] p-3 transition-all duration-300 hover:border-accent-light/40 hover:bg-white/[0.04]"
                   >
                     <ProductArt

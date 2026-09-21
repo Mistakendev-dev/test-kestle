@@ -1,16 +1,14 @@
-import { Link } from 'react-router-dom';
 import { games } from '../../data/games';
-import { products } from '../../data/products';
+import { getProduct } from '../../data/products';
 import { ProductArt } from '../../components/ProductArt';
 import { Tilt } from '../../components/anim/Tilt';
 import { Reveal } from '../../components/anim/Reveal';
 
-const counts = new Map(games.map((g) => [g.id, products.filter((p) => p.id === g.id).length]));
+const counts = new Map(games.map((g) => [g.id, getProduct(g.id)?.variantCount ?? 0]));
 
 /**
- * Title discovery, kept deliberately narrow. Fifteen games would be a wall if
- * they were laid out as a grid, so they run as tall plates in a single
- * swipeable row — browsable without taking over the page.
+ * Title discovery, kept deliberately narrow. Tall plates in a single swipeable
+ * row — browsable without taking over the page.
  */
 export function CatalogGames({ onSelect }: { onSelect: (id: string) => void }) {
   return (
@@ -24,12 +22,6 @@ export function CatalogGames({ onSelect }: { onSelect: (id: string) => void }) {
                 Pick your game
               </h2>
             </div>
-            <Link
-              to="/games"
-              className="shrink-0 text-xs font-semibold text-zinc-400 underline-offset-4 transition-colors hover:text-white hover:underline"
-            >
-              All titles
-            </Link>
           </div>
         </Reveal>
       </div>
@@ -41,7 +33,7 @@ export function CatalogGames({ onSelect }: { onSelect: (id: string) => void }) {
               <button
                 type="button"
                 onClick={() => onSelect(g.id)}
-                aria-label={`Show ${g.name} listings`}
+                aria-label={`Show ${g.name} options`}
                 className="group block w-[9.5rem] sm:w-[11rem]"
               >
                 <div className="glass-card relative aspect-[2/3] overflow-hidden rounded-2xl transition-[border-color,box-shadow] duration-500 group-hover:border-accent-light/35 group-hover:shadow-[inset_0_1px_0_rgba(255,255,255,0.12),0_26px_55px_-26px_rgba(0,0,0,1)]">
@@ -65,7 +57,7 @@ export function CatalogGames({ onSelect }: { onSelect: (id: string) => void }) {
                   <div className="absolute inset-x-0 bottom-0 p-3.5 text-left">
                     <p className="truncate font-display text-sm font-semibold text-white">{g.name}</p>
                     <p className="mt-1 text-[10px] uppercase tracking-[0.16em] text-zinc-500">
-                      {counts.get(g.id) ?? 0} listings
+                      {counts.get(g.id) ?? 0} options
                     </p>
                   </div>
                 </div>

@@ -4,10 +4,10 @@ import { Heart, ShoppingCart, Trash2, X } from 'lucide-react';
 import { useWishlist } from '../../context/WishlistContext';
 import { useCart } from '../../context/CartContext';
 import { useToast } from '../../context/ToastContext';
-import { getGame } from '../../data/games';
+import { defaultVariant } from '../../data/products';
 import { formatPrice } from '../../lib/utils';
 import { ProductArt } from '../ProductArt';
-import { StockIndicator } from '../Badge';
+import { StockBadge } from '../Badge';
 import { useBodyScrollLock } from '../../hooks/useBodyScrollLock';
 import { useEscapeKey } from '../../hooks/useEscapeKey';
 
@@ -87,7 +87,7 @@ export function WishlistDrawer() {
                       transition={{ duration: 0.3 }}
                       className="mb-3 flex gap-4 rounded-2xl border border-edge bg-white/[0.02] p-3"
                     >
-                      <Link to={`/product/${product.id}`} onClick={close} className="shrink-0">
+                      <Link to={`/products/${product.slug}`} onClick={close} className="shrink-0">
                         <ProductArt
                           gameId={product.id}
                           image={product.image}
@@ -98,24 +98,25 @@ export function WishlistDrawer() {
                       </Link>
                       <div className="min-w-0 flex-1">
                         <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-zinc-500">
-                          {getGame(product.id)?.name}
+                          {product.variantCount} option{product.variantCount === 1 ? '' : 's'}
                         </p>
                         <Link
-                          to={`/product/${product.id}`}
+                          to={`/products/${product.slug}`}
                           onClick={close}
                           className="mt-0.5 block truncate text-sm font-semibold text-white hover:text-accent-bright"
                         >
                           {product.name}
                         </Link>
-                        <StockIndicator stock={product.stock} className="mt-1" />
+                        <StockBadge stock={product.stock} className="mt-1" />
                         <div className="mt-2 flex items-center justify-between gap-2">
                           <span className="font-display text-sm font-bold text-white">
-                            {formatPrice(product.price)}
+                            From {formatPrice(product.price)}
                           </span>
                           <button
                             onClick={() => {
-                              addItem(product.id);
-                              toast('Added to cart', { detail: product.name });
+                              const variant = defaultVariant(product);
+                              addItem(variant.id);
+                              toast('Added to cart', { detail: `${product.name} · ${variant.name}` });
                             }}
                             className="inline-flex items-center gap-1.5 rounded-lg border border-edge bg-white/[0.03] px-3 py-1.5 text-xs font-semibold text-zinc-300 transition-colors hover:border-accent-light/50 hover:bg-accent/20 hover:text-white"
                           >

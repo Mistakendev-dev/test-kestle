@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { ArrowDown, ArrowRight, Gamepad2, ShieldCheck, Zap } from 'lucide-react';
+import { ArrowRight, Gamepad2, ShieldCheck, Zap } from 'lucide-react';
 import { products } from '../data/products';
 import { games, getGame } from '../data/games';
 import { formatPrice } from '../lib/utils';
@@ -94,23 +94,11 @@ export function Hero() {
               Browse Products
               <ArrowRight className="h-4 w-4" />
             </Link>
-            <Link to="/games" className="btn-ghost !px-8 !py-4 text-base">
+            <Link to="/resell" className="btn-ghost !px-8 !py-4 text-base">
               <Gamepad2 className="h-4 w-4" />
-              Explore Games
+              Start reselling
             </Link>
           </motion.div>
-
-          <motion.a
-            href="#marketplace"
-            variants={fadeUp}
-            initial="hidden"
-            animate="visible"
-            custom={0.5}
-            className="group mt-7 inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.25em] text-zinc-500 transition-colors hover:text-accent-bright"
-          >
-            <ArrowDown className="h-3.5 w-3.5 transition-transform duration-300 group-hover:translate-y-0.5" />
-            Explore marketplace
-          </motion.a>
 
           <motion.div
             variants={fadeUp}
@@ -157,14 +145,14 @@ export function Hero() {
             />
             <div className="float-slow">
               <Link
-                to={`/product/${floatCards[0].id}`}
+                to={`/products/${floatCards[0].slug}`}
                 className="pane-raised bevel block overflow-hidden p-3"
               >
                 <ProductArt
                   gameId={floatCards[0].id}
                   image={floatCards[0].image}
                   alt={floatCards[0].name}
-                  label={floatCards[0].category}
+                  label={floatCards[0].genre}
                   size="lg"
                   priority
                   className="aspect-[16/10] w-full rounded-xl"
@@ -172,7 +160,7 @@ export function Hero() {
                 <div className="flex items-center justify-between gap-3 px-1 pb-1 pt-3">
                   <div className="min-w-0">
                     <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-zinc-500">
-                      {getGame(floatCards[0].id)?.name}
+                      {floatCards[0].variantCount} options
                     </p>
                     <p className="truncate text-sm font-semibold text-white">{floatCards[0].name}</p>
                   </div>
@@ -191,8 +179,6 @@ export function Hero() {
 }
 
 function HeroCard({ product, index }: { product: (typeof products)[number]; index: number }) {
-  const game = getGame(product.id);
-
   return (
     <motion.div
       initial={{ opacity: 0, y: 60, rotateY: -18 }}
@@ -205,7 +191,7 @@ function HeroCard({ product, index }: { product: (typeof products)[number]; inde
         transition={{ duration: 6 + index, repeat: Infinity, ease: 'easeInOut', delay: index * 0.6 }}
       >
         <Link
-          to={`/product/${product.id}`}
+          to={`/products/${product.slug}`}
           className="pane-raised bevel lit-edge block overflow-hidden p-3 transition-all duration-500 hover:border-accent-light/50 hover:shadow-glow-lg"
           style={{ transform: `rotateY(${index % 2 === 0 ? -6 : 6}deg) rotateX(3deg)` }}
         >
@@ -213,12 +199,14 @@ function HeroCard({ product, index }: { product: (typeof products)[number]; inde
             gameId={product.id}
             image={product.image}
             alt={product.name}
-            label={product.category}
+            label={product.genre}
             className="aspect-[16/10] w-full rounded-xl"
           />
           <div className="flex items-center justify-between px-1 pb-1 pt-3">
             <div className="min-w-0">
-              <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-zinc-500">{game?.name}</p>
+              <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-zinc-500">
+                {product.variantCount} options
+              </p>
               <p className="truncate text-sm font-semibold text-white">{product.name}</p>
             </div>
             <span className="font-display text-sm font-bold text-accent-bright">{formatPrice(product.price)}</span>

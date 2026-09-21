@@ -1,13 +1,13 @@
 import { motion } from 'framer-motion';
 import { games } from '../../data/games';
-import { products } from '../../data/products';
+import { products, totalVariants } from '../../data/products';
 import { formatPrice } from '../../lib/utils';
 import { ProductArt } from '../../components/ProductArt';
 
 /** Demo catalogue figures, read straight off the bundled data. */
 const figures = [
-  { value: String(products.length), label: 'Listings' },
-  { value: String(games.length), label: 'Titles' },
+  { value: String(products.length), label: 'Titles' },
+  { value: String(totalVariants), label: 'Options' },
   { value: formatPrice(Math.min(...products.map((p) => p.price))), label: 'From' },
 ];
 

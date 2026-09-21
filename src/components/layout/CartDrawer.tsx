@@ -2,7 +2,6 @@ import { Link } from 'react-router-dom';
 import { AnimatePresence, motion } from 'framer-motion';
 import { Minus, Plus, ShieldCheck, ShoppingCart, Trash2, X, Zap } from 'lucide-react';
 import { useCart } from '../../context/CartContext';
-import { getGame } from '../../data/games';
 import { formatPrice } from '../../lib/utils';
 import { ProductArt } from '../ProductArt';
 import { useBodyScrollLock } from '../../hooks/useBodyScrollLock';
@@ -71,9 +70,9 @@ export function CartDrawer() {
               <>
                 <div className="flex-1 overflow-y-auto px-6 py-4">
                   <AnimatePresence initial={false}>
-                    {detailed.map(({ product, qty }) => (
+                    {detailed.map(({ product, variant, qty }) => (
                       <motion.div
-                        key={product.id}
+                        key={variant.id}
                         layout
                         initial={{ opacity: 0, y: 12 }}
                         animate={{ opacity: 1, y: 0 }}
@@ -81,7 +80,11 @@ export function CartDrawer() {
                         transition={{ duration: 0.3 }}
                         className="mb-3 flex gap-4 rounded-2xl border border-edge bg-white/[0.02] p-3"
                       >
-                        <Link to={`/product/${product.id}`} onClick={closeCart} className="shrink-0">
+                        <Link
+                          to={`/products/${product.slug}?v=${variant.id}`}
+                          onClick={closeCart}
+                          className="shrink-0"
+                        >
                           <ProductArt
                             gameId={product.id}
                             image={product.image}
@@ -92,19 +95,19 @@ export function CartDrawer() {
                         </Link>
                         <div className="min-w-0 flex-1">
                           <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-zinc-500">
-                            {getGame(product.id)?.name}
+                            {product.name}
                           </p>
                           <Link
-                            to={`/product/${product.id}`}
+                            to={`/products/${product.slug}?v=${variant.id}`}
                             onClick={closeCart}
                             className="mt-0.5 block truncate text-sm font-semibold text-white hover:text-accent-bright"
                           >
-                            {product.name}
+                            {variant.name}
                           </Link>
                           <div className="mt-2 flex items-center justify-between">
                             <div className="flex items-center gap-1 rounded-lg border border-edge bg-white/[0.03]">
                               <button
-                                onClick={() => setQty(product.id, qty - 1)}
+                                onClick={() => setQty(variant.id, qty - 1)}
                                 aria-label="Decrease quantity"
                                 className="flex h-7 w-7 items-center justify-center text-zinc-400 transition-colors hover:text-white"
                               >
@@ -112,7 +115,7 @@ export function CartDrawer() {
                               </button>
                               <span className="w-6 text-center text-xs font-semibold text-white">{qty}</span>
                               <button
-                                onClick={() => setQty(product.id, qty + 1)}
+                                onClick={() => setQty(variant.id, qty + 1)}
                                 aria-label="Increase quantity"
                                 className="flex h-7 w-7 items-center justify-center text-zinc-400 transition-colors hover:text-white"
                               >
@@ -120,12 +123,12 @@ export function CartDrawer() {
                               </button>
                             </div>
                             <span className="font-display text-sm font-bold text-white">
-                              {formatPrice(product.price * qty)}
+                              {formatPrice(variant.price * qty)}
                             </span>
                           </div>
                         </div>
                         <button
-                          onClick={() => removeItem(product.id)}
+                          onClick={() => removeItem(variant.id)}
                           aria-label="Remove item"
                           className="self-start text-zinc-600 transition-colors hover:text-red-400"
                         >

@@ -1,15 +1,15 @@
 import { Link } from 'react-router-dom';
 import { ArrowRight } from 'lucide-react';
 import { games } from '../data/games';
-import { products } from '../data/products';
+import { products, totalStock, totalVariants } from '../data/products';
 import { ProductArt } from '../components/ProductArt';
 import { Reveal } from '../components/anim/Reveal';
 
 /** Derived from the catalogue, so the panel can never drift from the data. */
 const stats = [
-  { value: String(games.length), label: 'Games' },
-  { value: String(products.length), label: 'Options' },
-  { value: products.reduce((n, p) => n + p.stock, 0).toLocaleString('en-US'), label: 'Available' },
+  { value: String(products.length), label: 'Games' },
+  { value: String(totalVariants), label: 'Options' },
+  { value: totalStock.toLocaleString('en-US'), label: 'Available' },
 ];
 
 /** A spread of titles for the backdrop collage. */
@@ -46,8 +46,8 @@ export function MarketplaceOverview() {
                   in one place.
                 </h2>
                 <p className="mt-5 max-w-md text-[15px] leading-relaxed text-zinc-400">
-                  Every listing across every supported title, filterable by game, price and
-                  availability. Browse the whole catalogue in one view.
+                  Every supported title with its full range of options, filterable by game,
+                  price and availability. Browse the whole catalogue in one view.
                 </p>
 
                 <div className="mt-9 flex flex-wrap items-center gap-4">
@@ -55,8 +55,8 @@ export function MarketplaceOverview() {
                     Browse marketplace
                     <ArrowRight className="h-4 w-4" />
                   </Link>
-                  <Link to="/games" className="btn-ghost !py-3.5">
-                    View games
+                  <Link to="/resell" className="btn-ghost !py-3.5">
+                    Become a reseller
                   </Link>
                 </div>
               </div>

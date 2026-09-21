@@ -16,8 +16,8 @@ const columns = [
   {
     title: 'Games',
     links: [
-      ...games.slice(0, 4).map((g) => ({ label: g.name, to: `/games/${g.id}` })),
-      { label: 'All Games', to: '/games' },
+      ...games.slice(0, 4).map((g) => ({ label: g.name, to: `/products/${g.id}` })),
+      { label: 'All Games', to: '/products' },
     ],
   },
   {

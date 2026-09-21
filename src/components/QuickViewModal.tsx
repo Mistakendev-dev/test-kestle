@@ -1,22 +1,30 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { AnimatePresence, motion } from 'framer-motion';
 import { ArrowRight, ShoppingCart, X } from 'lucide-react';
-import type { Product } from '../data/products';
-import { getGame } from '../data/games';
+import type { Product, Variant } from '../data/products';
+import { defaultVariant } from '../data/products';
 import { formatPrice } from '../lib/utils';
 import { useCart } from '../context/CartContext';
 import { useToast } from '../context/ToastContext';
 import { useBodyScrollLock } from '../hooks/useBodyScrollLock';
 import { ProductArt } from './ProductArt';
-import { Badge, StockIndicator } from './Badge';
+import { StockBadge } from './Badge';
 import { WishlistButton } from './WishlistButton';
+import { VariantSelector } from './variants/VariantSelector';
 
 export function QuickViewModal({ product, onClose }: { product: Product | null; onClose: () => void }) {
   const { addItem } = useCart();
   const { toast } = useToast();
+  const [selected, setSelected] = useState<Variant | null>(null);
 
   useBodyScrollLock(Boolean(product));
+
+  // A game has no single price, so quick view always opens on a concrete
+  // option — the first in stock — and resets whenever the game changes.
+  useEffect(() => {
+    setSelected(product ? defaultVariant(product) : null);
+  }, [product]);
 
   useEffect(() => {
     if (!product) return;
@@ -27,11 +35,9 @@ export function QuickViewModal({ product, onClose }: { product: Product | null; 
     return () => window.removeEventListener('keydown', onKey);
   }, [product, onClose]);
 
-  const game = product ? getGame(product.id) : null;
-
   return (
     <AnimatePresence>
-      {product && (
+      {product && selected && (
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
@@ -65,42 +71,59 @@ export function QuickViewModal({ product, onClose }: { product: Product | null; 
                   gameId={product.id}
                   image={product.image}
                   alt={product.name}
-                  label={product.category}
+                  label={product.genre}
                   className="aspect-[16/11] w-full sm:h-full sm:aspect-auto"
                 />
-                {product.badge && <Badge label={product.badge} className="absolute left-4 top-4" />}
               </div>
 
               <div className="flex flex-col gap-3 p-6">
                 <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-accent-bright">
-                  {game?.name}
+                  {product.variantCount} option{product.variantCount === 1 ? '' : 's'}
                 </p>
                 <h3 className="font-display text-xl font-bold leading-tight text-white">{product.name}</h3>
-                <StockIndicator stock={product.stock} />
-                <div className="flex items-baseline gap-2">
-                  <span className="font-display text-3xl font-bold text-white">{formatPrice(product.price)}</span>
-                  {product.originalPrice && (
-                    <span className="text-sm text-zinc-600 line-through">{formatPrice(product.originalPrice)}</span>
-                  )}
-                </div>
-                <p className="line-clamp-4 text-sm leading-relaxed text-zinc-400">{product.description}</p>
+                <p className="line-clamp-2 text-sm leading-relaxed text-zinc-400">{product.description}</p>
 
-                <div className="mt-auto flex flex-col gap-2 pt-4">
+                <div className="mt-1">
+                  <VariantSelector
+                    product={product}
+                    selectedId={selected.id}
+                    onSelect={setSelected}
+                    compact
+                  />
+                </div>
+
+                <div className="mt-auto flex flex-col gap-3 pt-4">
+                  <div className="flex items-end justify-between gap-3">
+                    <div className="min-w-0">
+                      <p className="truncate text-xs text-zinc-500">{selected.name}</p>
+                      <StockBadge stock={selected.stock} className="mt-1" />
+                    </div>
+                    <span className="shrink-0 font-display text-3xl font-bold text-white">
+                      {formatPrice(selected.price)}
+                    </span>
+                  </div>
+
                   <div className="flex gap-2">
                     <button
                       onClick={() => {
-                        addItem(product.id);
-                        toast('Added to cart', { detail: product.name });
+                        addItem(selected.id);
+                        toast('Added to cart', { detail: `${product.name} · ${selected.name}` });
                       }}
-                      className="btn-primary btn-shine flex-1"
+                      disabled={!selected.available}
+                      className="btn-primary btn-shine flex-1 disabled:cursor-not-allowed disabled:opacity-45"
                     >
                       <ShoppingCart className="h-4 w-4" />
-                      Add to Cart
+                      {selected.available ? 'Add to Cart' : 'Out of stock'}
                     </button>
                     <WishlistButton productId={product.id} size="md" />
                   </div>
-                  <Link to={`/product/${product.id}`} onClick={onClose} className="btn-ghost w-full">
-                    View Product
+
+                  <Link
+                    to={`/products/${product.slug}?v=${selected.id}`}
+                    onClick={onClose}
+                    className="btn-ghost w-full"
+                  >
+                    View all options
                     <ArrowRight className="h-4 w-4" />
                   </Link>
                 </div>
