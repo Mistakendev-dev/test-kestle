@@ -7,7 +7,7 @@ import { formatPrice } from '../lib/utils';
 import { Particles } from '../components/effects/Particles';
 import { ProductArt } from '../components/ProductArt';
 
-const floatCards = [products[0], products[6], products[29], products[38]];
+const floatCards = [...products].sort((a, b) => b.variantCount - a.variantCount).slice(0, 4);
 
 const cardPositions = [
   'left-[8%] top-[6%] z-30',

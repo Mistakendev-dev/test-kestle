@@ -23,8 +23,6 @@ const paths = [
   '/',
   '/products',
   '/products?game=rust&sort=price-asc',
-  '/games',
-  '/games/rust',
   '/resell',
   '/docs',
   '/how-it-works',
@@ -47,7 +45,9 @@ let ran = 0;
 try {
   const { routes } = await server.ssrLoadModule('/src/routes.tsx');
   const { products } = await server.ssrLoadModule('/src/data/products.ts');
-  paths.push(`/product/${products[0].id}`);
+  // Every game hub, plus one deep-linked variant.
+  for (const p of products) paths.push(`/products/${p.slug}`);
+  paths.push(`/products/${products[0].slug}?v=${products[0].variants.at(-1).id}`);
 
   for (const path of paths) {
     errors.length = 0;

@@ -7,7 +7,7 @@ const steps = [
     num: '01',
     icon: Search,
     title: 'Choose Your Product',
-    text: 'Browse accounts across 15+ games. Filter by game, type, and price to find exactly what you need.',
+    text: 'Browse every game we carry, then pick the option you want. Filter by game, type, and price to find exactly what you need.',
   },
   {
     num: '02',
