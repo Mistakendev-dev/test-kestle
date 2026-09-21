@@ -6,7 +6,7 @@ import { formatPrice } from '../lib/utils';
 import { ProductArt } from '../components/ProductArt';
 
 function Poster({ product }: { product: Product }) {
-  const game = getGame(product.game);
+  const game = getGame(product.id);
   const low = product.stock <= 10;
 
   return (
@@ -19,7 +19,7 @@ function Poster({ product }: { product: Product }) {
       <div className="relative h-full overflow-hidden rounded-2xl border border-white/[0.09] shadow-rest transition-[transform,border-color,box-shadow] duration-500 ease-out group-hover:-translate-y-2 group-hover:border-accent-light/45 group-hover:shadow-lift group-hover:[transform:translateY(-8px)_rotateX(3deg)]">
         {/* Artwork dominates the poster; copy sits in the lower gradient. */}
         <ProductArt
-          gameId={product.game}
+          gameId={product.id}
           image={product.image}
           alt={product.name}
           size="lg"

@@ -27,7 +27,7 @@ export function QuickViewModal({ product, onClose }: { product: Product | null; 
     return () => window.removeEventListener('keydown', onKey);
   }, [product, onClose]);
 
-  const game = product ? getGame(product.game) : null;
+  const game = product ? getGame(product.id) : null;
 
   return (
     <AnimatePresence>
@@ -62,7 +62,7 @@ export function QuickViewModal({ product, onClose }: { product: Product | null; 
             <div className="grid sm:grid-cols-2">
               <div className="relative">
                 <ProductArt
-                  gameId={product.game}
+                  gameId={product.id}
                   image={product.image}
                   alt={product.name}
                   label={product.category}

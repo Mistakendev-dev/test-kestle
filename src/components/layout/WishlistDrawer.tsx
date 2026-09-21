@@ -89,7 +89,7 @@ export function WishlistDrawer() {
                     >
                       <Link to={`/product/${product.id}`} onClick={close} className="shrink-0">
                         <ProductArt
-                          gameId={product.game}
+                          gameId={product.id}
                           image={product.image}
                           alt={product.name}
                           size="sm"
@@ -98,7 +98,7 @@ export function WishlistDrawer() {
                       </Link>
                       <div className="min-w-0 flex-1">
                         <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-zinc-500">
-                          {getGame(product.game)?.name}
+                          {getGame(product.id)?.name}
                         </p>
                         <Link
                           to={`/product/${product.id}`}

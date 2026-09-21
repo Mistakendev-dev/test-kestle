@@ -2,7 +2,7 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { AnimatePresence, motion } from 'framer-motion';
 import { PackageSearch, X } from 'lucide-react';
-import { matchesQuery, products, type ProductCategory } from '../data/products';
+import { matchesQuery, products, totalVariants } from '../data/products';
 import { games } from '../data/games';
 import { cn, formatPrice } from '../lib/utils';
 import { ProductGrid } from '../components/ProductGrid';
@@ -15,32 +15,30 @@ import { CatalogSpotlight } from '../sections/catalog/CatalogSpotlight';
 import { CatalogGames } from '../sections/catalog/CatalogGames';
 import { CatalogOutro } from '../sections/catalog/CatalogOutro';
 
-type SortKey = 'featured' | 'newest' | 'price-asc' | 'price-desc' | 'popular';
+type SortKey = 'featured' | 'options' | 'price-asc' | 'price-desc' | 'available';
 
 const sortOptions: { key: SortKey; label: string }[] = [
   { key: 'featured', label: 'Featured' },
-  { key: 'newest', label: 'Newest' },
+  { key: 'options', label: 'Most options' },
   { key: 'price-asc', label: 'Price: Low to High' },
   { key: 'price-desc', label: 'Price: High to Low' },
-  { key: 'popular', label: 'Popular' },
+  { key: 'available', label: 'Most available' },
 ];
 
-const types: (ProductCategory | 'All')[] = ['All', 'NFA', 'FA', 'Ranked', 'Stacked'];
-const MAX_PRICE = 120;
+const genres = ['All', ...[...new Set(products.map((p) => p.genre))].sort()];
+
+// Derived from the catalogue so the slider always spans the real range of
+// starting prices rather than a hardcoded ceiling.
+const PRICE_FLOOR = Math.floor(Math.min(...products.map((p) => p.price)) * 10) / 10;
+const MAX_PRICE = Math.ceil(Math.max(...products.map((p) => p.price)) * 10) / 10;
 
 const railOptions: RailOption[] = [
   { id: 'all', label: 'All', count: products.length },
-  ...games.map((g) => ({
-    id: g.id,
-    label: g.name,
-    count: products.filter((p) => p.game === g.id).length,
-  })),
+  ...games.map((g) => ({ id: g.id, label: g.name, count: g.variantCount })),
 ];
 
-/** Strongest listing in the catalogue — the one the spotlight band presents. */
-const spotlight = [...products].sort(
-  (a, b) => Number(b.featured) - Number(a.featured) || b.popularity - a.popularity,
-)[0];
+/** Deepest catalogue in the marketplace — the title the spotlight presents. */
+const spotlight = [...products].sort((a, b) => b.variantCount - a.variantCount)[0];
 
 export function ProductsPage() {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -54,7 +52,7 @@ export function ProductsPage() {
   const [query, setQuery] = useState(() => searchParams.get('q') ?? '');
 
   const selectedGame = searchParams.get('game') ?? 'all';
-  const selectedType = (searchParams.get('type') ?? 'All') as ProductCategory | 'All';
+  const selectedType = searchParams.get('type') ?? 'All';
 
   useBodyScrollLock(filtersOpen);
   useEscapeKey(filtersOpen, () => setFiltersOpen(false));
@@ -85,8 +83,8 @@ export function ProductsPage() {
 
   const filtered = useMemo(() => {
     let list = products.filter((p) => matchesQuery(p, query));
-    if (selectedGame !== 'all') list = list.filter((p) => p.game === selectedGame);
-    if (selectedType !== 'All') list = list.filter((p) => p.category === selectedType);
+    if (selectedGame !== 'all') list = list.filter((p) => p.id === selectedGame);
+    if (selectedType !== 'All') list = list.filter((p) => p.genre === selectedType);
     list = list.filter((p) => p.price <= maxPrice);
     if (inStockOnly) list = list.filter((p) => p.stock > 0);
 
@@ -98,16 +96,14 @@ export function ProductsPage() {
       case 'price-desc':
         sorted.sort((a, b) => b.price - a.price);
         break;
-      case 'newest':
-        sorted.sort((a, b) => b.createdAt - a.createdAt);
+      case 'options':
+        sorted.sort((a, b) => b.variantCount - a.variantCount);
         break;
-      case 'popular':
-        sorted.sort((a, b) => b.popularity - a.popularity);
+      case 'available':
+        sorted.sort((a, b) => b.stock - a.stock);
         break;
       default:
-        sorted.sort(
-          (a, b) => Number(b.featured) - Number(a.featured) || b.popularity - a.popularity,
-        );
+        break;
     }
     return sorted;
   }, [query, selectedGame, selectedType, maxPrice, inStockOnly, sort]);
@@ -182,9 +178,7 @@ export function ProductsPage() {
               )}
             >
               {g.name}
-              <span className="text-xs text-zinc-600">
-                {products.filter((p) => p.game === g.id).length}
-              </span>
+              <span className="text-xs text-zinc-600">{g.variantCount}</span>
             </button>
           ))}
         </div>
@@ -192,10 +186,10 @@ export function ProductsPage() {
 
       <div>
         <h4 className="mb-3 text-xs font-semibold uppercase tracking-[0.2em] text-zinc-500">
-          Product Type
+          Genre
         </h4>
         <div className="flex flex-wrap gap-2">
-          {types.map((c) => (
+          {genres.map((c) => (
             <button
               key={c}
               onClick={() => setParam('type', c, 'All')}
@@ -218,16 +212,17 @@ export function ProductsPage() {
         </h4>
         <input
           type="range"
-          min={3}
+          min={PRICE_FLOOR}
           max={MAX_PRICE}
+          step={0.1}
           value={maxPrice}
           onChange={(e) => setMaxPrice(Number(e.target.value))}
           aria-label="Maximum price"
           className="range-accent w-full"
-          style={{ '--pct': `${((maxPrice - 3) / (MAX_PRICE - 3)) * 100}%` } as never}
+          style={{ '--pct': `${((maxPrice - PRICE_FLOOR) / (MAX_PRICE - PRICE_FLOOR)) * 100}%` } as never}
         />
         <div className="mt-2 flex justify-between text-xs text-zinc-500">
-          <span>{formatPrice(3)}</span>
+          <span>{formatPrice(PRICE_FLOOR)}</span>
           <span className="font-semibold text-accent-bright">
             {maxPrice >= MAX_PRICE ? 'Any' : `Up to ${formatPrice(maxPrice)}`}
           </span>
@@ -291,6 +286,7 @@ export function ProductsPage() {
             sortOptions={sortOptions}
             resultCount={filtered.length}
             totalCount={products.length}
+            variantCount={totalVariants}
             activeFilters={activeFilters}
             onOpenFilters={() => setFiltersOpen(true)}
             chips={chips}
@@ -312,7 +308,7 @@ export function ProductsPage() {
               </div>
               <div>
                 <p className="font-display text-lg font-semibold text-white">
-                  {query ? `No results for “${query}”` : 'No products match your filters'}
+                  {query ? `No results for “${query}”` : 'No titles match your filters'}
                 </p>
                 <p className="mx-auto mt-1 max-w-sm text-sm text-zinc-500">
                   Try a different search term, widen the price range, or clear a filter to see more.

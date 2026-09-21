@@ -1,12 +1,12 @@
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { ArrowRight } from 'lucide-react';
-import type { Product } from '../../data/products';
+import type { GameProduct } from '../../data/products';
 import { getGame } from '../../data/games';
 import { formatPrice } from '../../lib/utils';
 import { ProductArt } from '../../components/ProductArt';
 import { Tilt } from '../../components/anim/Tilt';
-import { StockIndicator } from '../../components/Badge';
+import { StockBadge } from '../../components/Badge';
 
 /**
  * One listing given the full width of the page. The artwork becomes the
@@ -14,15 +14,15 @@ import { StockIndicator } from '../../components/Badge';
  * band reads as a different kind of object to the grid below and gives the
  * page a single strong moment rather than another row of cards.
  */
-export function CatalogSpotlight({ product }: { product: Product }) {
-  const game = getGame(product.game);
+export function CatalogSpotlight({ product }: { product: GameProduct }) {
+  const game = getGame(product.id);
   const color = game?.color ?? '#6b72d6';
 
   return (
     <section className="relative isolate overflow-hidden py-16 md:py-24">
       <div aria-hidden className="pointer-events-none absolute inset-0 -z-10">
         <div className="absolute inset-0 scale-125 opacity-60 blur-[70px]">
-          <ProductArt gameId={product.game} image={product.image} size="sm" className="h-full w-full" />
+          <ProductArt gameId={product.id} image={product.image} size="sm" className="h-full w-full" />
         </div>
         <div
           className="absolute inset-0"
@@ -61,17 +61,27 @@ export function CatalogSpotlight({ product }: { product: Product }) {
 
             <div className="mt-8 flex flex-wrap items-end gap-x-8 gap-y-4 border-t border-white/[0.09] pt-6">
               <div>
-                <p className="text-[10px] uppercase tracking-[0.2em] text-zinc-500">Price</p>
+                <p className="text-[10px] uppercase tracking-[0.2em] text-zinc-500">Starting at</p>
                 <p className="mt-1.5 font-display text-3xl font-bold leading-none text-white">
                   {formatPrice(product.price)}
                 </p>
               </div>
               <div>
-                <p className="text-[10px] uppercase tracking-[0.2em] text-zinc-500">Availability</p>
-                <StockIndicator stock={product.stock} className="mt-2.5" />
+                <p className="text-[10px] uppercase tracking-[0.2em] text-zinc-500">Options</p>
+                <p className="mt-1.5 font-display text-3xl font-bold leading-none text-white">
+                  {product.variantCount}
+                </p>
               </div>
-              <Link to={`/product/${product.id}`} className="btn-primary btn-shine ml-auto">
-                View listing
+              <div>
+                <p className="text-[10px] uppercase tracking-[0.2em] text-zinc-500">Availability</p>
+                <StockBadge
+                  stock={product.stock}
+                  soldOutLabel="Currently unavailable"
+                  className="mt-2.5"
+                />
+              </div>
+              <Link to={`/products/${product.slug}`} className="btn-primary btn-shine ml-auto">
+                View options
                 <ArrowRight className="h-4 w-4" />
               </Link>
             </div>
@@ -85,10 +95,10 @@ export function CatalogSpotlight({ product }: { product: Product }) {
             className="hidden lg:block"
           >
             <Tilt strength={4} className="w-[22rem] xl:w-[26rem]">
-              <Link to={`/product/${product.id}`} aria-label={product.name} className="block">
+              <Link to={`/products/${product.slug}`} aria-label={product.name} className="block">
                 <div className="glass-card glass-sheen relative aspect-[3/4] overflow-hidden rounded-[26px]">
                   <ProductArt
-                    gameId={product.game}
+                    gameId={product.id}
                     image={product.image}
                     alt={product.name}
                     size="lg"

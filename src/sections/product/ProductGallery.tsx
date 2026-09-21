@@ -93,7 +93,7 @@ function Frame({
         )}
       >
         <ProductArt
-          gameId={product.game}
+          gameId={product.id}
           image={frame.image}
           alt={`${product.name} — ${frame.label}`}
           size={size}

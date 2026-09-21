@@ -52,7 +52,7 @@ export function ProductDetailPage() {
   /** Five frames: one lead plus four supporting, which fills the gallery strip. */
   const frames = useMemo<LightboxFrame[]>(() => {
     if (!product) return [];
-    const game = getGame(product.game);
+    const game = getGame(product.id);
     return [
       { label: product.category, variant: 0, image: product.image },
       { label: game?.short ?? 'Game', variant: 1 },
@@ -65,16 +65,16 @@ export function ProductDetailPage() {
   /** Same-game listings first, then same-type fill so the rail is never short. */
   const related = useMemo(() => {
     if (!product) return [];
-    const sameGame = productsByGame(product.game).filter((p) => p.id !== product.id);
+    const sameGame = productsByGame(product.id).filter((p) => p.id !== product.id);
     if (sameGame.length >= 4) return sameGame.slice(0, 4);
     const fill = products.filter(
-      (p) => p.id !== product.id && p.game !== product.game && p.category === product.category,
+      (p) => p.id !== product.id && p.id !== product.id && p.category === product.category,
     );
     return [...sameGame, ...fill].slice(0, 4);
   }, [product]);
 
   const otherGames = useMemo(
-    () => games.filter((g) => g.id !== product?.game).slice(0, 6),
+    () => games.filter((g) => g.id !== product?.id).slice(0, 6),
     [product],
   );
 
@@ -90,7 +90,7 @@ export function ProductDetailPage() {
     );
   }
 
-  const game = getGame(product.game);
+  const game = getGame(product.id);
 
   return (
     <div className="relative">
@@ -105,7 +105,7 @@ export function ProductDetailPage() {
           <ChevronRight className="h-3.5 w-3.5" />
           <Link to="/products" className="transition-colors hover:text-white">Products</Link>
           <ChevronRight className="h-3.5 w-3.5" />
-          <Link to={`/games/${product.game}`} className="transition-colors hover:text-white">
+          <Link to={`/games/${product.id}`} className="transition-colors hover:text-white">
             {game?.name}
           </Link>
           <ChevronRight className="h-3.5 w-3.5" />
@@ -187,7 +187,7 @@ export function ProductDetailPage() {
       <Lightbox
         frames={frames}
         index={lightbox}
-        gameId={product.game}
+        gameId={product.id}
         alt={product.name}
         onClose={() => setLightbox(null)}
         onIndexChange={setLightbox}

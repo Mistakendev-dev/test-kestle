@@ -19,10 +19,10 @@ function InfoCard({ label, value }: { label: string; value: string }) {
 
 export function ProductTabs({ product }: { product: Product }) {
   const [tab, setTab] = useState<Tab>('Overview');
-  const game = getGame(product.game);
+  const game = getGame(product.id);
 
   const specs = [
-    { label: 'Game', value: game?.name ?? product.game },
+    { label: 'Game', value: game?.name ?? product.id },
     { label: 'Type', value: product.category },
     { label: 'Delivery', value: 'Instant' },
     { label: 'Platform', value: 'PC' },

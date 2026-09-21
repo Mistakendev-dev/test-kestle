@@ -152,7 +152,7 @@ export function Hero() {
               aria-hidden
               className="pointer-events-none absolute -inset-6 -z-10 blur-[60px]"
               style={{
-                background: `radial-gradient(ellipse 55% 55% at 50% 50%, ${getGame(floatCards[0].game)?.color}33, transparent 70%), radial-gradient(ellipse 70% 65% at 50% 60%, rgba(46,48,106,0.5), transparent 72%)`,
+                background: `radial-gradient(ellipse 55% 55% at 50% 50%, ${getGame(floatCards[0].id)?.color}33, transparent 70%), radial-gradient(ellipse 70% 65% at 50% 60%, rgba(46,48,106,0.5), transparent 72%)`,
               }}
             />
             <div className="float-slow">
@@ -161,7 +161,7 @@ export function Hero() {
                 className="pane-raised bevel block overflow-hidden p-3"
               >
                 <ProductArt
-                  gameId={floatCards[0].game}
+                  gameId={floatCards[0].id}
                   image={floatCards[0].image}
                   alt={floatCards[0].name}
                   label={floatCards[0].category}
@@ -172,7 +172,7 @@ export function Hero() {
                 <div className="flex items-center justify-between gap-3 px-1 pb-1 pt-3">
                   <div className="min-w-0">
                     <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-zinc-500">
-                      {getGame(floatCards[0].game)?.name}
+                      {getGame(floatCards[0].id)?.name}
                     </p>
                     <p className="truncate text-sm font-semibold text-white">{floatCards[0].name}</p>
                   </div>
@@ -191,7 +191,7 @@ export function Hero() {
 }
 
 function HeroCard({ product, index }: { product: (typeof products)[number]; index: number }) {
-  const game = getGame(product.game);
+  const game = getGame(product.id);
 
   return (
     <motion.div
@@ -210,7 +210,7 @@ function HeroCard({ product, index }: { product: (typeof products)[number]; inde
           style={{ transform: `rotateY(${index % 2 === 0 ? -6 : 6}deg) rotateX(3deg)` }}
         >
           <ProductArt
-            gameId={product.game}
+            gameId={product.id}
             image={product.image}
             alt={product.name}
             label={product.category}

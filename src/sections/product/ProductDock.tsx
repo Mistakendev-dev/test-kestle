@@ -26,7 +26,7 @@ export function ProductDock({
 }) {
   const { addItem } = useCart();
   const { toast } = useToast();
-  const game = getGame(product.game);
+  const game = getGame(product.id);
 
   return (
     <AnimatePresence>
@@ -40,7 +40,7 @@ export function ProductDock({
         >
           <div className="container-wide flex items-center gap-4 py-3">
             <ProductArt
-              gameId={product.game}
+              gameId={product.id}
               image={product.image}
               alt=""
               size="sm"

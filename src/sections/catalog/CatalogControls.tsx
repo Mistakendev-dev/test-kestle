@@ -27,6 +27,7 @@ export function CatalogControls({
   sortOptions,
   resultCount,
   totalCount,
+  variantCount,
   activeFilters,
   onOpenFilters,
   chips,
@@ -43,6 +44,7 @@ export function CatalogControls({
   sortOptions: { key: string; label: string }[];
   resultCount: number;
   totalCount: number;
+  variantCount: number;
   activeFilters: number;
   onOpenFilters: () => void;
   chips: Chip[];
@@ -58,8 +60,8 @@ export function CatalogControls({
               ref={searchRef}
               value={query}
               onChange={(e) => onQuery(e.target.value)}
-              placeholder="Search products or games..."
-              aria-label="Search products or games"
+              placeholder="Search titles or options..."
+              aria-label="Search titles or options"
               className="h-12 w-full rounded-xl border border-white/[0.07] bg-white/[0.03] pl-11 pr-24 text-sm text-white placeholder-zinc-600 outline-none transition-[border-color,background-color,box-shadow] duration-300 focus:border-accent-light/70 focus:bg-white/[0.06] focus:shadow-[inset_0_1px_0_rgba(255,255,255,0.1),0_0_0_3px_rgba(74,79,158,0.18)]"
             />
             <div className="absolute right-3 top-1/2 flex -translate-y-1/2 items-center gap-2">
@@ -117,7 +119,7 @@ export function CatalogControls({
         <div className="mt-3 flex flex-wrap items-center gap-2">
           <p className="mr-auto text-xs text-zinc-500">
             <span className="font-semibold text-white">{resultCount}</span> of {totalCount}
-            <span className="hidden sm:inline"> listings</span>
+            <span className="hidden sm:inline"> titles · {variantCount} options</span>
           </p>
           <AnimatePresence initial={false}>
             {chips.map((c) => (

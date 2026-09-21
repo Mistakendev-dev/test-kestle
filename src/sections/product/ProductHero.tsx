@@ -39,7 +39,7 @@ export function ProductHero({
   onQty: (next: number) => void;
   railRef: React.RefObject<HTMLDivElement | null>;
 }) {
-  const game = getGame(product.game);
+  const game = getGame(product.id);
 
   return (
     <div className="relative">
@@ -47,7 +47,7 @@ export function ProductHero({
         <motion.div variants={rise} initial="hidden" animate="visible" custom={0.05}>
           <div className="flex flex-wrap items-center justify-center gap-2.5">
             <Link
-              to={`/games/${product.game}`}
+              to={`/games/${product.id}`}
               className="rounded-lg px-3 py-1 text-[11px] font-bold uppercase tracking-[0.2em] transition-opacity hover:opacity-80"
               style={{ background: game?.colorSoft, color: game?.color }}
             >

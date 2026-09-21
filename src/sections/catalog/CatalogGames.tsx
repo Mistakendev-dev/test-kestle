@@ -5,7 +5,7 @@ import { ProductArt } from '../../components/ProductArt';
 import { Tilt } from '../../components/anim/Tilt';
 import { Reveal } from '../../components/anim/Reveal';
 
-const counts = new Map(games.map((g) => [g.id, products.filter((p) => p.game === g.id).length]));
+const counts = new Map(games.map((g) => [g.id, products.filter((p) => p.id === g.id).length]));
 
 /**
  * Title discovery, kept deliberately narrow. Fifteen games would be a wall if

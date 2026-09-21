@@ -6,10 +6,10 @@ import { getGame } from '../../data/games';
  * spec plate on the object rather than a card grid.
  */
 export function ProductSpecs({ product }: { product: Product }) {
-  const game = getGame(product.game);
+  const game = getGame(product.id);
 
   const specs = [
-    { label: 'Game', value: game?.name ?? product.game },
+    { label: 'Game', value: game?.name ?? product.id },
     { label: 'Type', value: product.category },
     { label: 'Platform', value: 'PC' },
     { label: 'Delivery', value: 'Instant' },

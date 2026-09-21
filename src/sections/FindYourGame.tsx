@@ -1,14 +1,11 @@
 import { Link } from 'react-router-dom';
 import { ArrowRight, ArrowUpRight } from 'lucide-react';
-import { games } from '../data/games';
-import { productsByGame } from '../data/products';
+import { products } from '../data/products';
 import { ProductArt } from '../components/ProductArt';
 import { Reveal, Stagger } from '../components/anim/Reveal';
 
-/** The six titles with the deepest catalogue get the large treatment. */
-const featured = [...games]
-  .sort((a, b) => productsByGame(b.id).length - productsByGame(a.id).length)
-  .slice(0, 6);
+/** The six titles with the deepest option list get the large treatment. */
+const featured = [...products].sort((a, b) => b.variantCount - a.variantCount).slice(0, 6);
 
 export function FindYourGame() {
   return (
@@ -26,10 +23,10 @@ export function FindYourGame() {
               </p>
             </div>
             <Link
-              to="/games"
+              to="/products"
               className="btn-ghost group shrink-0 !py-2.5 text-sm"
             >
-              All {games.length} games
+              All {products.length} titles
               <ArrowRight className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-0.5" />
             </Link>
           </div>
@@ -42,11 +39,11 @@ export function FindYourGame() {
           step={0.08}
         >
           {featured.map((game) => {
-            const count = productsByGame(game.id).length;
+            const count = game.variantCount;
             return (
               <Link
                 key={game.id}
-                to={`/games/${game.id}`}
+                to={`/products/${game.slug}`}
                 className="group relative overflow-hidden rounded-2xl border border-edge transition-all duration-500 hover:-translate-y-1.5 hover:border-accent-light/45 hover:shadow-[0_0_60px_-18px_rgba(74,79,158,0.9)]"
               >
                 <ProductArt
@@ -75,7 +72,7 @@ export function FindYourGame() {
                       {game.name}
                     </h3>
                     <p className="mt-1 text-xs font-medium uppercase tracking-[0.18em] text-zinc-400">
-                      {game.genre} · {count} products
+                      {game.genre} · {count} {count === 1 ? 'option' : 'options'}
                     </p>
                   </div>
                   <span className="flex h-10 w-10 shrink-0 translate-x-2 items-center justify-center rounded-full border border-edge bg-void/70 text-accent-bright opacity-0 backdrop-blur-sm transition-all duration-300 group-hover:translate-x-0 group-hover:opacity-100">

@@ -59,7 +59,7 @@ export function RecentlyViewed({ showEmptyState = false }: { showEmptyState?: bo
                     className="group flex w-[248px] shrink-0 items-center gap-3 rounded-2xl border border-edge bg-white/[0.02] p-3 transition-all duration-300 hover:border-accent-light/40 hover:bg-white/[0.04]"
                   >
                     <ProductArt
-                      gameId={p.game}
+                      gameId={p.id}
                       image={p.image}
                       alt={p.name}
                       size="sm"

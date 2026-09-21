@@ -9,7 +9,7 @@ import { ProductArt } from '../../components/ProductArt';
  * Full-bleed and fixed height, fading out before the editorial sections.
  */
 export function ProductBackdrop({ product }: { product: Product }) {
-  const game = getGame(product.game);
+  const game = getGame(product.id);
   const color = game?.color ?? '#6b72d6';
 
   return (
@@ -19,7 +19,7 @@ export function ProductBackdrop({ product }: { product: Product }) {
     >
       {/* The artwork itself, scaled well past the frame so no edges are legible. */}
       <div className="absolute inset-x-0 top-0 h-[820px] scale-[1.6] opacity-[0.3] blur-[110px]">
-        <ProductArt gameId={product.game} image={product.image} alt="" size="xl" className="h-full w-full" />
+        <ProductArt gameId={product.id} image={product.image} alt="" size="xl" className="h-full w-full" />
       </div>
 
       {/* Colour grade: key light in the game's hue, brand counter-light opposite. */}

@@ -2,9 +2,7 @@ import type { RouteObject } from 'react-router-dom';
 import { Layout } from './components/Layout';
 import { HomePage } from './pages/HomePage';
 import { ProductsPage } from './pages/ProductsPage';
-import { ProductDetailPage } from './pages/ProductDetailPage';
-import { GamesPage } from './pages/GamesPage';
-import { GameDetailPage } from './pages/GameDetailPage';
+import { GameProductPage } from './pages/GameProductPage';
 import { HowItWorksPage } from './pages/HowItWorksPage';
 import { ResellPage } from './pages/ResellPage';
 import { DocsPage } from './pages/DocsPage';
@@ -17,9 +15,7 @@ export const routes: RouteObject[] = [
     children: [
       { path: '/', element: <HomePage /> },
       { path: '/products', element: <ProductsPage /> },
-      { path: '/product/:id', element: <ProductDetailPage /> },
-      { path: '/games', element: <GamesPage /> },
-      { path: '/games/:id', element: <GameDetailPage /> },
+      { path: '/products/:slug', element: <GameProductPage /> },
       { path: '/resell', element: <ResellPage /> },
       { path: '/docs', element: <DocsPage /> },
       { path: '/how-it-works', element: <HowItWorksPage /> },

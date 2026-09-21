@@ -32,7 +32,7 @@ export function ProductStage({
 }) {
   const ref = useRef<HTMLDivElement>(null);
   const calm = useReducedMotion();
-  const game = getGame(product.game);
+  const game = getGame(product.id);
   const color = game?.color ?? '#6b72d6';
 
   const { scrollYProgress } = useScroll({
@@ -50,7 +50,7 @@ export function ProductStage({
 
   const art = (
     <ProductArt
-      gameId={product.game}
+      gameId={product.id}
       image={frames[index]?.image ?? product.image}
       alt={product.name}
       size="xl"
@@ -81,7 +81,7 @@ export function ProductStage({
           className="pointer-events-none absolute inset-x-[8%] -top-8 -z-10 hidden h-full overflow-hidden rounded-[28px] opacity-40 blur-[3px] sm:block"
         >
           <ProductArt
-            gameId={product.game}
+            gameId={product.id}
             image={product.image}
             alt=""
             size="lg"
@@ -176,7 +176,7 @@ export function ProductStage({
             )}
           >
             <ProductArt
-              gameId={product.game}
+              gameId={product.id}
               image={frame.image}
               size="sm"
               variant={frame.variant}

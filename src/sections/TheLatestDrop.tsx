@@ -58,7 +58,7 @@ export function TheLatestDrop() {
   }, [index, paused, go]);
 
   const product = slides[index];
-  const game = getGame(product.game);
+  const game = getGame(product.id);
 
   return (
     <section
@@ -110,7 +110,7 @@ export function TheLatestDrop() {
               >
                 <Link to={`/product/${product.id}`} className="group block">
                   <ProductArt
-                    gameId={product.game}
+                    gameId={product.id}
                     image={product.image}
                     alt={product.name}
                     label={product.category}
@@ -220,7 +220,7 @@ export function TheLatestDrop() {
                           active ? 'text-zinc-400' : 'text-zinc-700 group-hover/sel:text-zinc-500'
                         }`}
                       >
-                        {getGame(s.game)?.short}
+                        {getGame(s.id)?.short}
                       </span>
                     </button>
                   );
