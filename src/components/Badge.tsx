@@ -1,34 +1,27 @@
 import { cn } from '../lib/utils';
 
-const styles: Record<string, string> = {
-  'Best Seller': 'bg-accent/90 text-white',
-  New: 'bg-emerald-500/90 text-white',
-  'Low Stock': 'bg-amber-500/90 text-black',
-};
-
-export function Badge({ label, className }: { label: string; className?: string }) {
-  return (
-    <span
-      className={cn(
-        'inline-flex items-center rounded-md px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider',
-        styles[label] ?? 'bg-zinc-700 text-white',
-        className,
-      )}
-    >
-      {label}
-    </span>
-  );
-}
-
-export function StockIndicator({ stock, className }: { stock: number; className?: string }) {
-  const low = stock <= 10;
+/**
+ * States the stock a variant or game actually has. Deliberately plain — it
+ * reports a count rather than manufacturing urgency.
+ */
+export function StockBadge({
+  stock,
+  soldOutLabel = 'Out of stock',
+  className,
+}: {
+  stock: number;
+  soldOutLabel?: string;
+  className?: string;
+}) {
+  const inStock = stock > 0;
   return (
     <span className={cn('inline-flex items-center gap-1.5 text-xs font-medium', className)}>
       <span
-        className={cn('h-1.5 w-1.5 rounded-full', low ? 'bg-amber-400' : 'bg-emerald-400 live-dot')}
+        aria-hidden
+        className={cn('h-1.5 w-1.5 rounded-full', inStock ? 'bg-emerald-400 live-dot' : 'bg-zinc-600')}
       />
-      <span className={low ? 'text-amber-400' : 'text-emerald-400'}>
-        {low ? `LOW STOCK — ${stock} LEFT` : 'IN STOCK'}
+      <span className={inStock ? 'text-emerald-400' : 'text-zinc-500'}>
+        {inStock ? `${stock.toLocaleString()} available` : soldOutLabel}
       </span>
     </span>
   );

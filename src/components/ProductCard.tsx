@@ -2,29 +2,27 @@ import { useRef, type MouseEvent } from 'react';
 import { Link } from 'react-router-dom';
 import { motion, useMotionValue, useSpring, useTransform } from 'framer-motion';
 import { ArrowUpRight, Eye } from 'lucide-react';
-import type { Product } from '../data/products';
-import { getGame } from '../data/games';
+import type { GameProduct } from '../data/products';
 import { formatPrice } from '../lib/utils';
 import { usePointerEffects } from '../hooks/usePointerEffects';
 import { ProductArt } from './ProductArt';
-import { Badge, StockIndicator } from './Badge';
+import { StockBadge } from './Badge';
 import { WishlistButton } from './WishlistButton';
 
 /**
- * A product as a physical display piece: portrait artwork fills the whole
- * surface and the copy is printed onto its lower third. Hovering tilts the
- * pane while the artwork travels forward on Z, so card and art separate in
- * depth instead of sliding together as one flat image.
+ * A game as a physical display piece: portrait artwork fills the whole surface
+ * and the copy is printed onto its lower third. Hovering tilts the pane while
+ * the artwork travels forward on Z, so card and art separate in depth instead
+ * of sliding together as one flat image.
  */
 export function ProductCard({
   product,
   onQuickView,
 }: {
-  product: Product;
-  onQuickView?: (product: Product) => void;
+  product: GameProduct;
+  onQuickView?: (product: GameProduct) => void;
 }) {
   const ref = useRef<HTMLDivElement>(null);
-  const game = getGame(product.game);
   const rich = usePointerEffects();
 
   const mx = useMotionValue(0.5);
@@ -49,10 +47,6 @@ export function ProductCard({
     mx.set(0.5);
     my.set(0.5);
   }
-
-  const badges = [product.badge, !product.badge && product.new ? 'New' : null].filter(
-    Boolean,
-  ) as string[];
 
   return (
     <motion.article
@@ -79,21 +73,23 @@ export function ProductCard({
           accent. Sits behind the pane and never paints over it. */}
       <div
         aria-hidden
-        className="pointer-events-none absolute -inset-5 -z-10 rounded-[32px] opacity-0 blur-2xl transition-opacity duration-500 group-hover:opacity-100"
+        className="pointer-events-none absolute -inset-4 -z-10 rounded-[32px] opacity-0 blur-2xl transition-opacity duration-500 group-hover:opacity-100"
         style={{
-          background: `radial-gradient(58% 52% at 50% 44%, ${game?.color ?? '#6b72d6'}30 0%, transparent 70%), radial-gradient(78% 72% at 50% 62%, rgba(46,48,106,0.6) 0%, transparent 72%)`,
+          background: `radial-gradient(58% 52% at 50% 44%, ${product.color}30 0%, transparent 70%), radial-gradient(78% 72% at 50% 62%, rgba(46,48,106,0.6) 0%, transparent 72%)`,
         }}
       />
 
       <div className="glass-card relative aspect-[3/4] overflow-hidden rounded-[22px] transition-[border-color,box-shadow] duration-500 group-hover:border-accent-light/35 group-hover:shadow-[inset_0_1px_0_rgba(255,255,255,0.12),0_34px_70px_-30px_rgba(0,0,0,1)]">
-        {/* Artwork fills the pane and is the dominant element. */}
+        {/* Artwork fills the pane and is the dominant element. pointer-events
+            must stay off: translateZ puts it in front of the controls inside
+            this preserve-3d context, where z-index no longer decides hits. */}
         <motion.div
           aria-hidden
           style={rich ? { translateZ: 26 } : undefined}
           className="pointer-events-none absolute inset-0 transition-transform duration-[900ms] ease-out group-hover:scale-[1.06]"
         >
           <ProductArt
-            gameId={product.game}
+            gameId={product.id}
             image={product.image}
             alt={product.name}
             size="lg"
@@ -118,12 +114,6 @@ export function ProductCard({
           className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/25 to-transparent"
         />
 
-        <div className="pointer-events-none absolute left-3.5 top-3.5 z-20 flex flex-wrap gap-1.5">
-          {badges.map((b) => (
-            <Badge key={b} label={b} />
-          ))}
-        </div>
-
         <div className="absolute right-3.5 top-3.5 z-30">
           <WishlistButton productId={product.id} />
         </div>
@@ -147,33 +137,33 @@ export function ProductCard({
             <span
               aria-hidden
               className="h-1.5 w-1.5 shrink-0 rounded-full"
-              style={{ background: game?.color ?? '#6b72d6' }}
+              style={{ background: product.color }}
             />
             <span className="truncate text-[10px] font-semibold uppercase tracking-[0.2em] text-zinc-400">
-              {game?.name}
+              {product.genre}
             </span>
             <span className="ml-auto shrink-0 rounded-md border border-white/10 bg-white/[0.06] px-1.5 py-0.5 text-[9px] font-semibold uppercase tracking-[0.14em] text-zinc-300">
-              {product.category}
+              {product.variantCount} {product.variantCount === 1 ? 'option' : 'options'}
             </span>
           </div>
 
-          <h3 className="mt-2 line-clamp-2 font-display text-[15px] font-semibold leading-snug text-white transition-colors duration-300 group-hover:text-accent-bright sm:text-lg">
+          <h3 className="mt-2 line-clamp-2 font-display text-lg font-semibold leading-snug text-white transition-colors duration-300 group-hover:text-accent-bright sm:text-xl">
             {product.name}
           </h3>
 
           <div className="mt-3 flex items-end justify-between gap-3">
             <div className="min-w-0">
-              <div className="flex items-baseline gap-2">
-                <span className="font-display text-xl font-bold leading-none text-white sm:text-2xl">
-                  {formatPrice(product.price)}
-                </span>
-                {product.originalPrice && (
-                  <span className="text-xs text-zinc-500 line-through">
-                    {formatPrice(product.originalPrice)}
-                  </span>
-                )}
-              </div>
-              <StockIndicator stock={product.stock} className="mt-1.5" />
+              <span className="block text-[10px] font-semibold uppercase tracking-[0.16em] text-zinc-500">
+                Starting at
+              </span>
+              <span className="mt-0.5 block font-display text-xl font-bold leading-none text-white sm:text-2xl">
+                {formatPrice(product.price)}
+              </span>
+              <StockBadge
+                stock={product.stock}
+                soldOutLabel="Currently unavailable"
+                className="mt-1.5"
+              />
             </div>
 
             <span
@@ -187,8 +177,8 @@ export function ProductCard({
 
         {/* Whole pane is the link; the controls above sit on higher layers. */}
         <Link
-          to={`/product/${product.id}`}
-          aria-label={product.name}
+          to={`/products/${product.slug}`}
+          aria-label={`${product.name} — view options`}
           className="absolute inset-0 z-10 rounded-[22px] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent-light"
         />
       </div>
