@@ -1,676 +1,375 @@
-import { games } from './games';
+/**
+ * Single source of truth for the marketplace.
+ *
+ * A GAME is the product. The account types sold for that game are its
+ * variants, and each variant carries its own price and stock.
+ */
 
-export type ProductCategory = 'NFA' | 'FA' | 'Ranked' | 'Stacked';
+export type VariantGroup = 'Standard' | 'Hours' | 'Premium' | 'Rank' | 'Inactive' | 'Inventory';
 
-export interface Product {
+export interface Variant {
   id: string;
   name: string;
-  game: string;
   price: number;
-  originalPrice?: number;
-  /** Optional real artwork. When absent the generated ProductArt is rendered. */
-  image?: string;
-  description: string;
   stock: number;
-  category: ProductCategory;
-  features: string[];
-  badge?: 'Best Seller' | 'New' | 'Low Stock';
-  tags: string[];
-  featured: boolean;
-  new: boolean;
-  popular: boolean;
-  /** Demo ranking weight only — not a real sales figure. */
-  popularity: number;
-  createdAt: number;
+  available: boolean;
+  group: VariantGroup;
 }
 
-/** Shape authored by hand below. Swap this array for an API response to go live. */
-type CatalogEntry = Omit<Product, 'tags' | 'featured' | 'new' | 'popular'>;
+export interface GameProduct {
+  id: string;
+  slug: string;
+  name: string;
+  short: string;
+  genre: string;
+  description: string;
+  /** Optional real artwork. When absent the generated ProductArt is rendered. */
+  image?: string;
+  color: string;
+  colorSoft: string;
+  features: string[];
+  variants: Variant[];
+  /** Cheapest variant price. */
+  price: number;
+  /** Sum of every variant's stock. */
+  stock: number;
+  variantCount: number;
+  available: boolean;
+}
 
-const DAY = 86400000;
-const now = Date.now();
+/** Kept so existing imports of `Product` keep working. */
+export type Product = GameProduct;
 
-const catalog: CatalogEntry[] = [
+type AuthoredVariant = [name: string, price: number];
+
+interface AuthoredGame {
+  id: string;
+  name: string;
+  short: string;
+  genre: string;
+  description: string;
+  color: string;
+  colorSoft: string;
+  features: string[];
+  variants: AuthoredVariant[];
+}
+
+const authored: AuthoredGame[] = [
   {
-    id: 'rust-nfa',
-    name: 'Rust Steam NFA Account',
-    game: 'rust',
-    price: 4.99,
-    originalPrice: 9.99,
-    description: 'Fresh Rust Steam account with full game ownership. No email access included — perfect for a fresh start or an alt account. Delivered instantly with login credentials.',
-    stock: 142,
-    category: 'NFA',
-    features: ['Full Rust game license', 'Instant delivery', 'Steam Guard ready', 'Region free', 'Fresh account, zero hours'],
-    badge: 'Best Seller',
-    popularity: 3210,
-    createdAt: now - 220 * DAY,
+    id: 'rust',
+    name: 'Rust',
+    short: 'RUST',
+    genre: 'Survival',
+    description:
+      'Steam accounts with full Rust ownership, offered across hour brackets, premium status and inactivity windows. Pick the version that clears the servers you play on.',
+    color: '#b7410e',
+    colorSoft: 'rgba(183,65,14,0.25)',
+    features: ['Full Rust game license', 'Clean VAC history', 'Instant delivery', 'Region free'],
+    variants: [
+      ['0–250 Hours', 1.07],
+      ['250–500 Hours', 1.47],
+      ['Premium', 1.56],
+      ['500–1000 Hours', 1.67],
+      ['Inactive (5 Days)', 1.76],
+      ['1000–2000 Hours', 1.86],
+      ['2000–3000 Hours', 2.15],
+      ['Premium, 500+ Hours', 2.15],
+      ['Premium, 1000+ Hours', 2.54],
+      ['Premium, Inactive 5 Days', 2.54],
+      ['Inactive (15 Days)', 2.54],
+      ['Inactive 5 Days, 500+ Hours', 2.54],
+      ['3000–7000 Hours', 2.74],
+      ['Premium (50+ Inventory)', 2.74],
+      ['Inactive 5 Days, 1000+ Hours', 2.74],
+      ['Premium (100+ Inventory)', 3.04],
+      ['Inactive 15 Days, 500+ Hours', 3.04],
+      ['Inactive 15 Days, 1000+ Hours', 3.43],
+      ['Premium (Inactive)', 4.01],
+      ['7000+ Hours', 4.8],
+    ],
   },
   {
-    id: 'rust-nfa-aged',
-    name: 'Rust Aged NFA (2019+)',
-    game: 'rust',
-    price: 8.99,
-    description: 'Aged Rust account registered in 2019 or earlier. Older account age adds trust on vanilla servers and community servers with age restrictions.',
-    stock: 38,
-    category: 'NFA',
-    features: ['Account created 2019 or earlier', 'Full Rust license', 'Instant delivery', 'Region free'],
-    popularity: 870,
-    createdAt: now - 180 * DAY,
+    id: 'cs2',
+    name: 'Counter-Strike 2',
+    short: 'CS2',
+    genre: 'Tactical FPS',
+    description:
+      'Prime and Premier ready Counter-Strike 2 accounts, sorted by rating, medals and inventory value. Every option is matchmaking ready on delivery.',
+    color: '#e8a33d',
+    colorSoft: 'rgba(232,163,61,0.22)',
+    features: ['Matchmaking ready', 'Clean VAC history', 'Instant delivery', 'Region free'],
+    variants: [
+      ['Prime Ready', 0.44],
+      ['Premier Ready', 0.62],
+      ['Premier Ready (4+ Medals)', 0.95],
+      ['Premier Ready (10+ Medals)', 1.0],
+      ['5k Last Season', 1.08],
+      ['10k Last Season', 1.17],
+      ['Premier Ready (10,000 Rating)', 1.2],
+      ['Prime (Inactive)', 1.38],
+      ['15k Last Season', 1.67],
+      ['Premier Ready (15,000 Rating)', 1.86],
+      ['$500+ Inventory', 1.86],
+      ['4 Medals (Inactive)', 1.86],
+      ['Premier (Inactive)', 1.86],
+      ['20k Last Season', 2.45],
+      ['1000+ Inventory', 2.54],
+      ['Premier Ready (20,000 Rating)', 2.74],
+      ['Premier Ready (Knife or Glove)', 3.12],
+      ['10 Medals (Inactive)', 3.43],
+      ['Knives & Gloves, $2000+ Inventory', 5.06],
+    ],
   },
   {
-    id: 'rust-fa',
-    name: 'Rust Full Access Account',
-    game: 'rust',
-    price: 14.99,
-    description: 'Full access Rust account including original email. Change every detail and make the account fully yours. The safest option for long-term use.',
-    stock: 21,
-    category: 'FA',
-    features: ['Original email included', 'Full ownership transfer', 'Change all credentials', 'Instant delivery'],
-    popularity: 445,
-    createdAt: now - 150 * DAY,
+    id: 'dayz',
+    name: 'DayZ',
+    short: 'DAYZ',
+    genre: 'Survival',
+    description:
+      'Steam accounts with the full DayZ licence. Available fresh, with played hours on record, or aged out to clear inactivity checks.',
+    color: '#6a7a5a',
+    colorSoft: 'rgba(106,122,90,0.25)',
+    features: ['Full DayZ licence', 'Clean history', 'Instant delivery', 'Region free'],
+    variants: [
+      ['DayZ', 0.56],
+      ['DayZ 500 Hours', 1.32],
+      ['DayZ Inactive', 1.32],
+      ['DayZ 1000 Hours', 1.86],
+    ],
   },
   {
-    id: 'rust-hours-500',
-    name: 'Rust 500+ Hours Account',
-    game: 'rust',
-    price: 11.99,
-    description: 'Rust account with 500+ legitimate played hours. Ideal for servers with hour requirements and for a profile that looks established.',
-    stock: 9,
-    category: 'Stacked',
-    features: ['500+ hours played', 'Clean VAC history', 'Instant delivery', 'Region free'],
-    badge: 'Low Stock',
-    popularity: 260,
-    createdAt: now - 90 * DAY,
+    id: 'arc-raiders',
+    name: 'ARC Raiders',
+    short: 'ARC',
+    genre: 'Extraction Shooter',
+    description:
+      'ARC Raiders accounts across hour brackets, with inactive options for servers and squads that check recent activity.',
+    color: '#4a90d9',
+    colorSoft: 'rgba(74,144,217,0.22)',
+    features: ['Full game access', 'Instant delivery', 'Region free', 'Clean history'],
+    variants: [
+      ['0–100 Hours', 0.67],
+      ['100–200 Hours', 0.99],
+      ['200+ Hours', 1.32],
+      ['Inactive 15d, 0–99 Hours', 1.47],
+      ['Inactive 15d, 100–200 Hours', 2.15],
+      ['Inactive 15d, 200+ Hours', 2.54],
+    ],
   },
   {
-    id: 'rust-hours-1000',
-    name: 'Rust 1000+ Hours Account',
-    game: 'rust',
-    price: 16.99,
-    description: 'High-hour Rust account with over 1,000 hours on record. Passes hour checks on the most restrictive vanilla and modded servers.',
-    stock: 6,
-    category: 'Stacked',
-    features: ['1000+ hours played', 'Clean VAC history', 'Established profile', 'Instant delivery'],
-    badge: 'Low Stock',
-    popularity: 190,
-    createdAt: now - 60 * DAY,
+    id: 'apex',
+    name: 'Apex Legends',
+    short: 'APEX',
+    genre: 'Battle Royale',
+    description:
+      'Apex Legends accounts graded by hours played, so you can match the profile history your lobby or squad expects.',
+    color: '#d43d3d',
+    colorSoft: 'rgba(212,61,61,0.22)',
+    features: ['Ranked eligible', 'Instant delivery', 'Clean history', 'All platforms'],
+    variants: [
+      ['0–100 Hours', 0.67],
+      ['100–200 Hours', 0.99],
+      ['200+ Hours', 1.32],
+    ],
   },
   {
-    id: 'rust-fresh-key',
-    name: 'Rust Account + DLC Bundle',
-    game: 'rust',
-    price: 19.99,
-    description: 'Rust account bundled with the Instruments and Sunburn DLC packs. Fresh account, full DLC access, instant delivery.',
-    stock: 14,
-    category: 'Stacked',
-    features: ['Rust base game', 'Instruments DLC', 'Sunburn DLC', 'Instant delivery'],
-    popularity: 120,
-    createdAt: now - 30 * DAY,
+    id: 'battlefield-6',
+    name: 'Battlefield 6',
+    short: 'BF6',
+    genre: 'FPS',
+    description:
+      'Battlefield 6 accounts with full multiplayer access, delivered instantly with login credentials.',
+    color: '#4a6a8a',
+    colorSoft: 'rgba(74,106,138,0.25)',
+    features: ['Full multiplayer access', 'Instant delivery', 'Region free'],
+    variants: [['Battlefield 6', 0.56]],
   },
   {
-    id: 'cs2-nfa',
-    name: 'CS2 Steam NFA Account',
-    game: 'cs2',
-    price: 3.99,
-    originalPrice: 7.99,
-    description: 'Fresh Counter-Strike 2 ready Steam account. CS2 is free-to-play — this account is prime-status ready and perfect for a clean competitive start.',
-    stock: 210,
-    category: 'NFA',
-    features: ['CS2 ready', 'Prime upgrade eligible', 'Instant delivery', 'Region free', 'Zero VAC history'],
-    badge: 'Best Seller',
-    popularity: 4120,
-    createdAt: now - 240 * DAY,
+    id: 'r6',
+    name: 'Rainbow Six Siege',
+    short: 'R6',
+    genre: 'Tactical FPS',
+    description:
+      'Rainbow Six Siege accounts on Ubisoft Connect with ranked placement available and base operators ready to unlock.',
+    color: '#4a6fd9',
+    colorSoft: 'rgba(74,111,217,0.22)',
+    features: ['Ubisoft Connect', 'Ranked eligible', 'Instant delivery', 'Region free'],
+    variants: [['Rainbow Six Siege', 0.56]],
   },
   {
-    id: 'cs2-prime',
-    name: 'CS2 Prime Status Account',
-    game: 'cs2',
-    price: 12.99,
-    description: 'CS2 account with Prime Status already unlocked. Skip the grind and queue straight into Prime matchmaking.',
-    stock: 54,
-    category: 'FA',
-    features: ['Prime Status unlocked', 'Instant delivery', 'Ranked ready', 'Region free'],
-    popularity: 1540,
-    createdAt: now - 200 * DAY,
+    id: 'wardogs',
+    name: 'WarDogs',
+    short: 'WD',
+    genre: 'Shooter',
+    description: 'WarDogs accounts with full game access, delivered instantly after checkout.',
+    color: '#8a7a4a',
+    colorSoft: 'rgba(138,122,74,0.25)',
+    features: ['Full game access', 'Instant delivery', 'Region free'],
+    variants: [['WarDogs', 2.07]],
   },
   {
-    id: 'cs2-ranked',
-    name: 'CS2 Ranked Ready (10 Wins)',
-    game: 'cs2',
-    price: 9.99,
-    description: 'CS2 account with placement matches completed and a competitive rank calibrated. Jump straight into ranked without the placement grind.',
-    stock: 27,
-    category: 'Ranked',
-    features: ['Placements completed', 'Competitive rank calibrated', 'Prime Status', 'Instant delivery'],
-    popularity: 680,
-    createdAt: now - 120 * DAY,
-  },
-  {
-    id: 'cs2-high-rank',
-    name: 'CS2 Global Elite Account',
-    game: 'cs2',
-    price: 34.99,
-    description: 'High-rank CS2 account calibrated at Global Elite with strong trust factor. Rare stock — ideal for smurfing at the top level.',
-    stock: 3,
-    category: 'Ranked',
-    features: ['Global Elite rank', 'High trust factor', 'Prime Status', 'Instant delivery'],
-    badge: 'Low Stock',
-    popularity: 95,
-    createdAt: now - 45 * DAY,
-  },
-  {
-    id: 'cs2-medal',
-    name: 'CS2 Service Medal Account',
-    game: 'cs2',
-    price: 18.99,
-    description: 'CS2 account featuring a service medal and established play history. A profile that stands out in every lobby.',
-    stock: 11,
-    category: 'Stacked',
-    features: ['Service medal included', 'Established play history', 'Prime Status', 'Instant delivery'],
-    popularity: 210,
-    createdAt: now - 75 * DAY,
-  },
-  {
-    id: 'gta5-nfa',
-    name: 'GTA V Steam NFA Account',
-    game: 'gta5',
-    price: 6.99,
-    description: 'Fresh GTA V Steam account with the full game and GTA Online access. Story mode and online both unlocked from the start.',
-    stock: 96,
-    category: 'NFA',
-    features: ['Full GTA V license', 'GTA Online access', 'Instant delivery', 'Region free'],
-    badge: 'Best Seller',
-    popularity: 2380,
-    createdAt: now - 210 * DAY,
-  },
-  {
-    id: 'gta5-modded',
-    name: 'GTA V Modded Account ($500M)',
-    game: 'gta5',
-    price: 24.99,
-    description: 'GTA Online account loaded with $500 million in-game cash, rank 120+, and all unlocks. Everything you need from day one.',
-    stock: 8,
-    category: 'Stacked',
-    features: ['$500M GTA Online cash', 'Rank 120+', 'All unlocks', 'Instant delivery'],
-    badge: 'Low Stock',
-    popularity: 340,
-    createdAt: now - 100 * DAY,
-  },
-  {
-    id: 'gta5-premium',
-    name: 'GTA V Premium Edition Account',
-    game: 'gta5',
-    price: 11.99,
-    description: 'GTA V Premium Edition account including the Criminal Enterprise Starter Pack. Bonus properties, vehicles, and cash included.',
-    stock: 33,
-    category: 'FA',
-    features: ['Premium Edition', 'Criminal Enterprise Starter Pack', 'Instant delivery', 'Region free'],
-    popularity: 520,
-    createdAt: now - 140 * DAY,
-  },
-  {
-    id: 'gta5-epic',
-    name: 'GTA V Epic Games Account',
-    game: 'gta5',
-    price: 5.99,
-    description: 'GTA V on the Epic Games launcher. Full game access with online play enabled. Budget-friendly entry into Los Santos.',
-    stock: 61,
-    category: 'NFA',
-    features: ['Epic Games launcher', 'GTA Online access', 'Instant delivery'],
-    popularity: 890,
-    createdAt: now - 160 * DAY,
-  },
-  {
-    id: 'cod-nfa',
-    name: 'Call of Duty NFA Account',
-    game: 'cod',
-    price: 5.99,
-    description: 'Fresh Activision account ready for Call of Duty: Modern Warfare III and Warzone. Clean slate with full cross-progression support.',
-    stock: 128,
-    category: 'NFA',
-    features: ['Warzone ready', 'MWIII compatible', 'Cross-progression', 'Instant delivery'],
-    popularity: 1760,
-    createdAt: now - 190 * DAY,
-  },
-  {
-    id: 'cod-stacked',
-    name: 'COD Stacked Account (Damascus)',
-    game: 'cod',
-    price: 49.99,
-    description: 'Rare Call of Duty account with Damascus camo unlocked, multiple maxed weapons, and legacy operator skins. A true collector account.',
-    stock: 2,
-    category: 'Stacked',
-    features: ['Damascus camo', 'Maxed weapon arsenal', 'Legacy operator skins', 'Instant delivery'],
-    badge: 'Low Stock',
-    popularity: 45,
-    createdAt: now - 80 * DAY,
-  },
-  {
-    id: 'cod-warzone',
-    name: 'Warzone Level 250+ Account',
-    game: 'cod',
-    price: 19.99,
-    description: 'Warzone account at level 250+ with meta loadouts unlocked. Skip hundreds of hours of weapon grinding.',
-    stock: 17,
-    category: 'Ranked',
-    features: ['Level 250+', 'Meta loadouts unlocked', 'Battle pass rewards', 'Instant delivery'],
-    popularity: 320,
-    createdAt: now - 70 * DAY,
-  },
-  {
-    id: 'cod-mw3-vault',
-    name: 'MWIII Vault Edition Account',
-    game: 'cod',
-    price: 29.99,
-    description: 'Modern Warfare III Vault Edition account with the Nemesis operator pack, two weapon vaults, and battle pass skip tokens.',
-    stock: 12,
-    category: 'FA',
-    features: ['Vault Edition', 'Nemesis operator pack', 'Weapon vaults', 'Instant delivery'],
-    popularity: 150,
-    createdAt: now - 55 * DAY,
-  },
-  {
-    id: 'fortnite-nfa',
-    name: 'Fortnite NFA Account',
-    game: 'fortnite',
-    price: 4.49,
-    description: 'Fresh Epic Games account with Fortnite ready to play. Clean account with full access to battle royale, creative, and save the world.',
-    stock: 175,
-    category: 'NFA',
-    features: ['Fortnite ready', 'Epic Games account', 'Instant delivery', 'All platforms'],
-    popularity: 2940,
-    createdAt: now - 230 * DAY,
-  },
-  {
-    id: 'fortnite-og',
-    name: 'Fortnite OG Skins Account',
-    game: 'fortnite',
-    price: 89.99,
-    description: 'Ultra-rare Fortnite account featuring OG skins including Renegade Raider and Aerial Assault Trooper. Season 1 battle pass completed.',
-    stock: 1,
-    category: 'Stacked',
-    features: ['Renegade Raider', 'Aerial Assault Trooper', 'Season 1 rewards', 'Full access'],
-    badge: 'Low Stock',
-    popularity: 12,
-    createdAt: now - 40 * DAY,
-  },
-  {
-    id: 'fortnite-stacked',
-    name: 'Fortnite 100+ Skins Account',
-    game: 'fortnite',
-    price: 39.99,
-    description: 'Stacked Fortnite account with 100+ skins, multiple battle passes completed, and rare emotes. Great value per skin.',
-    stock: 7,
-    category: 'Stacked',
-    features: ['100+ skins', 'Multiple battle passes', 'Rare emotes', 'Instant delivery'],
-    popularity: 230,
-    createdAt: now - 65 * DAY,
-  },
-  {
-    id: 'fortnite-stw',
-    name: 'Fortnite Save The World Account',
-    game: 'fortnite',
-    price: 14.99,
-    description: 'Fortnite account with Save The World founder pack access. Earn V-Bucks daily through STW missions.',
-    stock: 22,
-    category: 'FA',
-    features: ['Save The World access', 'Founder pack', 'Daily V-Bucks', 'Instant delivery'],
-    popularity: 410,
-    createdAt: now - 110 * DAY,
-  },
-  {
-    id: 'apex-nfa',
-    name: 'Apex Legends NFA Account',
-    game: 'apex',
-    price: 3.49,
-    description: 'Fresh Apex Legends account ready for ranked grinding. Clean slate with all legends unlockable through play.',
-    stock: 190,
-    category: 'NFA',
-    features: ['Ranked ready', 'Fresh account', 'Instant delivery', 'All platforms'],
-    popularity: 1830,
-    createdAt: now - 200 * DAY,
-  },
-  {
-    id: 'apex-heirloom',
-    name: 'Apex Heirloom Account',
-    game: 'apex',
-    price: 59.99,
-    description: 'Apex Legends account with a rare heirloom melee weapon unlocked. Choose from available heirloom sets — stock rotates weekly.',
-    stock: 4,
-    category: 'Stacked',
-    features: ['Heirloom unlocked', 'Rare badges', 'Multiple legend skins', 'Instant delivery'],
-    badge: 'Low Stock',
-    popularity: 88,
-    createdAt: now - 50 * DAY,
-  },
-  {
-    id: 'apex-pred',
-    name: 'Apex Predator Badge Account',
-    game: 'apex',
-    price: 44.99,
-    description: 'Apex account with Apex Predator ranked badge from a previous split. Show off top-750 placement in every lobby.',
-    stock: 5,
-    category: 'Ranked',
-    features: ['Predator badge', 'Ranked trail rewards', 'Instant delivery'],
-    popularity: 64,
-    createdAt: now - 35 * DAY,
-  },
-  {
-    id: 'r6-nfa',
-    name: 'Rainbow Six Siege NFA',
-    game: 'r6',
-    price: 4.99,
-    description: 'Fresh Rainbow Six Siege account on Ubisoft Connect. All base operators ready to unlock, ranked placement available.',
-    stock: 88,
-    category: 'NFA',
-    features: ['Ubisoft Connect', 'Ranked ready', 'Instant delivery', 'Region free'],
-    popularity: 1240,
-    createdAt: now - 170 * DAY,
-  },
-  {
-    id: 'r6-diamond',
-    name: 'R6 Diamond Ranked Account',
-    game: 'r6',
-    price: 39.99,
-    description: 'Rainbow Six Siege account placed in Diamond with a strong seasonal KD. Skip the grind and play at the top.',
-    stock: 6,
-    category: 'Ranked',
-    features: ['Diamond rank', 'Strong seasonal KD', 'All operators unlocked', 'Instant delivery'],
-    badge: 'Low Stock',
-    popularity: 140,
-    createdAt: now - 60 * DAY,
-  },
-  {
-    id: 'r6-deluxe',
-    name: 'R6 Deluxe Edition Account',
-    game: 'r6',
-    price: 12.99,
-    description: 'Siege Deluxe Edition account with Year 1 and Year 2 operators unlocked from the start. 38 operators ready on day one.',
-    stock: 29,
-    category: 'FA',
-    features: ['Deluxe Edition', '38 operators unlocked', 'Instant delivery'],
-    popularity: 380,
-    createdAt: now - 130 * DAY,
-  },
-  {
-    id: 'valorant-nfa',
-    name: 'Valorant NFA Account',
-    game: 'valorant',
-    price: 2.99,
-    originalPrice: 5.99,
-    description: 'Fresh Riot Games account with Valorant ready to play. Region of your choice available at checkout notes.',
-    stock: 240,
-    category: 'NFA',
-    features: ['Riot Games account', 'Region selectable', 'Instant delivery', 'Ranked ready at level 20'],
-    badge: 'Best Seller',
-    popularity: 3650,
-    createdAt: now - 250 * DAY,
-  },
-  {
-    id: 'valorant-ranked',
-    name: 'Valorant Ranked Ready (Lvl 20+)',
-    game: 'valorant',
-    price: 9.99,
-    description: 'Valorant account already at level 20+ with competitive mode unlocked. Skip the unranked grind entirely.',
-    stock: 45,
-    category: 'Ranked',
-    features: ['Level 20+', 'Competitive unlocked', 'Instant delivery'],
-    popularity: 920,
-    createdAt: now - 150 * DAY,
-  },
-  {
-    id: 'valorant-skins',
-    name: 'Valorant Skins Account',
-    game: 'valorant',
-    price: 54.99,
-    description: 'Valorant account loaded with premium skins including Reaver, Prime, and Glitchpop collections. Inventory value far exceeds price.',
-    stock: 3,
-    category: 'Stacked',
-    features: ['Premium skin collections', 'Multiple battle passes', 'Instant delivery'],
-    badge: 'Low Stock',
-    popularity: 72,
-    createdAt: now - 25 * DAY,
-  },
-  {
-    id: 'tarkov-nfa',
-    name: 'Escape from Tarkov NFA',
-    game: 'tarkov',
-    price: 24.99,
-    description: 'Fresh Escape from Tarkov Standard Edition account. Full game access with instant delivery of login credentials.',
-    stock: 26,
-    category: 'NFA',
-    features: ['Standard Edition', 'Full game access', 'Instant delivery', 'Region free'],
-    popularity: 480,
-    createdAt: now - 120 * DAY,
-  },
-  {
-    id: 'tarkov-eod',
-    name: 'Tarkov Edge of Darkness Account',
-    game: 'tarkov',
-    price: 89.99,
-    description: 'Rare Edge of Darkness limited edition account with the gamma container, expanded stash, and all future DLC included.',
-    stock: 2,
-    category: 'Stacked',
-    features: ['Edge of Darkness edition', 'Gamma container', 'Expanded stash', 'All future DLC'],
-    badge: 'Low Stock',
-    popularity: 55,
-    createdAt: now - 90 * DAY,
-  },
-  {
-    id: 'tarkov-unheard',
-    name: 'Tarkov Unheard Edition Account',
-    game: 'tarkov',
-    price: 119.99,
-    description: 'The Unheard Edition account with offline PvE co-op access, unique gear, and the largest stash available.',
-    stock: 4,
-    category: 'FA',
-    features: ['Unheard Edition', 'PvE co-op access', 'Unique gear set', 'Instant delivery'],
-    badge: 'New',
-    popularity: 30,
-    createdAt: now - 12 * DAY,
-  },
-  {
-    id: 'pubg-nfa',
-    name: 'PUBG Steam NFA Account',
-    game: 'pubg',
-    price: 3.99,
-    description: 'Fresh PUBG: Battlegrounds Steam account. Free-to-play ready with ranked mode accessible after account setup.',
-    stock: 110,
-    category: 'NFA',
-    features: ['PUBG ready', 'Steam account', 'Instant delivery', 'Region free'],
-    popularity: 1420,
-    createdAt: now - 180 * DAY,
-  },
-  {
-    id: 'pubg-survivor',
-    name: 'PUBG Survivor Pass Account',
-    game: 'pubg',
-    price: 13.99,
-    description: 'PUBG account with multiple Survivor Passes completed and exclusive season rewards unlocked.',
-    stock: 18,
-    category: 'Stacked',
-    features: ['Survivor Pass rewards', 'Exclusive skins', 'Instant delivery'],
-    popularity: 260,
-    createdAt: now - 100 * DAY,
-  },
-  {
-    id: 'rl-nfa',
-    name: 'Rocket League NFA Account',
-    game: 'rocketleague',
-    price: 2.99,
-    description: 'Fresh Epic Games account with Rocket League ready. Trade-enabled after account setup — perfect for a fresh trading profile.',
-    stock: 150,
-    category: 'NFA',
-    features: ['Rocket League ready', 'Trade eligible', 'Instant delivery', 'All platforms'],
-    popularity: 1680,
-    createdAt: now - 190 * DAY,
-  },
-  {
-    id: 'rl-gc',
-    name: 'Rocket League Grand Champion Account',
-    game: 'rocketleague',
-    price: 34.99,
-    description: 'Rocket League account with Grand Champion title and season rewards. Rare ranked stock for serious players.',
-    stock: 5,
-    category: 'Ranked',
-    features: ['Grand Champion title', 'Season rewards', 'Instant delivery'],
-    badge: 'Low Stock',
-    popularity: 95,
-    createdAt: now - 70 * DAY,
-  },
-  {
-    id: 'minecraft-fa',
-    name: 'Minecraft Java Full Access',
-    game: 'minecraft',
-    price: 12.99,
-    description: 'Minecraft Java Edition full access account with email change available. Includes Bedrock Edition on the same account.',
-    stock: 42,
-    category: 'FA',
-    features: ['Java + Bedrock', 'Email changeable', 'Full ownership', 'Instant delivery'],
-    badge: 'Best Seller',
-    popularity: 2210,
-    createdAt: now - 220 * DAY,
-  },
-  {
-    id: 'minecraft-cape',
-    name: 'Minecraft Cape Account',
-    game: 'minecraft',
-    price: 44.99,
-    description: 'Minecraft account with a rare Minecon or migration cape. Extremely limited stock — capes cannot be obtained anymore.',
-    stock: 2,
-    category: 'Stacked',
-    features: ['Rare cape', 'Java + Bedrock', 'Full access', 'Instant delivery'],
-    badge: 'Low Stock',
-    popularity: 38,
-    createdAt: now - 50 * DAY,
-  },
-  {
-    id: 'ow2-nfa',
-    name: 'Overwatch 2 NFA Account',
-    game: 'overwatch2',
-    price: 3.49,
-    description: 'Fresh Battle.net account with Overwatch 2 ready. New player experience completed optional — jump straight into quick play.',
-    stock: 135,
-    category: 'NFA',
-    features: ['Battle.net account', 'OW2 ready', 'Instant delivery', 'Region free'],
-    popularity: 1350,
-    createdAt: now - 160 * DAY,
-  },
-  {
-    id: 'ow2-gm',
-    name: 'Overwatch 2 GM Ranked Account',
-    game: 'overwatch2',
-    price: 49.99,
-    description: 'Overwatch 2 account placed in Grandmaster with competitive points banked. Top-tier matchmaking from your first game.',
-    stock: 3,
-    category: 'Ranked',
-    features: ['Grandmaster rank', 'Competitive points', 'Instant delivery'],
-    badge: 'Low Stock',
-    popularity: 42,
-    createdAt: now - 40 * DAY,
-  },
-  {
-    id: 'bf-nfa',
-    name: 'Battlefield 2042 NFA Account',
-    game: 'battlefield',
-    price: 5.99,
-    description: 'Fresh Battlefield 2042 account on Steam or EA App. Full multiplayer and portal access from the start.',
-    stock: 58,
-    category: 'NFA',
-    features: ['BF2042 full game', 'Steam or EA App', 'Instant delivery'],
-    popularity: 720,
-    createdAt: now - 140 * DAY,
-  },
-  {
-    id: 'bf-ultimate',
-    name: 'Battlefield Ultimate Edition Account',
-    game: 'battlefield',
-    price: 21.99,
-    description: 'Battlefield 2042 Ultimate Edition with Year 1 pass content, four specialists, and exclusive weapon skins.',
-    stock: 14,
-    category: 'FA',
-    features: ['Ultimate Edition', 'Year 1 pass content', 'Exclusive skins', 'Instant delivery'],
-    popularity: 190,
-    createdAt: now - 85 * DAY,
-  },
-  {
-    id: 'dayz-nfa',
-    name: 'DayZ Steam NFA Account',
-    game: 'dayz',
-    price: 9.99,
-    description: 'Fresh DayZ Steam account with the full game. Survive Chernarus on a clean account with zero ban history.',
-    stock: 36,
-    category: 'NFA',
-    features: ['Full DayZ license', 'Clean history', 'Instant delivery', 'Region free'],
-    popularity: 640,
-    createdAt: now - 130 * DAY,
-  },
-  {
-    id: 'dayz-livonia',
-    name: 'DayZ + Livonia DLC Account',
-    game: 'dayz',
-    price: 14.99,
-    description: 'DayZ account bundled with the Livonia DLC map. Two full survival maps on one fresh account.',
-    stock: 19,
-    category: 'Stacked',
-    features: ['DayZ base game', 'Livonia DLC', 'Instant delivery'],
-    popularity: 210,
-    createdAt: now - 95 * DAY,
+    id: 'arma-reforger',
+    name: 'Arma Reforger',
+    short: 'ARMA',
+    genre: 'Military Sim',
+    description:
+      'Arma Reforger accounts with the full licence, ready for official and community servers.',
+    color: '#5a7a5f',
+    colorSoft: 'rgba(90,122,95,0.24)',
+    features: ['Full Arma Reforger licence', 'Instant delivery', 'Region free'],
+    variants: [['Arma Reforger', 0.81]],
   },
 ];
 
-const KEYWORDS: [RegExp, string][] = [
-  [/instant/i, 'instant delivery'],
-  [/rank|diamond|global elite|grandmaster|predator|champion/i, 'ranked'],
-  [/skin|cape|heirloom|camo|cosmetic/i, 'cosmetics'],
-  [/region free/i, 'region free'],
-  [/email/i, 'email included'],
-  [/hours/i, 'high hours'],
-  [/dlc|edition|pass|bundle|pack/i, 'bundle'],
+/* ---------------------------------------------------------------- grouping */
+
+const GROUP_RULES: [RegExp, VariantGroup][] = [
+  [/inventory/i, 'Inventory'],
+  [/inactive/i, 'Inactive'],
+  [/medal|rating|last season|premier|knife|glove/i, 'Rank'],
+  [/premium|prime/i, 'Premium'],
+  [/hours?/i, 'Hours'],
 ];
 
-const popularIds = new Set(
-  [...catalog].sort((a, b) => b.popularity - a.popularity).slice(0, 12).map((p) => p.id),
-);
+export const GROUP_ORDER: VariantGroup[] = [
+  'Standard',
+  'Hours',
+  'Premium',
+  'Rank',
+  'Inactive',
+  'Inventory',
+];
 
-const gameNames = new Map(games.map((g) => [g.id, g.name]));
+function groupOf(name: string): VariantGroup {
+  for (const [re, group] of GROUP_RULES) if (re.test(name)) return group;
+  return 'Standard';
+}
 
-function enrich(entry: CatalogEntry): Product {
-  const gameName = gameNames.get(entry.game) ?? entry.game;
-  const haystack = `${entry.name} ${entry.description} ${entry.features.join(' ')}`;
-  const tags = new Set<string>([entry.category.toLowerCase(), gameName.toLowerCase()]);
-  for (const [re, tag] of KEYWORDS) if (re.test(haystack)) tags.add(tag);
-  if (entry.price < 6) tags.add('budget');
-  if (entry.price >= 40) tags.add('premium');
-  if (entry.stock <= 10) tags.add('rare');
+/**
+ * Rank used to order hour brackets logically (0–250 before 250–500 before
+ * 7000+) rather than alphabetically. Reads the last number written before the
+ * word "hours" so "Inactive 5 Days, 500+ Hours" resolves to 500, not 5.
+ */
+function hourRank(name: string): number {
+  const match = /^(.*?)hours?/i.exec(name);
+  if (!match) return -1;
+  const numbers = match[1].match(/\d[\d,]*/g);
+  if (!numbers) return -1;
+  return Number(numbers[numbers.length - 1].replace(/,/g, ''));
+}
 
+/* ------------------------------------------------------------------- stock */
+
+/**
+ * Placeholder inventory for UI development only — not live stock. Values are
+ * derived from the variant id so they stay stable across reloads, and roughly
+ * one in fourteen lands at zero so the sold-out states are reachable.
+ * Replace `demoStock` with a real inventory lookup to go live.
+ */
+export const STOCK_SOURCE: 'demo' | 'live' = 'demo';
+
+function demoStock(id: string): number {
+  let hash = 2166136261;
+  for (let i = 0; i < id.length; i++) {
+    hash ^= id.charCodeAt(i);
+    hash = Math.imul(hash, 16777619);
+  }
+  const n = Math.abs(hash);
+  if (n % 14 === 0) return 0;
+  return (n % 180) + 1;
+}
+
+/* ------------------------------------------------------------------- build */
+
+const slugify = (value: string) =>
+  value
+    .toLowerCase()
+    .replace(/\+/g, '-plus')
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '');
+
+function buildVariants(game: AuthoredGame): Variant[] {
+  return game.variants
+    .map(([name, price]) => {
+      const id = `${game.id}-${slugify(name)}`;
+      const stock = demoStock(id);
+      return { id, name, price, stock, available: stock > 0, group: groupOf(name) };
+    })
+    .sort((a, b) => {
+      const groupDelta = GROUP_ORDER.indexOf(a.group) - GROUP_ORDER.indexOf(b.group);
+      if (groupDelta !== 0) return groupDelta;
+      const hourDelta = hourRank(a.name) - hourRank(b.name);
+      if (hourDelta !== 0) return hourDelta;
+      return a.price - b.price;
+    });
+}
+
+function build(game: AuthoredGame): GameProduct {
+  const variants = buildVariants(game);
+  const stock = variants.reduce((sum, v) => sum + v.stock, 0);
   return {
-    ...entry,
-    tags: [...tags],
-    featured: entry.badge === 'Best Seller' || entry.badge === 'Low Stock',
-    new: entry.badge === 'New' || now - entry.createdAt < 45 * DAY,
-    popular: popularIds.has(entry.id),
+    ...game,
+    slug: game.id,
+    variants,
+    price: Math.min(...variants.map((v) => v.price)),
+    stock,
+    variantCount: variants.length,
+    available: stock > 0,
   };
 }
 
-export const products: Product[] = catalog.map(enrich);
+export const products: GameProduct[] = authored.map(build);
 
-export const getProduct = (id: string) => products.find((p) => p.id === id);
-export const productsByGame = (gameId: string) => products.filter((p) => p.game === gameId);
-export const featuredProducts = products.filter((p) => p.featured).slice(0, 10);
-export const popularProducts = [...products].sort((a, b) => b.popularity - a.popularity).slice(0, 8);
-export const newProducts = [...products].sort((a, b) => b.createdAt - a.createdAt).slice(0, 8);
+/* ----------------------------------------------------------------- helpers */
+
+export const getProduct = (slug: string) => products.find((p) => p.slug === slug);
+
+export const getVariant = (product: GameProduct, variantId: string | null | undefined) =>
+  product.variants.find((v) => v.id === variantId);
+
+/** First in-stock variant, falling back to the cheapest when all are sold out. */
+export const defaultVariant = (product: GameProduct): Variant =>
+  product.variants.find((v) => v.available) ?? product.variants[0];
+
+/** Resolves a variant id from a URL or cart entry, never returning undefined. */
+export const resolveVariant = (product: GameProduct, variantId: string | null | undefined) =>
+  getVariant(product, variantId) ?? defaultVariant(product);
+
+export const findVariant = (variantId: string) => {
+  for (const product of products) {
+    const variant = getVariant(product, variantId);
+    if (variant) return { product, variant };
+  }
+  return undefined;
+};
+
+/** Variants of a product bucketed by group, in display order, empties dropped. */
+export function variantGroups(product: GameProduct) {
+  return GROUP_ORDER.map((group) => ({
+    group,
+    variants: product.variants.filter((v) => v.group === group),
+  })).filter((entry) => entry.variants.length > 0);
+}
+
+export const totalVariants = products.reduce((sum, p) => sum + p.variantCount, 0);
+export const totalStock = products.reduce((sum, p) => sum + p.stock, 0);
+
+/** Variants whose own name matches the query — used to explain a game result. */
+export function matchingVariants(product: GameProduct, query: string) {
+  const q = query.trim().toLowerCase();
+  if (!q) return [];
+  return product.variants.filter((v) => v.name.toLowerCase().includes(q));
+}
 
 /** Shared matcher so global search, page search and filters stay consistent. */
-export function matchesQuery(product: Product, query: string) {
+export function matchesQuery(product: GameProduct, query: string) {
   const q = query.trim().toLowerCase();
   if (!q) return true;
-  const gameName = gameNames.get(product.game) ?? '';
   return (
     product.name.toLowerCase().includes(q) ||
-    gameName.toLowerCase().includes(q) ||
-    product.category.toLowerCase().includes(q) ||
+    product.short.toLowerCase().includes(q) ||
+    product.genre.toLowerCase().includes(q) ||
     product.description.toLowerCase().includes(q) ||
-    product.tags.some((t) => t.includes(q))
+    product.variants.some((v) => v.name.toLowerCase().includes(q))
   );
 }
